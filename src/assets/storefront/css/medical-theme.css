@@ -1,0 +1,94 @@
+/* ================================
+   MEDICAL SUPPLIES THEME
+================================ */
+
+/* Bootstrap variable overrides */
+:root {
+  --bs-primary: #0d6efd;     /* Medical blue */
+  --bs-secondary: #20c997;   /* Mint / teal */
+  --bs-success: #198754;     /* Health green */
+  --bs-info: #0dcaf0;
+  --bs-warning: #ffc107;
+  --bs-danger: #dc3545;
+  --bs-light: #f8f9fa;
+  --bs-dark: #2d2f31;
+}
+
+
+
+/* Navbar */
+.navbar-brand h1,
+.text-primary {
+  color: var(--bs-primary) !important;
+}
+
+.bg-primary {
+  background-color: var(--bs-primary) !important;
+}
+
+.bg-secondary {
+  background-color: var(--bs-secondary) !important;
+}
+
+/* Buttons */
+.btn-primary {
+  background-color: var(--bs-primary);
+  border-color: var(--bs-primary);
+}
+
+.btn-primary:hover {
+  background-color: #0b5ed7;
+  border-color: #0b5ed7;
+}
+.btn-secondary {
+  background-color: var(--bs-secondary);
+  border-color: var(--bs-secondary);
+}
+
+.btn-secondary:hover {
+  background-color: #0b5ed7;
+  border-color: whitesmoke;
+}
+
+.btn-outline-secondary {
+  color: var(--bs-secondary);
+  border-color: var(--bs-secondary);
+}
+
+.btn-outline-secondary:hover {
+  background-color: var(--bs-secondary);
+  color: #fff;
+}
+.border-secondary {
+  border-color: var(--bs-secondary) !important;
+}
+.border-2 {
+    border-width: 2px !important;
+}
+
+/* Icons */
+.text-secondary {
+  color: var(--bs-secondary) !important;
+}
+
+/* Feature icons */
+.featurs-icon {
+  background-color: var(--bs-primary) !important;
+}
+
+/* Badges / labels */
+.badge,
+.text-white.bg-secondary {
+  background-color: var(--bs-secondary);
+}
+
+/* Cards & sections */
+.bg-light {
+  background-color: #f9fbfd !important;
+}
+
+/* Footer */
+.footer,
+.bg-dark {
+  background-color: #1c2b36;
+}

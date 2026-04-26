@@ -1,0 +1,93 @@
+<div class="card">
+    <div class="card-body">
+    <h4 class="card-title">Review Moderation</h4>
+        <!-- BULK ACTIONS -->
+        <div class="mb-3">
+            <button
+                class="btn btn-success btn-sm me-2"
+                (click)="bulkApprove()"
+                [disabled]="selectedReviews.length === 0">
+                Approve Selected
+            </button>
+            <button
+                class="btn btn-danger btn-sm"
+                (click)="bulkReject()"
+                [disabled]="selectedReviews.length === 0">
+                Reject Selected
+            </button>
+        </div>
+        <!-- LOADING -->
+        <div *ngIf="loading" class="text-center py-4">
+            <div class="spinner-border text-primary"></div>
+        </div>
+        <!-- TABLE -->
+        <div class="table-responsive" *ngIf="!loading">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th width="40">
+                            <input
+                            type="checkbox"
+                            (change)="toggleSelectAll($event)">
+                        </th>
+                        <th>Product</th>
+                        <th>Customer</th>
+                        <th>Rating</th>
+                        <th>Comment</th>
+                        <th>Images</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let review of reviews">
+                        <td>
+                            <input
+                                type="checkbox"
+                                [checked]="isSelected(review.id)"
+                                (change)="toggleReview(review.id, $event)">
+                        </td>
+                        <td>
+                            {{ review.product.name }}
+                        </td>
+                        <td>
+                            {{ review.user.customer?.firstName }}
+                            {{ review.user.customer?.lastName }}
+                        </td>
+                        <td>
+                            ⭐ {{ review.rating }}
+                        </td>
+                        <td>
+                            {{ review.comment || 'No comment' }}
+                        </td>
+                        <td>
+                            <img
+                                *ngFor="let img of review.images"
+                                [src]="img.url"
+                                width="40"
+                                class="me-1 rounded"
+                            />
+                        </td>
+                        <td>
+                            <button
+                                class="btn btn-success btn-sm me-2"
+                                (click)="approveReview(review.id)">
+                                Approve
+                            </button>
+                            <button
+                                class="btn btn-danger btn-sm"
+                                (click)="rejectReview(review.id)">
+                                Reject
+                            </button>
+                        </td>
+                    </tr>
+                    <!-- EMPTY STATE -->
+                    <tr *ngIf="reviews.length === 0">
+                        <td colspan="7" class="text-center text-muted py-4">
+                            No pending reviews
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

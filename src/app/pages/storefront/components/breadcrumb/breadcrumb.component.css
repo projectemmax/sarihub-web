@@ -1,0 +1,7 @@
+.breadcrumb a:hover {
+    transition: 0s;
+    color: var(--bs-secondary);
+}
+.breadcrumb span {
+    color: whitesmoke;
+}

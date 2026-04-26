@@ -1,0 +1,14 @@
+.account-card {
+  transition: all 0.2s ease;
+}
+
+.account-card:hover {
+  background: #f8f9fa;
+  transform: translateY(-2px);
+}
+
+@media (min-width: 992px) {
+    .account-page {
+        margin-top: 152px !important;
+    }
+}

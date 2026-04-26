@@ -1,0 +1,55 @@
+<div class="row g-4 mb-4">
+
+    <!-- Total Orders -->
+    <div class="col-md-3">
+        <a
+            routerLink="/storefront/account/orders"
+            [queryParams]="{ tab: 'ALL' }"
+            class="text-decoration-none">
+            <div class="card text-center p-3">
+                <h6 class="text-muted">Total Orders</h6>
+                <h3 class="fw-bold">{{ stats?.total || 0 }}</h3>
+            </div>
+        </a>
+    </div>
+
+    <!-- To Ship -->
+    <div class="col-md-3">
+        <a
+            routerLink="/storefront/account/orders"
+            [queryParams]="{ tab: 'PLACED' }"
+            class="text-decoration-none">
+            <div class="card text-center p-3">
+                <h6 class="text-muted">To Ship</h6>
+                <h3 class="fw-bold text-warning">{{ stats?.toShip || 0 }}</h3>
+            </div>
+        </a>
+    </div>
+
+    <!-- Shipped -->
+    <div class="col-md-3">
+        <a
+            routerLink="/storefront/account/orders"
+            [queryParams]="{ tab: 'SHIPPED' }"
+            class="text-decoration-none">
+            <div class="card text-center p-3">
+                <h6 class="text-muted">Shipped</h6>
+                <h3 class="fw-bold text-primary">{{ stats?.shipped || 0 }}</h3>
+            </div>
+        </a>
+    </div>
+
+    <!-- Delivered -->
+    <div class="col-md-3">
+        <a
+            routerLink="/storefront/account/orders"
+            [queryParams]="{ tab: 'DELIVERED' }"
+            class="text-decoration-none">
+            <div class="card text-center p-3">
+                <h6 class="text-muted">Delivered</h6>
+                <h3 class="fw-bold text-success">{{ stats?.delivered || 0 }}</h3>
+            </div>
+        </a>
+    </div>
+
+</div>

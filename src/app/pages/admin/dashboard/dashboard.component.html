@@ -1,0 +1,223 @@
+<!-- ========================= -->
+<!-- LOADING STATE -->
+<!-- ========================= -->
+<div *ngIf="isLoading" class="text-center p-5">
+  <div class="spinner-border text-primary"></div>
+  <p class="mt-2">Loading dashboard...</p>
+</div>
+
+<!-- ========================= -->
+<!-- ERROR STATE -->
+<!-- ========================= -->
+<div *ngIf="errorMessage" class="alert alert-danger">
+  {{ errorMessage }}
+</div>
+
+<!-- ========================= -->
+<!-- MAIN DASHBOARD -->
+<!-- ========================= -->
+<div *ngIf="!isLoading && !errorMessage">
+
+  <!-- ========================= -->
+  <!-- STATS -->
+  <!-- ========================= -->
+  <div class="row mb-4">
+
+    <div class="col-md-3" *ngFor="let card of [
+      { title: 'Total Sales', value: stats?.sales, class: 'text-primary', prefix: '₱' },
+      { title: 'Orders', value: stats?.orders, class: 'text-success' },
+      { title: 'Customers', value: stats?.customers, class: 'text-info' },
+      { title: 'Pending Reviews', value: stats?.pendingReviews, class: 'text-danger' }
+    ]">
+
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h6 class="text-muted mb-1">{{ card.title }}</h6>
+          <h4 [ngClass]="card.class">
+            {{ card.prefix || '' }} {{ card.value | number }}
+          </h4>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ========================= -->
+  <!-- ANALYTICS + TOP PRODUCTS -->
+  <!-- ========================= -->
+  <div class="row">
+
+    <!-- ========================= -->
+    <!-- SALES ANALYTICS -->
+    <!-- ========================= -->
+    <div class="col-md-8">
+      <div class="card shadow-sm">
+        <div class="card-body">
+
+          <!-- HEADER -->
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <h5 class="mb-0">Sales Analytics</h5>
+              <small class="text-muted">Revenue & order trends</small>
+            </div>
+
+            <!-- FILTER -->
+            <app-filters (change)="facade.setRange($event)"></app-filters>
+          </div>
+
+          <!-- DATA -->
+          <ng-container *ngIf="facade.analytics() as data">
+
+            <!-- KPI -->
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+
+              <div>
+                <small class="text-muted">Total Revenue</small>
+                <h5 class="mb-0">
+                  ₱ {{ data.totalRevenue | number:'1.2-2' }}
+                </h5>
+              </div>
+
+              <div>
+                <small class="text-muted">Total Orders</small>
+                <h5 class="mb-0">
+                  {{ data.totalOrders }}
+                </h5>
+              </div>
+
+              <div>
+                <small class="text-muted">Growth</small>
+                <h5
+                  class="mb-0"
+                  [ngClass]="{
+                    'text-success': data.growth >= 0,
+                    'text-danger': data.growth < 0
+                  }"
+                >
+                  {{ data.growth }}%
+                </h5>
+              </div>
+
+            </div>
+
+            <!-- CHART -->
+            <div style="height: 300px;">
+                <app-analytics-chart [data]="data"></app-analytics-chart>
+            </div>
+
+            <!-- EMPTY -->
+            <!-- <div *ngIf="!data.timeline?.length" class="text-center text-muted py-4">
+              No analytics data available
+            </div> -->
+
+          </ng-container>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================= -->
+    <!-- TOP PRODUCTS -->
+    <!-- ========================= -->
+    <div class="col-md-4">
+      <div class="card shadow-sm">
+        <div class="card-body">
+
+          <h5 class="mb-3">Top Products</h5>
+
+          <div *ngIf="topProducts?.length; else noProducts">
+            <div *ngFor="let p of topProducts" class="mb-3">
+
+              <div class="d-flex justify-content-between">
+                <span>{{ p.name }}</span>
+                <span>{{ p.sold }}</span>
+              </div>
+
+              <div class="progress mt-1" style="height:6px;">
+                <div
+                  class="progress-bar bg-primary"
+                  [style.width.%]="p.sold">
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <ng-template #noProducts>
+            <p class="text-muted">No top products yet</p>
+          </ng-template>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ========================= -->
+  <!-- PENDING REVIEWS -->
+  <!-- ========================= -->
+  <div class="row mt-4">
+
+    <div class="col-md-12">
+      <div class="card shadow-sm">
+        <div class="card-body">
+
+          <h5 class="mb-3">Pending Reviews</h5>
+
+          <div *ngIf="reviews?.length; else noReviews" class="table-responsive">
+            <table class="table table-hover">
+
+              <thead>
+                <tr>
+                  <th>Images</th>
+                  <th>Product</th>
+                  <th>Customer</th>
+                  <th>Rating</th>
+                  <th>Comment</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr *ngFor="let review of reviews">
+
+                  <td>
+                    <img
+                      *ngFor="let img of review.images"
+                      [src]="img.url"
+                      width="40"
+                      class="me-1 rounded"
+                    />
+                  </td>
+
+                  <td>{{ review.product.name }}</td>
+
+                  <td>
+                    {{ review.user.customer?.firstName }}
+                    {{ review.user.customer?.lastName }}
+                  </td>
+
+                  <td>⭐ {{ review.rating }}</td>
+
+                  <td>{{ review.comment || 'No comment' }}</td>
+
+                  <td>{{ review.createdAt | date:'shortDate' }}</td>
+
+                </tr>
+              </tbody>
+
+            </table>
+          </div>
+
+          <ng-template #noReviews>
+            <p class="text-muted">No pending reviews</p>
+          </ng-template>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>

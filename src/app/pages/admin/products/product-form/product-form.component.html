@@ -1,0 +1,424 @@
+<div class="row">
+    <div class="col-12">
+        <form [formGroup]="form">
+            <!-- ✅ Dynamic Form Sections -->
+            <div *ngFor="let section of formSections" class="card mb-3">
+                <div class="card-body">
+                    <h4 class="card-title">{{ section.section }}</h4>
+
+                    <div *ngFor="let field of section.fields" class="mb-3">
+                        <div class="form-group">
+                            <label>{{ field.label }}</label>
+                            <input *ngIf="field.type === 'text'"
+                                class="form-control"
+                                [formControlName]="field.key" 
+                                [class.unsaved]="isFieldChanged(field.key)"/>
+                            <input *ngIf="field.type === 'number'"
+                                type="number"
+                                class="form-control"
+                                [formControlName]="field.key" 
+                                [class.unsaved]="isFieldChanged(field.key)"/>
+                            <textarea *ngIf="field.type === 'textarea'"
+                                class="form-control"
+                                [formControlName]="field.key"
+                                [class.unsaved]="isFieldChanged(field.key)">
+                            </textarea>
+
+                            <select *ngIf="field.type === 'select'"
+                                    class="form-control form-control-lg"
+                                    [formControlName]="field.key"
+                                    [class.unsaved]="isFieldChanged(field.key)">
+
+                                <option value="">Select Category</option>
+
+                                <option *ngFor="let c of categories" [ngValue]="c.id">
+                                    {{ c.name }}
+                                </option>
+
+                            </select>
+
+                        </div>
+                        <div *ngIf="field.key === 'categoryId'" class="form-check form-check-flat">
+                            <input
+                                type="checkbox"
+                                class="form-check-input"
+                                formControlName="hasVariants"
+                                id="hasVariants"
+                            /> 
+                            <label class="form-check-label" for="hasVariants">
+                                This product has variants
+                            </label>
+                            
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Visibility & Merchandising</h5>
+
+                    <div class="row">
+                        <div class="col-md-6 form-group">
+                            <div 
+                                class="form-check form-switch merchandising-switch"
+                                [class.field-changed]="isFieldChanged('isFeatured')">
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    id="isFeatured"
+                                    formControlName="isFeatured"
+                                />
+                                <label class="form-check-label" for="isFeatured">
+                                    <div class="fw-semibold">Featured Product</div>
+                                    <small class="text-muted">
+                                    Show this product in the homepage featured section
+                                    </small>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div 
+                                class="form-check form-switch merchandising-switch"
+                                [class.field-changed]="isFieldChanged('isBestSeller')">
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    id="isBestSeller"
+                                    formControlName="isBestSeller"
+                                />
+                                <label class="form-check-label" for="isBestSeller">
+                                    <div class="fw-semibold">Best Seller</div>
+                                    <small class="text-muted">
+                                        Mark this product as a top-selling item
+                                    </small>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </form>
+    </div>
+    <!-- <div class="col-12 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12">
+     
+                            
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> -->
+
+    <div *ngIf="form.get('hasVariants')?.enabled && form.get('hasVariants')?.value" 
+        class="col-12 mb-3">
+        <div  class="card">
+            <div class="card-body">
+                <h4 class="card-title">Variant Options</h4>
+
+                <div *ngFor="let opt of variantOptions; let i = index" class="mb-3 border p-2">
+
+                    <!-- OPTION NAME -->
+                    <input  [(ngModel)]="opt.name"
+                            [ngModelOptions]="{ standalone: true }"
+                            [readonly]="opt.locked"
+                            placeholder="Option name (e.g. Color)"
+                            class="form-control mb-2"
+                            (input)="onOptionChange()"
+                            [class.unsaved]="isOptionFieldChanged(i)">
+
+                    <!-- VALUES -->
+                    <div 
+                        *ngFor="let val of opt.values; let j = index; trackBy: trackByIndex"
+                        class="d-flex align-items-center gap-2 mb-2">
+
+                        <input [(ngModel)]="opt.values[j]"
+                            [ngModelOptions]="{ standalone: true }"
+                            name="value-{{i}}-{{j}}"
+                            class="form-control me-2"
+                            placeholder="Value (e.g. Red)"
+                            (input)="onOptionChange()"
+                            [class.unsaved]="isOptionFieldChanged(i, j)">
+
+                        <button class="btn btn-danger"
+                            (click)="removeValue(i, j)">✕</button>
+                    </div>
+
+                    <button 
+                        class="btn btn-sm btn-outline-primary me-2"
+                        (click)="addValue(i)">
+                        + Add Value
+                    </button>
+
+                    <button class="btn btn-sm btn-outline-danger"
+                        [disabled]="opt.locked"
+                        (click)="removeOption(i)">
+                        Remove Option
+                    </button>
+
+                </div>
+
+                <button class="btn btn-primary" (click)="addOption()">
+                + Add Option
+                </button>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 mb-3">
+        <!-- VARIANT TABLE (PUT IT HERE) -->
+        <div class="card">
+            <div class="card-body">
+
+                <!-- 🔹 Header -->
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="card-title mb-0">Product Variants</h4>
+
+                    <div class="text-muted small">
+                        {{ variants.length }} variants
+                    </div>
+                </div>
+
+                <!-- 🔹 Bulk Actions -->
+                <div class="d-flex gap-2 mb-3">
+                <input type="number"
+                        placeholder="Bulk Price"
+                        #bulkPrice
+                        class="form-control form-control-sm w-25" />
+
+                <button class="btn btn-sm btn-primary"
+                        (click)="applyBulkPrice(bulkPrice.value)">
+                    Apply
+                </button>
+
+                <input type="number"
+                        placeholder="Bulk Stock"
+                        #bulkStock
+                        class="form-control form-control-sm w-25" />
+
+                <button class="btn btn-sm btn-secondary"
+                        [disabled]="!bulkStock.value"
+                        (click)="applyBulkStock(+bulkStock.value)">
+                    Apply
+                </button>
+                </div>
+
+                <!-- 🔹 Table Wrapper (for scroll) -->
+                <div class="variant-table-wrapper">
+
+                <table class="table table-bordered table-sm align-middle mb-0">
+
+                    <!-- Header -->
+                    <thead class="table-light sticky-top">
+                    <tr>
+                        <th *ngFor="let opt of variantOptions">
+                        {{ opt.name }}
+                        </th>
+                        <th>Image</th>
+                        <th>Price</th>
+                        <th>Stock</th>
+                        <th>SKU</th>
+                    </tr>
+                    </thead>
+
+                    <!-- Body -->
+                    <tbody>
+                    <tr *ngFor="let v of variants; let i = index">
+
+                        <!-- ✅ FIXED: Attribute Mapping -->
+                        <td *ngFor="let opt of variantOptions; let idx = index">
+                            {{ v.attributes[idx] }}
+                        </td>
+                        <td>
+                            <div class="d-flex flex-column align-items-center">
+
+                                <!-- Preview -->
+                                <img *ngIf="v.image"
+                                    [src]="getImageUrl(v.image)"
+                                    style="width:50px;height:50px;object-fit:cover;border-radius:6px;border:1px solid #ddd;" />
+
+                                <!-- Placeholder -->
+                                <div *ngIf="!v.image"
+                                    style="width:50px;height:50px;border:1px dashed #ccc;font-size:10px;
+                                            display:flex;align-items:center;justify-content:center;">
+                                No Image
+                                </div>
+
+                                <!-- Hidden Input -->
+                                <input type="file"
+                                    hidden
+                                    #fileInput
+                                    (change)="onVariantImageUpload($event, i)" />
+
+                                <!-- Upload Button -->
+                                <button class="btn btn-sm btn-outline-primary mt-1"
+                                    [disabled]="loadingIndex === i"
+                                    (click)="fileInput.click()">
+                                {{ loadingIndex === i ? 'Uploading...' : 'Upload' }}
+                                </button>
+
+                                <!-- Remove -->
+                                <button *ngIf="v.image"
+                                        class="btn btn-sm btn-outline-danger mt-1"
+                                        (click)="removeVariantImage(i)">
+                                Remove
+                                </button>
+
+                            </div>
+                        </td>
+                        <!-- Price -->
+                        <td>
+                        <input [(ngModel)]="v.price"
+                                [ngModelOptions]="{ standalone: true }"
+                                name="price-{{i}}"
+                                type="number"
+                                class="form-control form-control-sm"
+                                [class.unsaved]="isVariantFieldChanged(i, 'price')">
+                        </td>
+
+                        <!-- Stock -->
+                        <td>
+                        <input [(ngModel)]="v.stock"
+                                [ngModelOptions]="{ standalone: true }"
+                                name="stock-{{i}}"
+                                type="number"
+                                class="form-control form-control-sm"
+                                [class.border-danger]="v.stock < 5">
+                        </td>
+
+                        <!-- SKU -->
+                        <td>
+                        <input [(ngModel)]="v.sku"
+                                [ngModelOptions]="{ standalone: true }"
+                                name="sku-{{i}}"
+                                type="text"
+                                class="form-control form-control-sm">
+                        </td>
+
+                    </tr>
+                    </tbody>
+
+                </table>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <!-- 🖼 IMAGE UPLOAD -->
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title">Product Images</h4>
+            </div>
+            <div class="card-body">
+                <!-- Dropzone -->
+                <ngx-dropzone (change)="onSelect($event)">
+                    <ngx-dropzone-label>
+                        Drag & drop or click to upload
+                    </ngx-dropzone-label>
+                </ngx-dropzone>
+
+                <!-- Preview Grid -->
+                <div class="row mt-3">
+                    <div class="col-md-3 mb-3" *ngFor="let img of images; let i = index">
+
+                        <div class="card position-relative">
+
+                        <!-- Thumbnail badge -->
+                        <span *ngIf="img.isPrimary"
+                                class="badge bg-primary position-absolute top-0 start-0 m-1">
+                            Thumbnail
+                        </span>
+
+                        <img [src]="img.preview"
+                            class="card-img-top"
+                            style="height: 150px; object-fit: cover;" />
+
+                        <div class="card-body p-2 text-center">
+
+                            <button class="btn btn-sm btn-outline-primary me-1"
+                                    (click)="setPrimary(i)">
+                            Set Main
+                            </button>
+
+                            <button class="btn btn-sm btn-outline-danger me-1"
+                                    (click)="removeImage(i)">
+                            Remove
+                            </button>
+
+                            <div class="mt-2">
+                            <button class="btn btn-sm btn-light me-1"
+                                    (click)="moveImage(i, 'left')">←</button>
+
+                            <button class="btn btn-sm btn-light"
+                                    (click)="moveImage(i, 'right')">→</button>
+                            </div>
+
+                        </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <div class="text-end mt-4">
+            <!-- Publish -->
+            <button class="btn btn-success me-2"
+                [disabled]="isSubmitting"
+                (click)="submit('publish', 'list')">
+
+                <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1"></span>
+
+                Save & Publish
+            </button>
+
+            <!-- Draft -->
+            <button class="btn btn-secondary me-2"
+                [disabled]="isSubmitting"
+                (click)="submit('draft', 'list')">
+
+                <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1"></span>
+
+                Save as Draft
+            </button>
+
+            <!-- Save & Add Another -->
+            <button *ngIf="!isEditMode" 
+                class="btn btn-outline-primary"
+                [disabled]="isSubmitting"
+                (click)="submit('publish', 'new')">
+
+                <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1"></span>
+
+                Save & Add Another
+            </button>
+        </div>
+    </div>
+
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+

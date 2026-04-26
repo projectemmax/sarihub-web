@@ -1,0 +1,87 @@
+<div class="container py-5 generic-page">
+
+  <h3 class="mb-4">My Orders</h3>
+
+  <div *ngIf="isLoading" class="text-center py-5">
+    <i class="fa fa-spinner fa-spin"></i> Loading...
+  </div>
+
+  <div *ngIf="!isLoading && orders.length === 0"
+       class="text-center py-5">
+    <h5>No orders yet</h5>
+  </div>
+
+  <div *ngFor="let order of orders"
+       class="card shadow-sm mb-4">
+
+    <div class="card-header d-flex justify-content-between">
+      <div>
+        <strong>Order ID:</strong> {{ order.id }}
+      </div>
+
+      <span
+        class="badge"
+        [ngClass]="{
+          'bg-warning': order.status === 'PLACED',
+          'bg-info': order.status === 'PROCESSING',
+          'bg-primary': order.status === 'SHIPPED',
+          'bg-success': order.status === 'DELIVERED',
+          'bg-danger': order.status === 'CANCELLED'
+        }">
+        {{ order.status }}
+      </span>
+    </div>
+
+    <div class="card-body">
+
+      <div *ngFor="let item of order.items"
+           class="row align-items-center mb-3">
+
+        <div class="col-2">
+          <img [src]="item.productImage"
+               class="img-fluid rounded"
+               style="height:60px;">
+        </div>
+
+        <div class="col-6">
+          {{ item.productName }}
+        </div>
+
+        <div class="col-2">
+          Qty: {{ item.quantity }}
+        </div>
+
+        <div class="col-2 text-end">
+          ₱ {{ item.subtotal }}
+        </div>
+
+      </div>
+
+      <hr>
+
+      <div class="text-end fw-bold">
+        Total: ₱ {{ order.totalAmount }}
+      </div>
+
+      <div class="text-end mt-2">
+        <a [routerLink]="['/orders', order.id]"
+           class="btn btn-sm btn-outline-primary">
+          View Details
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Pagination -->
+    <div *ngIf="meta && meta.totalPages > 1" class="mt-4 d-flex justify-content-center">
+
+        <app-pagination
+            [currentPage]="meta.page"
+            [totalPages]="meta.totalPages"
+            (pageChange)="onPageChange($event)">
+        </app-pagination>
+
+    </div>
+
+</div>

@@ -1,0 +1,226 @@
+<div class="row">
+
+  <!-- ================= SALES LIST ================= -->
+  <div [ngClass]="isSalePanelVisible ? 'col-8' : 'col-12'">
+    <div class="card">
+
+      <div class="card-header">
+        <h5 class="mb-0">Sales</h5>
+      </div>
+
+      <div class="card-body">
+        <!-- ================= SUMMARY ================= -->
+        <ng-container *ngIf="summary$ | async as summary">
+            <app-summary-cards
+                [total]="summary.totalCount"
+                [completed]="summary.completedCount"
+                [canceled]="summary.canceledCount"
+                [revenue]="summary.totalRevenue"
+                [discount]="summary.totalDiscount">
+            </app-summary-cards>
+        </ng-container>
+
+        <div class="mb-3 my-3 d-flex gap-2 align-items-center">
+            <input
+                type="number"
+                class="form-control"
+                style="max-width: 220px"
+                placeholder="Customer ID"
+                [(ngModel)]="searchCustomerId">
+            <button
+                class="btn btn-primary btn-sm"
+                (click)="onCustomerSearch(searchCustomerId)">
+                Search
+            </button>
+            <button
+                class="btn btn-outline-secondary btn-sm"
+                *ngIf="searchCustomerId"
+                (click)="clearCustomerSearch()">
+                Clear
+            </button>
+        </div>
+
+
+        <!-- Filter -->
+        <div class="mb-3 d-flex gap-2">
+            <button
+                class="btn btn-sm"
+                [class.btn-primary]="statusFilter === 'all'"
+                [class.btn-outline-primary]="statusFilter !== 'all'"
+                (click)="onStatusFilterChange('all')">
+                All
+            </button>
+
+            <button
+                class="btn btn-sm"
+                [class.btn-primary]="statusFilter === 'active'"
+                [class.btn-outline-primary]="statusFilter !== 'active'"
+                (click)="onStatusFilterChange('active')">
+                Completed
+            </button>
+
+            <button
+                class="btn btn-sm"
+                [class.btn-primary]="statusFilter === 'canceled'"
+                [class.btn-outline-primary]="statusFilter !== 'canceled'"
+                (click)="onStatusFilterChange('canceled')">
+                Canceled
+            </button>
+        </div>
+
+        <!-- Loader -->
+        <div *ngIf="isLoading" class="text-center my-3">
+          <div class="spinner-border text-primary"></div>
+        </div>
+
+        <!-- Table -->
+        <table class="table table-hover" *ngIf="!isLoading">
+          <thead>
+            <tr>
+              <th>Sale ID</th>
+              <th>Customer</th>
+              <th>Date</th>
+              <th>Total</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr
+                *ngFor="let sale of pagedSales$ | async"
+                (click)="openSaleDetails(sale)"
+                [class.table-active]="sale.saleId === selectedSaleId"
+                style="cursor: pointer">
+
+              <td>{{ sale.saleId }}</td>
+              <td>{{ sale.custId }}</td>
+              <td>{{ sale.saleDate | date:'short' }}</td>
+              <td>₱ {{ sale.totalInvoiceAmount | number }}</td>
+              <td>
+                <span
+                  class="badge"
+                  [class.bg-danger]="sale.isCanceled"
+                  [class.bg-success]="!sale.isCanceled">
+                  {{ sale.isCanceled ? 'Canceled' : 'Completed' }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Pagination -->
+        <ng-container *ngIf="totalPages$ | async as totalPages">
+          <app-pagination
+            *ngIf="totalPages > 1"
+            [currentPage]="currentPage"
+            [totalPages]="totalPages"
+            (pageChange)="changePage($event)">
+          </app-pagination>
+        </ng-container>
+
+      </div>
+    </div>
+  </div>
+
+    <!-- ================= SALE DETAILS SIDE PANEL ================= -->
+    <div class="col-4" *ngIf="isSalePanelVisible">
+        <div class="card h-100">
+
+        <div class="card-header d-flex justify-content-between align-items-center">
+        <h6 class="mb-0">
+            Sale #{{ selectedSaleId }}
+        </h6>
+
+        <button
+            class="btn btn-sm btn-outline-secondary"
+            (click)="closeSaleDetails()">
+            Close
+        </button>
+        </div>
+
+        <div class="card-body">
+
+        <!-- Loader -->
+        <div *ngIf="isDetailsLoading" class="text-center my-3">
+            <div class="spinner-border text-primary"></div>
+        </div>
+
+        <!-- ================= SALE ITEMS ================= -->
+        <ng-container *ngIf="!isDetailsLoading && saleItems.length">
+
+        <h6 class="mb-3">Sale Items</h6>
+
+        <div
+            class="card mb-2"
+            *ngFor="let item of saleItems">
+
+            <div class="row g-0">
+
+            <div class="col-4">
+                <div class="sale-item-img-wrapper">
+
+                    <!-- Skeleton -->
+                    <div
+                    class="img-skeleton"
+                    *ngIf="!itemImageLoaded[item.saleItemId]">
+                    </div>
+
+                    <!-- Image -->
+                    <img
+                    [src]="item.productImageUrl"
+                    alt="Product image"
+                    loading="lazy"
+                    class="sale-item-img"
+                    [class.hidden]="!itemImageLoaded[item.saleItemId]"
+                    (load)="onImageLoad(item.saleItemId)"
+                    (error)="onImageError($event, item.saleItemId)">
+                </div>
+            </div>
+            <div class="col-8">
+                <div class="card-body p-2">
+
+                <h6 class="mb-1">{{ item.productName }}</h6>
+
+                <small class="text-muted">
+                    {{ item.categoryName }}
+                </small>
+
+                <div class="mt-1">
+                    <small>
+                    Price: ₱ {{ item.productPrice }}
+                    </small>
+                </div>
+
+                <div>
+                    <small>
+                    Qty: {{ item.quantity }}
+                    </small>
+                </div>
+
+                <div class="fw-bold mt-1">
+                    Subtotal:
+                    ₱ {{ item.productPrice * item.quantity }}
+                </div>
+
+                </div>
+            </div>
+
+            </div>
+        </div>
+
+        </ng-container>
+
+<!-- Empty state -->
+<div
+  *ngIf="!isDetailsLoading && !saleItems.length"
+  class="text-muted text-center">
+  No items found
+</div>
+
+
+        </div>
+        </div>
+    </div>
+
+
+</div>

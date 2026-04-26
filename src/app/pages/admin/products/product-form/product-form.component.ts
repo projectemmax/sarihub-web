@@ -1,0 +1,829 @@
+import { CommonModule } from '@angular/common';
+import { Component, HostListener, OnInit } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { DynamicSection } from '@app/models/dynamic-form.model';
+import { ProductImage } from '@app/models/product-image.model';
+import { NgxDropzoneModule } from 'ngx-dropzone';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ProductService } from '@app/services/product/product.service';
+import { firstValueFrom } from 'rxjs';
+import { CategoryService } from '@app/services/category/category.service';
+import { getImageUrl } from '@app/core/utils/image.util';
+import { ToastService } from '@app/core/services/toast.service';
+import { CanComponentDeactivate } from '@app/guards/unsaved-changes.guard';
+
+interface VariantOption {
+  name: string;
+  values: string[];
+  locked?: boolean;
+}
+
+interface Variant {
+  attributes: string[];
+  price: number;
+  stock: number;
+  sku: string;
+  image?: string;
+}
+
+@Component({
+    selector: 'app-product-form',
+    standalone: true,
+    imports: [
+        CommonModule, 
+        ReactiveFormsModule, 
+        FormsModule,
+        NgxDropzoneModule
+    ],
+    templateUrl: './product-form.component.html',
+    styleUrl: './product-form.component.css'
+})
+export class ProductFormComponent implements OnInit, CanComponentDeactivate {
+
+    form!: FormGroup;
+    files: File[] = [];
+    images: ProductImage[] = [];
+    isEditMode = false;
+    productId!: string;
+    deletedImageIds: string[] = [];
+    categories: any[] = [];
+    variantOptions: VariantOption[] = [];
+    loadingIndex: number | null = null;
+    isSubmitting = false;
+    initialVariantsSnapshot = '';
+    initialFormValue: any = {};
+    initialVariantOptionsSnapshot = '';
+    isInitialized = false;
+    hasVariantsToggle = false;
+    selectedCategory: any = null;
+    
+
+    getImageUrl = getImageUrl;
+
+    canDeactivate(): boolean {
+        if (this.isSubmitting) return true;
+
+        if (this.form.dirty || this.hasVariantChanges()) {
+            return confirm('You have unsaved changes. Are you sure you want to leave?');
+        }
+
+        return true;
+    }
+
+    formSections: DynamicSection[] = [
+        {
+        section: 'Basic Info',
+        fields: [
+            { key: 'name', type: 'text', label: 'Product Name', required: true },
+            { key: 'description', type: 'textarea', label: 'Description' },
+            { key: 'categoryId', type: 'select', label: 'Category', required: true }
+            ]
+        },
+        {
+        section: 'Pricing',
+            fields: [
+                { key: 'price', type: 'number', label: 'Price', required: false },
+                { key: 'stock', type: 'number', label: 'Stock', required: false }
+            ]
+        }
+    ];
+
+    constructor(
+        private fb: FormBuilder,
+        private route: ActivatedRoute,
+        private productService: ProductService,
+        private categoryService: CategoryService,
+        private router: Router,
+        private toast: ToastService
+    ) {}
+
+    variants: any[] = [];
+
+    trackByIndex(index: number) {
+        return index;
+    }
+
+    async ngOnInit() {
+        this.buildForm();
+
+        setTimeout(() => {
+            this.initialFormValue = this.form.getRawValue();
+        }, 0);
+
+        this.productId = this.route.snapshot.paramMap.get('id') || '';
+
+        await this.loadCategories();
+
+        console.log('available categories', this.categories);
+
+        if (this.productId) {
+            this.isEditMode = true;
+            this.loadProduct();
+        } else {
+            this.initVariants(); // only here
+        }
+
+        // 🔥 Listen AFTER everything is ready
+        this.form.get('categoryId')?.valueChanges.subscribe(() => {
+            this.updateVariantToggleState();
+            this.applyVariantState();
+        });
+
+        this.form.get('hasVariants')?.valueChanges.subscribe((checked) => {
+
+            const priceControl = this.form.get('price');
+            const stockControl = this.form.get('stock');
+
+            if (checked) {
+                // ✅ disable base pricing
+                priceControl?.disable({ emitEvent: false });
+                stockControl?.disable({ emitEvent: false });
+
+                // optional: clear values
+                priceControl?.setValue(null);
+                stockControl?.setValue(null);
+
+            } else {
+                // ✅ enable base pricing
+                priceControl?.enable({ emitEvent: false });
+                stockControl?.enable({ emitEvent: false });
+            }
+
+            this.applyVariantState();
+        });
+
+        const categoryId = this.form.get('categoryId')?.value;
+        const hasVariantsControl = this.form.get('hasVariants');
+
+        if (!categoryId) {
+            hasVariantsControl?.disable({ emitEvent: false });
+        }
+        
+        this.updateVariantToggleState();
+
+    }
+
+    updateVariantToggleState() {
+        const categoryId = this.form.get('categoryId')?.value;
+        const hasVariantsControl = this.form.get('hasVariants');
+
+        if (!categoryId) {
+            hasVariantsControl?.disable({ emitEvent: false });
+            hasVariantsControl?.setValue(false, { emitEvent: false });
+        } else {
+            hasVariantsControl?.enable({ emitEvent: false });
+        }
+    }
+
+    applyVariantState() {
+        const categoryId = this.form.get('categoryId')?.value;
+        const hasVariants = this.form.get('hasVariants')?.value;
+
+        // ✅ ADD THIS GUARD
+        if (!categoryId || !this.categories.length) return;
+
+        const category = this.categories.find(c => c.id === categoryId);
+
+        console.log('SELECTED CATEGORY:', category);
+
+        if (hasVariants && category?.variantTemplate?.attributes?.length) {
+            this.variantOptions = category.variantTemplate.attributes.map((name: string) => ({
+                name,
+                values: [],
+                locked: true
+            }));
+        } else {
+            this.variantOptions = [];
+            this.variants = [];
+        }
+
+        this.regenerateVariants();
+        this.updateValidation();
+    }
+
+    hasVariantChanges(): boolean {
+        return JSON.stringify(this.variants) !== this.initialVariantsSnapshot;
+    }
+
+    @HostListener('window:beforeunload', ['$event'])
+        handleBeforeUnload(event: BeforeUnloadEvent) {
+        if (this.form.dirty || this.hasVariantChanges()) {
+            event.preventDefault();
+            event.returnValue = true;
+        }
+    }
+
+    initVariants() {
+        this.variants = this.generateVariants(this.variantOptions).map(v => ({
+            attributes: v,
+            price: '',
+            stock: '',
+            sku: ''
+        }));
+
+        this.initialVariantsSnapshot = JSON.stringify(this.variants);
+        this.initialVariantOptionsSnapshot = JSON.stringify(this.variantOptions);
+
+        this.isInitialized = true;
+    }
+
+    async loadCategories(): Promise<void> {
+        const res: any = await firstValueFrom(
+            this.categoryService.getCategories()
+        );
+
+        this.categories = res.filter(
+            (c: any) => c.isActive && !c.deletedAt
+        );
+
+    }
+
+    loadProduct() {
+        this.productService.getProductById(this.productId).subscribe((res: any) => {
+            const product = res.data?.data ?? res.data;
+
+            // ==========================
+            // ✅ PATCH FORM
+            // ==========================
+            this.form.patchValue({
+                name: product.name,
+                description: product.description,
+                price: product.price,
+                stock: product.stock,
+                categoryId: product.categoryId,
+                hasVariants: !!product.variants?.length,
+                isFeatured: product.isFeatured ?? false,
+                isBestSeller: product.isBestSeller ?? false
+            });
+
+            if (this.form.get('hasVariants')?.value) {
+                this.form.get('price')?.disable({ emitEvent: false });
+                this.form.get('stock')?.disable({ emitEvent: false });
+            }
+
+            // ==========================
+            // VARIANT OPTIONS
+            // ==========================
+
+            if (product.variantOptions?.length) {
+                // ✅ PRIORITY: saved in DB
+                this.variantOptions = product.variantOptions;
+
+            } else if (product.variants?.length) {
+                // ✅ FALLBACK: reconstruct (OLD DATA)
+                this.variantOptions = this.buildOptionsFromVariants(product.variants);
+
+            } else {
+                // ✅ LAST FALLBACK: category template
+                const category = this.categories.find(c => c.id === product.categoryId);
+
+                if (category?.variantTemplate?.attributes?.length) {
+                    this.variantOptions = category.variantTemplate.attributes.map((name: string) => ({
+                    name,
+                    values: [],
+                    locked: true
+                    }));
+                } else {
+                    this.variantOptions = [];
+                }
+            }
+
+            // 🔥 MUST RUN AFTER OPTIONS
+            this.regenerateVariants();
+            this.updateValidation();
+
+            // ==========================
+            // ✅ VARIANTS
+            // ==========================
+            this.variants = product.variants?.length
+                ? product.variants.map((v: any) => ({
+                    id: v.id,
+                    attributes: Object.values(v.attributes ?? {}),
+                    price: v.price,
+                    stock: v.stock,
+                    sku: v.sku,
+                    image: v.image || ''
+                }))
+                : [];
+
+            // ==========================
+            // ✅ IMAGES
+            // ==========================
+            this.images = product.images?.map((img: any) => ({
+                id: img.id,
+                file: null,
+                preview: getImageUrl(img.url),
+                isPrimary: img.isPrimary,
+                order: img.order
+            })) || [];
+
+
+            this.initialFormValue = this.form.getRawValue();
+            this.initialVariantsSnapshot = JSON.stringify(this.variants);
+            this.initialVariantOptionsSnapshot = JSON.stringify(this.variantOptions);
+
+            this.isInitialized = true;
+        });   
+    }
+
+    buildForm() {
+        this.form = this.fb.group({});
+
+        this.formSections.forEach(section => {
+            section.fields.forEach(field => {
+                this.form.addControl(
+                field.key,
+                this.fb.control('', field.required ? Validators.required : [])
+                );
+            });
+        });
+        this.form.addControl('hasVariants', new FormControl(false));
+        this.form.addControl('isFeatured', new FormControl(false));
+        this.form.addControl('isBestSeller', new FormControl(false));
+    }
+
+    buildOptionsFromVariants(variants: any[]) {
+        if (!variants?.length) return [];
+
+        const firstAttributes = variants[0].attributes || {};
+        const optionNames = Object.keys(firstAttributes);
+
+        const options = optionNames.map(name => ({
+            name,
+            values: [] as string[],
+            locked: true
+        }));
+
+        variants.forEach(v => {
+            optionNames.forEach((name, index) => {
+            const value = v.attributes?.[name];
+
+            if (value && !options[index].values.includes(value)) {
+                options[index].values.push(value);
+            }
+            });
+        });
+
+        return options;
+    }
+
+    hasVariants(): boolean {
+        return this.variantOptions?.length > 0 && this.variants?.length > 0;
+    }
+
+    generateVariants(options: any[]) {
+        const combine = (arr: any[], prefix: string[] = []): string[][] => {
+            if (!arr.length) return [prefix];
+
+            const result: string[][] = [];
+
+            arr[0].values.forEach((val: string) => {
+            result.push(...combine(arr.slice(1), [...prefix, val]));
+            });
+
+            return result;
+        };
+
+        return combine(options);
+    }
+
+    updateValidation() {
+        const priceControl = this.form.get('price');
+        const stockControl = this.form.get('stock');
+
+        if (this.hasVariants()) {
+            // 👉 variants mode
+            priceControl?.clearValidators();
+            stockControl?.clearValidators();
+        } else {
+            // 👉 simple product mode
+            priceControl?.setValidators(Validators.required);
+            stockControl?.setValidators(Validators.required);
+        }
+
+        priceControl?.updateValueAndValidity();
+        stockControl?.updateValueAndValidity();
+    }
+
+    onSelect(event: any) {
+        event.addedFiles.forEach((file: File) => {
+            const reader = new FileReader();
+
+            reader.onload = () => {
+            this.images.push({
+                file,
+                preview: reader.result as string,
+                isPrimary: this.images.length === 0,
+                isNew: true // 🔥 important
+            });
+            };
+
+            reader.readAsDataURL(file);
+        });
+    }
+
+    removeImage(index: number) {
+        const img = this.images[index];
+
+        if (img.id) {
+            this.deletedImageIds.push(img.id);
+        }
+
+        this.images.splice(index, 1);
+    }
+
+    setPrimary(index: number) {
+        this.images = this.images.map((img, i) => ({
+            ...img,
+            isPrimary: i === index
+        }));
+    }
+
+    moveImage(index: number, direction: 'left' | 'right') {
+        const newIndex = direction === 'left' ? index - 1 : index + 1;
+
+        if (newIndex < 0 || newIndex >= this.images.length) return;
+
+        const temp = this.images[index];
+        this.images[index] = this.images[newIndex];
+        this.images[newIndex] = temp;
+    }
+
+    isFieldChanged(key: string): boolean {
+        if (!this.isInitialized) return false;
+
+        return this.form.get(key)?.value !== this.initialFormValue[key];
+    }
+
+    isVariantFieldChanged(
+        index: number,
+        field: 'price' | 'stock' | 'sku' | 'image'
+    ): boolean {
+        const initial = JSON.parse(this.initialVariantsSnapshot || '[]');
+        const current = this.variants[index];
+
+        if (!initial[index]) return true;
+
+        return initial[index][field] !== current[field];
+    }
+
+    async submit(
+        action: 'publish' | 'draft' = 'publish',
+        after: 'list' | 'new' = 'list'
+        ) {
+        if (this.isSubmitting) return;
+
+        this.isSubmitting = true;
+
+        try {
+            const formValue = this.form.getRawValue();
+
+            delete formValue.hasVariants;
+
+            // ==========================
+            // VALIDATION (PUBLISH ONLY)
+            // ==========================
+            if (action === 'publish') {
+                if (this.form.invalid) {
+                    this.toast.error('Please complete required fields');
+                    return;
+                }
+
+                if (this.hasVariants()) {
+                    const invalidVariants = this.variants.some(
+                    v => !v.price || !v.stock
+                    );
+
+                    if (invalidVariants) {
+                        this.toast.error('Please complete all variant price and stock');
+                        return;
+                    }
+                }
+            }
+
+            // ==========================
+            // STEP 1: Upload NEW images
+            // ==========================
+            const uploadedImages = await Promise.all(
+            this.images
+                .filter(img => img.file)
+                .map(img =>
+                    firstValueFrom(this.productService.uploadTempImage(img.file!))
+                )
+            );
+
+            // ==========================
+            // STEP 2: Merge images
+            // ==========================
+            let uploadIndex = 0;
+
+            let finalImages = this.images.map((img, index) => {
+                if (img.file) {
+                    const uploaded = uploadedImages[uploadIndex++];
+                    return {
+                        url: uploaded.url,
+                        isPrimary: img.isPrimary,
+                        order: index
+                    };
+                }
+
+                return {
+                    id: img.id,
+                    url: img.preview,
+                    isPrimary: img.isPrimary,
+                    order: index
+                };
+            });
+
+            // ✅ Ensure at least 1 primary image
+            if (finalImages.length && !finalImages.some(i => i.isPrimary)) {
+                finalImages[0].isPrimary = true;
+            }
+
+            // ==========================
+            // STEP 3: Build payload
+            // ==========================
+            const payload: any = {
+                ...formValue,
+                status: action === 'publish' ? 'PUBLISHED' : 'DRAFT',
+                images: finalImages,
+                variantOptions: this.hasVariants() ? this.variantOptions : []
+            };
+
+            // ✅ ADD VARIANTS ONLY IF EXISTS
+            if (this.hasVariants()) {
+                payload.variants = this.variants.map(v => ({
+                    id: v.id,
+                    sku: v.sku,
+                    price: Number(v.price),
+                    stock: Number(v.stock),
+                    attributes: v.attributes,
+                    image: v.image
+                }));
+            }
+
+            // ==========================
+            // STEP 4: API CALL
+            // ==========================
+            if (this.isEditMode) {
+                await firstValueFrom(
+                    this.productService.updateProduct(this.productId, payload)
+                );
+            } else {
+                await firstValueFrom(
+                    this.productService.createProduct(payload)
+                );
+            }
+
+            // ==========================
+            // ✅ RESET DIRTY STATE (IMPORTANT)
+            // ==========================
+            this.form.markAsPristine();
+            this.initialVariantsSnapshot = JSON.stringify(this.variants);
+            this.initialFormValue = this.form.getRawValue();
+            this.initialVariantOptionsSnapshot = JSON.stringify(this.variantOptions);
+
+            // ==========================
+            // SUCCESS HANDLING
+            // ==========================
+            if (action === 'draft') {
+                this.toast.success('Draft saved successfully');
+            } else {
+                this.toast.success('Product has been published successfully');
+            }
+
+            // ==========================
+            // POST-ACTION UX
+            // ==========================
+
+            if (after === 'list') {
+                this.router.navigate(['/admin/products']);
+            }
+
+            if (after === 'new' && !this.isEditMode ) {
+                this.resetForm();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+
+                setTimeout(() => {
+                    const firstInput = document.querySelector(
+                    'input, textarea, select'
+                    ) as HTMLElement;
+
+                    firstInput?.focus();
+                }, 100);
+            }
+
+        } catch (error) {
+            console.error(error);
+           this.toast.error('Failed to save product. Please try again.');
+        } finally {
+            this.isSubmitting = false;
+        }
+    }
+
+    resetForm() {
+        this.form.reset();
+        this.variantOptions = [];
+        this.variants = [];
+        this.images = [];
+    }
+
+    addOption() {
+        this.variantOptions.push({
+            name: '',
+            values: [],
+            locked: false // 🔥 editable
+        });
+        this.updateValidation();
+    }
+
+    removeOption(index: number) {
+        this.variantOptions.splice(index, 1);
+        this.regenerateVariants();
+        this.updateValidation();
+    }
+
+    addValue(optionIndex: number) {
+        this.variantOptions[optionIndex].values.push('');
+
+        this.regenerateVariants();
+        this.updateValidation();
+    }
+
+    removeValue(optionIndex: number, valueIndex: number) {
+        this.variantOptions[optionIndex].values.splice(valueIndex, 1);
+        this.regenerateVariants();
+        this.updateValidation();
+    }
+
+    onOptionChange() {
+        this.regenerateVariants();
+        this.updateValidation();
+    }
+
+    regenerateVariants() {
+
+        if (!this.variantOptions.length ||
+            !this.variantOptions.every(o => o.values.length)) {
+            this.variants = [];
+            return;
+        }
+
+        const combinations = this.generateVariants(this.variantOptions);
+
+        this.variants = combinations.map(combo => {
+            const existing = this.variants.find(v =>
+            JSON.stringify(v.attributes) === JSON.stringify(combo)
+            );
+
+            return existing
+            ? {
+                ...existing,
+                attributes: combo // keep synced
+                }
+            : {
+                attributes: combo,
+                price: '',
+                stock: '',
+                sku: this.generateFullSku(combo),
+                image: ''
+            };
+        });
+
+    }
+
+    applyVariantTemplate(category: any) {
+        if (!category?.variantTemplate?.attributes?.length) return;
+
+        this.variantOptions = category.variantTemplate.attributes.map((name: string) => ({
+            name,
+            values: [],
+            locked: true
+        }));
+
+        this.variants = [];
+    }
+
+    // ==========================
+    // SKU GENERATOR
+    // ==========================
+    generateShortCode(value: string): string {
+        return value
+            .toUpperCase()
+            .replace(/[^A-Z0-9]/g, '') // remove symbols
+            .slice(0, 3); // take first 3 chars
+    }
+
+    generateSku(attributes: string[]): string {
+        return attributes
+            .map(attr => this.generateShortCode(attr))
+            .join('-');
+    }
+
+    getCategoryCode(): string {
+        const categoryId = this.form.get('categoryId')?.value;
+        const category = this.categories.find(c => c.id === categoryId);
+
+        if (!category?.name) return '';
+
+        return category.name
+            .replace(/[^a-zA-Z0-9 ]/g, '')
+            .split(' ')
+            .map((w: string) => w[0])
+            .join('')
+            .toUpperCase();
+    }
+
+    generateFullSku(attributes: string[]): string {
+        const categoryCode = this.getCategoryCode();
+        const attrCode = this.generateSku(attributes);
+
+        return [categoryCode, attrCode].filter(Boolean).join('-');
+    }
+
+    // Variant Table
+    get variantColumns(): string[] {
+        return this.variantOptions.map(o => o.name);
+    }
+    
+    applyBulkStock(stock: any) {
+        const val = Number(stock);
+        if (isNaN(val)) return;
+
+        this.variants.forEach(v => v.stock = val);
+    }
+
+    applyBulkPrice(price: any) {
+        const val = Number(price);
+        if (isNaN(val)) return;
+
+        this.variants.forEach(v => v.price = val);
+    }
+
+    async onVariantImageUpload(event: any, index: number) {
+        const input = event.target;
+        const file = input.files[0];
+        if (!file) return;
+
+        this.loadingIndex = index;
+
+        try {
+            const uploaded = await firstValueFrom(
+            this.productService.uploadTempImage(file)
+            );
+
+            this.variants[index].image = uploaded.url;
+
+        } catch (err) {
+            console.error(err);
+        } finally {
+            this.loadingIndex = null;
+
+            // ✅ VERY IMPORTANT: reset input
+            input.value = '';
+        }
+    }
+
+    removeVariantImage(index: number) {
+        this.variants[index].image = '';
+
+        // ✅ FIX: reset loading state
+        if (this.loadingIndex === index) {
+            this.loadingIndex = null;
+        }
+    }
+
+    isOptionFieldChanged(optionIndex: number, valueIndex?: number): boolean {
+        const initial = JSON.parse(this.initialVariantOptionsSnapshot || '[]');
+        if (!initial[optionIndex]) return true;
+        if (valueIndex === undefined) {
+            return initial[optionIndex].name !== this.variantOptions[optionIndex].name;
+        }
+        return initial[optionIndex].values[valueIndex] !== this.variantOptions[optionIndex].values[valueIndex];
+    }
+
+    onToggleVariants(event: Event) {
+        const checked = (event.target as HTMLInputElement).checked;
+
+        this.hasVariantsToggle = checked;
+
+        const categoryId = this.form.get('categoryId')?.value;
+        const category = this.categories.find(c => c.id === categoryId);
+
+        if (checked && category?.variantTemplate?.attributes?.length) {
+            this.variantOptions = category.variantTemplate.attributes.map((name: string) => ({
+            name,
+            values: [],
+            locked: true
+            }));
+        } else {
+            this.variantOptions = [];
+            this.variants = [];
+        }
+
+        this.regenerateVariants();
+        this.updateValidation();
+    }
+
+
+}

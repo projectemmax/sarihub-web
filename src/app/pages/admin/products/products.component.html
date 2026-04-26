@@ -1,0 +1,286 @@
+
+
+<!-- ================= VIEW MODEL ================= -->
+<ng-container *ngIf="productsVm$ | async as vm">
+
+  <!-- ================= LOADER ================= -->
+  <div *ngIf="vm.loading" class="text-center my-3">
+    <div class="spinner-border text-primary"></div>
+  </div>
+
+    <!-- ================= MAIN ================= -->
+    <ng-container *ngIf="!vm.loading">
+
+        <div class="row">
+            <!-- ===== PRODUCT GRID ===== -->
+            <div class="col-12">
+
+                <!-- FILTER TAB -->
+                <div class="mb-3 d-flex gap-2 align-items-center">
+                    <div class="btn-group">
+                        <button
+                            class="btn"
+                            [class.btn-dark]="statusFilter === 'ALL'"
+                            [class.btn-outline-dark]="statusFilter !== 'ALL'"
+                            (click)="setStatusFilter('ALL')">
+                            All
+                        </button>
+
+                        <button
+                            class="btn"
+                            [class.btn-success]="statusFilter === 'PUBLISHED'"
+                            [class.btn-outline-success]="statusFilter !== 'PUBLISHED'"
+                            (click)="setStatusFilter('PUBLISHED')">
+                            Published
+                        </button>
+
+                        <button
+                            class="btn"
+                            [class.btn-warning]="statusFilter === 'DRAFT'"
+                            [class.btn-outline-warning]="statusFilter !== 'DRAFT'"
+                            (click)="setStatusFilter('DRAFT')">
+                            Draft
+                        </button>
+
+                        <button
+                            class="btn"
+                            [class.btn-danger]="statusFilter === 'ARCHIVED'"
+                            [class.btn-outline-danger]="statusFilter !== 'ARCHIVED'"
+                            (click)="setStatusFilter('ARCHIVED')">
+                            Archived
+                        </button>
+                        </div>
+                </div>
+                <!-- SEARCH -->
+                <div class="mb-3 d-flex gap-2">
+                    <input
+                        type="text"
+                        class="form-control"
+                        placeholder="Search products..."
+                        [formControl]="searchCtrl"
+                    />
+                    <button class="btn btn-outline-primary" (click)="onSearch()">
+                        Search
+                    </button>
+
+                    <button
+                        *ngIf="searchCtrl"
+                        class="btn btn-outline-secondary"
+                        (click)="clearSearch()">
+                        Clear
+                    </button>
+                </div>
+                <div class="card">
+                    <!-- HEADER -->
+                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                        <span class="fw-bold">Product List</span>
+                        
+                        <button
+                            class="btn btn-sm btn-success"
+                            routerLink="/admin/products/create">
+                            + Add Product
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="mb-2">
+                                    <input
+                                        type="checkbox"
+                                        (change)="toggleSelectAll(vm.products)" />
+                                    <span class="ms-2">Select All</span>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div *ngIf="selectedIds.size > 0" class="mb-3 d-flex gap-2">
+                                    <span class="fw-bold">
+                                        {{ selectedIds.size }} selected
+                                    </span>
+
+                                    <button
+                                        class="btn btn-success btn-sm"
+                                        (click)="bulkPublish()">
+                                        Publish Selected
+                                    </button>
+
+                                    <button
+                                        class="btn btn-outline-warning btn-sm"
+                                        (click)="bulkUnpublish()">
+                                        Unpublish Selected
+                                    </button>
+
+                                    <button
+                                        class="btn btn-danger btn-sm"
+                                        (click)="bulkDelete()">
+                                        Archive Selected
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BODY -->
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- PRODUCT CARD -->
+                            <div
+                                class="col-3 mb-3"
+                                *ngFor="let product of vm.products; trackBy: trackById">
+
+                                <div class="card h-100 shadow-sm"
+                                    [class.border-primary]="selectedIds.has(product.id)"
+                                    [class.bg-light]="selectedIds.has(product.id)">
+
+                                    <div class="position-absolute top-0 start-0 m-2 form-check form-check-flat">
+                                        <input
+                                            type="checkbox"
+                                            class="form-check-input"
+                                            [checked]="selectedIds.has(product.id)"
+                                            (change)="toggleSelection(product.id)"
+                                        />
+                                    </div>
+
+                                    <!-- IMAGE -->
+                                    <img
+                                        class="card-img-top"
+                                        [src]="getProductImageUrl(product)"
+                                        [alt]="product.name">
+
+                                    <div class="card-body d-flex flex-column">
+
+                                        <h5 class="card-title mb-1">
+                                            {{ product.name }}
+                                        </h5>
+
+                                        <small *ngIf="!product.variants?.length" class="text-muted">
+                                            SKU: {{ product.sku }}
+                                        </small>
+
+                                        <p *ngIf="product.variants?.length; else noVariantPrice" class="mt-2 mb-1 fw-bold">
+                                            {{ getMinPrice(product.variants) | currency:'PHP' }} -
+                                            {{ getMaxPrice(product.variants) | currency:'PHP' }}
+                                        </p>
+
+                                        <ng-template #noVariantPrice>
+                                            <p class="mt-2 mb-1 fw-bold">
+                                                {{ product.price | currency:'PHP' }}
+                                            </p>
+                                        </ng-template>
+
+                                        <p class="mb-2 text-muted">
+                                            Stock: {{ product.stock }}
+                                        </p>
+
+                                        <p class="mb-2">
+                                            <span class="badge bg-secondary">
+                                                {{ product.category?.name || 'Uncategorized' }}
+                                            </span>
+                                        </p>
+
+                                        <div class="mb-2">
+                                            <span
+                                                *ngIf="product.isFeatured"
+                                                class="badge bg-warning text-white me-1">
+                                                <i class="fa-solid fa-star me-1"></i> Featured
+                                            </span>
+
+                                            <span
+                                                *ngIf="product.isBestSeller"
+                                                class="badge bg-danger">
+                                                <i class="fa-solid fa-fire me-1"></i> Best Seller
+                                            </span>
+                                        </div>
+
+                                        <div class="mb-2">
+                                            <span
+                                                *ngIf="product.status === 'DRAFT'"
+                                                class="badge bg-warning text-dark">
+                                                Draft
+                                            </span>
+
+                                            <span
+                                                *ngIf="product.status === 'PUBLISHED'"
+                                                class="badge bg-success">
+                                                Published
+                                            </span>
+                                        </div>
+
+                                        <!-- ACTIONS -->
+                                        <div class="row">
+                                            <!-- <div class="form-check form-check-flat">
+                                                <input
+                                                    type="checkbox"
+                                                    class="form-check-input"
+                                                    [checked]="selectedIds.has(product.id)"
+                                                    (change)="toggleSelection(product.id)"
+                                                />
+                                            </div> -->
+                                            <div class="form-check form-switch">
+                                                <input
+                                                    class="form-check-input"
+                                                    type="checkbox"
+                                                    [checked]="product.status === 'PUBLISHED'"
+                                                    (change)="toggleStatus(product)"
+                                                />
+                                                <label class="form-check-label">
+                                                    {{ product.status === 'PUBLISHED' ? 'Published' : 'Draft' }}
+                                                </label>
+                                            </div>
+                                            <div class="col mt-auto d-flex gap-2 flex-wrap">
+                                                <ng-container *ngIf="product.status !== 'ARCHIVED'; else archivedActions">
+                                                    <button
+                                                        class="btn btn-primary btn-sm"
+                                                        [routerLink]="['/admin/products/edit', product.id]">
+                                                        Edit
+                                                    </button>
+
+                                                    <button
+                                                        class="btn btn-outline-danger btn-sm"
+                                                        (click)="onDelete(product)">
+                                                        Archive
+                                                    </button>
+                                                </ng-container>
+
+                                                <ng-template #archivedActions>
+                                                    <button
+                                                        class="btn btn-success btn-sm"
+                                                        (click)="restoreProduct(product)">
+                                                        Restore
+                                                    </button>
+
+                                                    <button
+                                                        class="btn btn-danger btn-sm"
+                                                        (click)="hardDeleteProduct(product)">
+                                                        Delete Permanently
+                                                    </button>
+                                                </ng-template>
+                                            </div>
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ===== EMPTY STATE ===== -->
+                        <div
+                            *ngIf="!vm.products.length"
+                            class="text-center text-muted mt-4">
+                            No products found.
+                        </div>
+
+                        <!-- ===== PAGINATION ===== -->
+                        <div class="mt-3">
+                            <app-pagination
+                                *ngIf="vm.totalPages > 1"
+                                [currentPage]="currentPage"
+                                [totalPages]="vm.totalPages"
+                                (pageChange)="changePage($event)">
+                            </app-pagination>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </ng-container>
+</ng-container>

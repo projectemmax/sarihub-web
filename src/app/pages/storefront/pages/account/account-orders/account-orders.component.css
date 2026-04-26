@@ -1,0 +1,53 @@
+.order-tabs button {
+  border: none;
+  background: none;
+  margin-right: 15px;
+  font-weight: 500;
+}
+
+.order-tabs .active {
+  color: #0d6efd;
+  border-bottom: 2px solid #0d6efd;
+}
+
+.order-card {
+  border: 1px solid #eee;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.order-item {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 10px;
+}
+
+.product-img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+}
+
+.order-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+}
+
+.empty-orders {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.empty-icon {
+  width: 120px;
+  opacity: 0.6;
+  margin-bottom: 20px;
+}

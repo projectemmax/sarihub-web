@@ -1,0 +1,32 @@
+<div
+  class="pagination d-flex justify-content-center mt-5"
+  *ngIf="totalPages > 1"
+>
+  <!-- PREVIOUS -->
+  <a
+    class="rounded"
+    [class.disabled]="page === 1"
+    (click)="goTo(page - 1)"
+  >
+    &laquo;
+  </a>
+
+  <!-- PAGE NUMBERS -->
+  <a
+    *ngFor="let p of pages"
+    class="rounded"
+    [class.active]="p === page"
+    (click)="goTo(p)"
+  >
+    {{ p }}
+  </a>
+
+  <!-- NEXT -->
+  <a
+    class="rounded"
+    [class.disabled]="page === totalPages"
+    (click)="goTo(page + 1)"
+  >
+    &raquo;
+  </a>
+</div>

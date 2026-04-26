@@ -1,0 +1,56 @@
+<!-- home.component.html -->
+
+<app-hero></app-hero>
+
+<app-features></app-features>
+
+<section class="container py-5">
+
+  <!-- CATEGORY TABS -->
+  <app-category-tabs
+    [categories]="(categories$ | async) ?? []"
+    (select)="onCategorySelect($event)">
+  </app-category-tabs>
+
+  <!-- PRODUCTS -->
+  <ng-container *ngIf="productsByCategory$ | async as products; else loading">
+    <app-product-grid [products]="products"></app-product-grid>
+  </ng-container>
+
+  <ng-template #loading>
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary"></div>
+    </div>
+  </ng-template>
+
+</section>
+
+<section class="container py-5">
+  <h2 class="text-center mb-4">Shop by Medical Offers</h2>
+  <p class="text-center text-muted mb-5">
+    Exclusive deals on essential healthcare products
+  </p>
+  
+  <app-offers></app-offers>
+</section>
+
+<section class="container py-5">
+
+  <app-product-carousel
+    title="Featured Products"
+    [items]="(featuredProducts$ | async) ?? []">
+  </app-product-carousel>
+  
+</section>
+
+<section class="container py-5">
+  <h2 class="mb-4">Bestsellers</h2>
+
+  <app-product-grid
+    [products]="(bestsellerProducts$ | async) ?? []"
+    [columns]="4">
+  </app-product-grid>
+
+</section>
+
+<!-- <app-testimonials></app-testimonials> -->

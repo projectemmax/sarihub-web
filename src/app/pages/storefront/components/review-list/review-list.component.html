@@ -1,0 +1,78 @@
+<div *ngIf="reviews?.length; else noReviews">
+
+  <div
+    *ngFor="let review of reviews"
+    class="d-flex mb-4 border-bottom pb-3"
+  >
+    <!-- AVATAR -->
+    <img
+      src="assets/img/avatar-placeholder.png"
+      class="img-fluid rounded-circle p-2"
+      style="width: 80px; height: 80px;"
+      alt="Reviewer avatar"
+    />
+
+    <div class="ms-3 w-100">
+
+      <!-- DATE -->
+      <p class="mb-2 text-muted" style="font-size: 14px;">
+        {{ review.createdAt | date: 'mediumDate' }}
+      </p>
+
+      <!-- NAME + RATING -->
+      <div class="d-flex justify-content-between align-items-center">
+
+        <div>
+          <h6 class="mb-0">
+            {{ getReviewerName(review) }}
+          </h6>
+
+          <!-- VERIFIED BADGE -->
+          <small
+            *ngIf="review.isVerified"
+            class="text-success fw-semibold"
+          >
+            ✔ Verified Purchase
+          </small>
+
+        </div>
+
+        <!-- RATING -->
+        <app-rating
+          [rating]="review.rating">
+        </app-rating>
+
+      </div>
+
+      <!-- COMMENT -->
+      <p class="mt-2 mb-0">
+        {{ review.comment || 'No comment provided.' }}
+      </p>
+
+      <div *ngIf="review.images?.length" class="mt-2 d-flex gap-2">
+        <img
+          *ngFor="let img of review.images"
+          [src]="img.url"
+          class="img-thumbnail"
+          style="width:80px;height:80px;object-fit:cover"
+        />
+      </div>
+
+      <div class="mt-2">
+        <button
+          class="btn btn-sm btn-outline-secondary"
+          (click)="vote(review)">
+          👍 Helpful ({{ review.helpfulCount }})
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<ng-template #noReviews>
+  <p class="text-muted">
+    No reviews yet. Be the first to review this product.
+  </p>
+</ng-template>

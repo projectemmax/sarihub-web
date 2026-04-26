@@ -1,0 +1,115 @@
+<div
+  *ngIf="visible"
+  class="modal-backdrop modal-backdrop-custom"
+  [class.fade-out]="isClosing"
+  (click)="closeModal()">
+</div>
+<div *ngIf="visible" class="modal d-block modal-custom" tabindex="-1" [class.fade-out]="isClosing">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    {{ editingAddress ? 'Edit Address' : 'Add New Address' }}
+                </h5>
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    (click)="close.emit()"
+                ></button>
+            </div>
+
+            <div class="modal-body" [formGroup]="form">
+
+                <input
+                    class="form-control mb-3"
+                    placeholder="Full Name"
+                    formControlName="name"
+                />
+
+                <input
+                    class="form-control mb-3"
+                    placeholder="Phone Number"
+                    formControlName="phone"
+                />
+
+                <select
+                    class="form-select mb-3"
+                    formControlName="region"
+                    (change)="onRegionChanged($any($event.target).value)"
+                >
+                    <option value="">Select Region</option>
+                    <option *ngFor="let r of regions" [value]="r.code">
+                        {{ r.name }}
+                    </option>
+                </select>
+
+                <select
+                    class="form-select mb-3"
+                    formControlName="province"
+                    (change)="provinceChange.emit($any($event.target).value)"
+                >
+                    <option value="">
+                        {{
+                        form.get('province')?.disabled
+                            ? 'NCR has no province selection'
+                            : 'Select Province'
+                        }}
+                    </option>
+                    <option *ngFor="let p of provinces" [value]="p.code">
+                        {{ p.name }}
+                    </option>
+                </select>
+
+                <select
+                    class="form-select mb-3"
+                    formControlName="city"
+                    (change)="cityChange.emit($any($event.target).value)"
+                >
+                    <option value="">Select City / Municipality</option>
+                    <option *ngFor="let c of cities" [value]="c.code">
+                        {{ c.name }}
+                    </option>
+                </select>
+
+                <ng-select
+                    class="mb-3"
+                    formControlName="barangay"
+                    [items]="barangays"
+                    bindLabel="name"
+                    bindValue="name"
+                    placeholder="Search Barangay"
+                    [searchable]="true"
+                    [virtualScroll]="true"
+                >
+                </ng-select>
+
+                <textarea
+                    class="form-control"
+                    rows="3"
+                    placeholder="Street Address"
+                    formControlName="address"
+                ></textarea>
+            </div>
+
+            <div class="modal-footer">
+                <button
+                    type="button"
+                    class="btn btn-outline-secondary"
+                    (click)="close.emit()"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    [disabled]="form.invalid"
+                    (click)="onSave()"
+                >
+                    Save Address
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

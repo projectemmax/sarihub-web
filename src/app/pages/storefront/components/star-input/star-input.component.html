@@ -1,0 +1,10 @@
+<div class="d-flex align-items-center gap-1">
+  <i
+    *ngFor="let star of stars"
+    class="fa fa-star cursor-pointer"
+    [class.text-secondary]="star <= value"
+    [class.text-muted]="star > value"
+    (click)="setRating(star)"
+    style="font-size: 16px;"
+  ></i>
+</div>

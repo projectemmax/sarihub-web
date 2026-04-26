@@ -1,0 +1,4 @@
+.cart-summary {
+  position: sticky;
+  top: 120px; /* adjust depending on your navbar height */
+}

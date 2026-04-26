@@ -1,0 +1,71 @@
+<h2 mat-dialog-title>Order #{{ order?.orderNumber }}</h2>
+
+    <mat-dialog-content *ngIf="order">
+      <div class="dialog-grid">
+        <mat-card class="p-4">
+          <h3>Customer Info</h3>
+          <p><strong>Name:</strong> {{ order.user?.customer?.firstName }} {{ order.user?.customer?.lastName }}</p>
+          <p><strong>Email:</strong> {{ order.user?.email }}</p>
+          <p><strong>Phone:</strong> {{ order.shippingName }}</p>
+        </mat-card>
+
+        <mat-card class="p-4">
+          <h3>Shipping Address</h3>
+          <p>{{ order.shippingName }}</p>
+          <p>{{ order.shippingPhone }}</p>
+          <p>{{ order.shippingAddress }}</p>
+          <p>{{ order.shippingCity }}, {{ order.shippingProvince }}</p>
+        </mat-card>
+      </div>
+
+      <mat-card class="my-4 p-4">
+        <h3>Ordered Items</h3>
+
+        <div class="item-row" *ngFor="let item of order.items">
+          <img [src]="getItemImage(item)" width="56" height="56" />
+
+          <div class="item-info">
+            <div>{{ item.productName }}</div>
+            <small>Qty: {{ item.quantity }}</small>
+          </div>
+
+          <div class="item-price">
+            ₱{{ item.subtotal | number:'1.2-2' }}
+          </div>
+        </div>
+      </mat-card>
+
+      <div class="dialog-grid mb-3">
+        <mat-card class="p-4">
+          <h3>Payment</h3>
+          <p><strong>Method:</strong> {{ order.paymentMethod }}</p>
+          <p><strong>Status:</strong> {{ order.paymentStatus }}</p>
+          <p><strong>Tracking #:</strong> {{ order.trackingNumber || '-' }}</p>
+        </mat-card>
+
+        <mat-card class="p-4">
+          <h3>Summary</h3>
+          <p>Subtotal: ₱{{ order.totalAmount - order.shippingFee | number:'1.2-2' }}</p>
+          <p>Shipping: ₱{{ order.shippingFee | number:'1.2-2' }}</p>
+          <h3>Total: ₱{{ order.totalAmount | number:'1.2-2' }}</h3>
+        </mat-card>
+      </div>
+
+      <mat-card class="mt-3 p-4">
+        <h3>Status Timeline</h3>
+
+        <div class="timeline-item" *ngFor="let item of order.statusHistory">
+          <div class="timeline-dot"></div>
+
+          <div>
+            <div><strong>{{ item.status }}</strong></div>
+            <div>{{ item.createdAt | date:'medium' }}</div>
+            <div *ngIf="item.note">{{ item.note }}</div>
+          </div>
+        </div>
+      </mat-card>
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end" class="p-4">
+      <button mat-button mat-dialog-close>Close</button>
+    </mat-dialog-actions>

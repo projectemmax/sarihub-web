@@ -1,0 +1,35 @@
+<div class="mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h4 class="mb-0">Price</h4>
+    <button
+      class="btn btn-sm btn-link text-danger p-0"
+      (click)="onClear()">
+      Clear
+    </button>
+  </div>
+
+  <!-- Min -->
+  <input
+    type="range"
+    class="form-range"
+    [min]="min"
+    [max]="max"
+    [value]="value.min"
+    (change)="onMinInput($any($event.target).valueAsNumber)"
+  />
+
+  <!-- Max -->
+  <input
+    type="range"
+    class="form-range"
+    [min]="min"
+    [max]="max"
+    [value]="value.max"
+    (change)="onMaxInput($any($event.target).valueAsNumber)"
+  />
+
+  <div class="d-flex justify-content-between small text-muted mt-2">
+    <span>₱{{ value.min }}</span>
+    <span>₱{{ value.max }}</span>
+  </div>
+</div>

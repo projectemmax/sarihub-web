@@ -1,0 +1,50 @@
+.timeline {
+  border-left: 2px solid #eee;
+  padding-left: 16px;
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 20px;
+
+  &.latest {
+    background: #fff8e1;
+    border-radius: 8px;
+    padding: 10px;
+  }
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  position: absolute;
+  left: -22px;
+  top: 6px;
+
+  &.success { background: green; }
+  &.failed { background: red; }
+  &.expired { background: gray; }
+  &.pending { background: orange; }
+}
+
+.badge {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+
+  &.success { background: #e8f5e9; color: green; }
+  &.failed { background: #ffebee; color: red; }
+  &.expired { background: #eceff1; color: gray; }
+  &.pending { background: #fff3e0; color: orange; }
+}
+
+.retry-btn {
+  margin-top: 8px;
+  background: #ee4d2d;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}

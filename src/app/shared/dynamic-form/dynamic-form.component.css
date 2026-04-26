@@ -1,0 +1,22 @@
+.form-check {
+    padding-left: 2.5em !important;
+}
+.icon-size {
+    width: 24px;
+    height: 24px;
+}
+.card .card-header {
+    padding: 0.75rem 1.25rem;
+}
+.is-invalid {
+  border: 2px solid #dc3545 !important;
+}
+
+.cdk-drag-preview {
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  border-radius: 6px;
+}
+
+.cdk-drag-placeholder {
+  opacity: 0.3;
+}

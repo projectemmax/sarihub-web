@@ -1,0 +1,82 @@
+<div
+  class="mb-3"
+  [class.opacity-50]="disabled"
+  [class.pe-none]="disabled"
+>
+  <h4>Additional</h4>
+
+  <div class="form-check mb-2">
+    <input
+      class="form-check-input"
+      type="radio"
+      name="additional"
+      [disabled]="disabled"
+      [checked]="isActive(null)"
+      (change)="select(null)"
+    />
+    <label class="form-check-label">
+      All Products
+    </label>
+  </div>
+
+  <div class="form-check mb-2">
+    <input
+      class="form-check-input"
+      type="radio"
+      name="additional"
+      [disabled]="disabled"
+      [checked]="isActive('featured')"
+      (change)="select('featured')"
+    />
+    <label class="form-check-label">
+      Featured
+    </label>
+  </div>
+
+  <div class="form-check mb-2">
+    <input
+      class="form-check-input"
+      type="radio"
+      name="additional"
+      [disabled]="disabled"
+      [checked]="isActive('bestSeller')"
+      (change)="select('bestSeller')"
+    />
+    <label class="form-check-label">
+      Best Seller
+    </label>
+  </div>
+
+  <div class="form-check mb-2">
+    <input
+      class="form-check-input"
+      type="radio"
+      name="additional"
+      [disabled]="disabled"
+      [checked]="isActive('inStock')"
+      (change)="select('inStock')"
+    />
+    <label class="form-check-label">
+      In Stock
+    </label>
+  </div>
+
+  <div class="form-check mb-2">
+    <input
+      class="form-check-input"
+      type="radio"
+      name="additional"
+      [disabled]="disabled"
+      [checked]="isActive('new')"
+      (change)="select('new')"
+    />
+    <label class="form-check-label">
+      New Arrivals
+    </label>
+  </div>
+</div>
+
+<!-- Helper text -->
+<small *ngIf="disabled" class="text-muted d-block mt-1">
+  Additional filters are disabled while viewing Featured products.
+</small>

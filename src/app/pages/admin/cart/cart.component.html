@@ -1,0 +1,175 @@
+<div class="row">
+
+  <!-- ===== MAIN LIST ===== -->
+  <div [ngClass]="isSidePanelVisible ? 'col-8' : 'col-12'">
+
+    <div class="card">
+
+      <!-- ================= HEADER ================= -->
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Admin Carts</h5>
+
+        <div class="d-flex gap-2 align-items-center">
+          <app-search
+            placeholder="Search customer email"
+            (search)="onSearch($event)">
+          </app-search>
+        </div>
+       
+      </div>
+
+      <!-- ================= BODY ================= -->
+      <div class="card-body">
+
+        <!-- LOADER -->
+        <div *ngIf="isLoading" class="py-3">
+          <div class="placeholder-glow" *ngFor="let _ of [1,2,3,4,5]">
+            <div class="placeholder col-12 mb-2"></div>
+          </div>
+        </div>
+
+        <!-- TABLE -->
+        <table
+          class="table table-hover align-middle"
+          *ngIf="!isLoading && carts?.length">
+
+          <thead class="table-light">
+            <tr>
+              <th>Order</th>
+              <th>User</th>
+              <th class="text-center">Items</th>
+              <th>Status</th>
+              <th class="text-end" width="80">Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+
+            <tr
+              *ngFor="let cart of filteredCarts"
+              class="cursor-pointer"
+              (click)="openSidePanel(cart)">
+
+              <!-- ORDER ID -->
+              <td class="text-muted">
+                {{ cart.id | slice:0:8 }}…
+              </td>
+
+              <!-- USER -->
+              <td>
+                {{ cart.user?.email || '—' }}
+              </td>
+
+              <!-- ITEM COUNT -->
+              <td class="text-center">
+                {{ cart.items.length }}
+              </td>
+
+              <!-- STATUS -->
+              <td>
+                <span
+                  class="badge"
+                  [ngClass]="{
+                    'bg-secondary': cart.status === 'DRAFT',
+                    'bg-success': cart.status === 'PLACED'
+                  }">
+                  {{ cart.status }}
+                </span>
+              </td>
+
+              <!-- ACTIONS -->
+              <td
+                class="text-end"
+                (click)="$event.stopPropagation()">
+
+                <button
+                  class="btn btn-sm btn-outline-danger"
+                  title="Clear cart"
+                  (click)="clearCart(cart)">
+                  <i class="fa-regular fa-trash-can"></i>
+                </button>
+
+              </td>
+
+            </tr>
+
+          </tbody>
+        </table>
+
+        <!-- EMPTY STATE -->
+        <div
+          class="text-center text-muted py-4"
+          *ngIf="!isLoading && !carts?.length">
+          <i class="fa-regular fa-folder-open mb-2"></i>
+          <div>No active carts found</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SIDE PANEL (CART DETAILS) ===== -->
+  <div class="col-4" *ngIf="isSidePanelVisible" @slideInOut>
+
+    <div class="card h-100">
+
+      <!-- PANEL HEADER -->
+      <div class="card-header bg-light d-flex justify-content-between align-items-center">
+        <div>
+          <div class="fw-bold">Cart Details</div>
+          <small class="text-muted">
+            {{ selectedCart?.user?.email }}
+          </small>
+        </div>
+
+        <button
+          class="btn btn-sm btn-outline-secondary"
+          (click)="closeSidePanel()">
+          Close
+        </button>
+      </div>
+
+      <!-- PANEL BODY -->
+      <div class="card-body">
+
+        <!-- SUMMARY -->
+        <div class="mb-3">
+          <div><strong>Status:</strong> {{ selectedCart?.status }}</div>
+          <div><strong>Total Items:</strong> {{ selectedCart?.items.length }}</div>
+          <div><strong>Total Amount:</strong> ₱{{ selectedCart?.totalAmount }}</div>
+        </div>
+
+        <hr>
+
+        <!-- ITEMS -->
+        <div *ngFor="let item of selectedCart?.items" class="mb-2">
+          <div class="fw-semibold">
+            {{ item.productName }}
+          </div>
+
+          <small class="text-muted">
+            {{ item.quantity }} × {{ item.priceSnapshot }}
+          </small>
+
+          <div class="text-end">
+            ₱{{ item.subtotal }}
+          </div>
+
+          <hr>
+        </div>
+
+      </div>
+
+      <!-- PANEL FOOTER -->
+      <div class="card-footer bg-white">
+        <button
+          class="btn btn-danger w-100"
+          (click)="clearCart(selectedCart)">
+          Clear Cart
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</div>

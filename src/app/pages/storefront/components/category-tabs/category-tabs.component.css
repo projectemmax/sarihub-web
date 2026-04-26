@@ -1,0 +1,11 @@
+.tab-class .nav-item a {
+    transition: 0.3s;
+    cursor: pointer;
+}
+.tab-class .nav-item a.active {
+    background: var(--bs-secondary) !important;
+}
+
+.tab-class .nav-item a.active span {
+    color: var(--bs-white) !important; 
+}

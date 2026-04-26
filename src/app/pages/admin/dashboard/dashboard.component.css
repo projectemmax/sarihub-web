@@ -1,0 +1,26 @@
+.sales-mini-tabs .nav-link {
+  padding: 4px 12px;
+  font-size: 12px;
+  color: #6c757d;
+}
+
+.sales-mini-tabs .nav-link.active {
+  background-color: #4B49AC;
+  color: #fff;
+  border-radius: 20px;
+}
+
+.legend-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.legend-dot.revenue {
+  background-color: #6259CA;
+}
+
+.legend-dot.sales {
+  background-color: #28D094;
+}

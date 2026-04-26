@@ -1,0 +1,41 @@
+<div
+  class="quantity-selector"
+  [class.quantity-selector-sm]="size === 'sm'"
+>
+    <button
+        type="button"
+        class="btn btn-outline-secondary"
+        (click)="decrease()"
+        [disabled]="disabled || quantity <= min"
+    >
+        -
+    </button>
+
+    <input
+        type="number"
+        class="form-control quantity-input"
+        [(ngModel)]="tempQuantity"
+        [min]="min"
+        [max]="max"
+        [disabled]="disabled"
+        (input)="onInputChange()"
+        (blur)="applyInput()"
+        (keyup.enter)="applyInput()"
+    />
+
+    <button
+        type="button"
+        class="btn btn-outline-secondary"
+        (click)="increase()"
+        [disabled]="disabled || quantity >= max"
+    >
+        +
+    </button>
+</div>
+
+<div
+    class="text-danger small mt-1"
+    *ngIf="tempQuantity > max"
+    >
+    Only {{ max }} item(s) available in stock.
+</div>

@@ -1,0 +1,98 @@
+<nav class="navbar default-layout col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
+    <div class="text-center navbar-brand-wrapper d-flex align-items-top justify-content-center">
+        <a class="navbar-brand brand-logo" routerLink="/admin/dashboard">
+            <img class="brand-logo-icon" src="assets/admin/images/logo-mini_6.svg" alt="logo" />
+            <span class="company-name">{{ companyName }}</span> 
+        </a>
+        <a class="navbar-brand brand-logo-mini">
+        <img src="assets/admin/images/logo-mini_6.svg" alt="logo" /> </a>
+    </div>
+    <div class="navbar-menu-wrapper d-flex align-items-center">
+        <ul class="navbar-nav">
+        <li class="nav-item font-weight-semibold d-none d-lg-block">Help : +050 2992 709</li>
+        
+        </ul>
+        <form class="ml-auto search-form d-none d-md-block" action="#">
+        <div class="form-group">
+            <input type="search" class="form-control" placeholder="Search Here">
+        </div>
+        </form>
+        <ul class="navbar-nav ml-auto">
+
+            <!-- Notification -->
+            <li class="nav-item dropdown">
+                <a class="nav-link count-indicator">
+                <i class="mdi mdi-bell-outline"></i>
+                <span class="count">7</span>
+                </a>
+            </li>
+            <!-- Messages -->
+            <li class="nav-item dropdown">
+                <a class="nav-link count-indicator">
+                <i class="mdi mdi-email-outline"></i>
+                <span class="count bg-success">3</span>
+                </a>
+            </li>
+            <!-- USER DROPDOWN -->
+            <li class="nav-item dropdown user-dropdown">
+                <a
+                    class="nav-link dropdown-toggle"
+                    href="javascript:void(0)"
+                    (click)="toggleDropdown()">
+                    <img
+                        class="img-xs rounded-circle"
+                        [src]="currentUser?.avatarUrl || 'assets/admin/images/faces/face8.jpg'"
+                        alt="profile">
+                </a>
+
+                <div
+                    class="dropdown-menu dropdown-menu-right navbar-dropdown"
+                    [class.show]="isDropdownOpen">
+
+                    <div class="dropdown-header text-center">
+
+                        <img
+                        class="img-md rounded-circle"
+                        [src]="currentUser?.avatarUrl || 'assets/admin/images/faces/face8.jpg'">
+
+                        <p class="mb-1 mt-3 font-weight-semibold">
+                        {{ payload?.email }}
+                        </p>
+
+                        <p class="font-weight-light text-muted mb-0">
+                        {{ payload?.role }}
+                        </p>
+
+                    </div>
+                    <a class="dropdown-item" routerLink="/admin/settings/profile">
+                        My Profile
+                        <span class="badge badge-pill badge-danger">1</span>
+                        <i class="dropdown-item-icon ti-dashboard"></i>
+                    </a>
+                    <a class="dropdown-item">
+                        Messages
+                        <i class="dropdown-item-icon ti-comment-alt"></i>
+                    </a>
+                    <a class="dropdown-item">
+                        Activity
+                        <i class="dropdown-item-icon ti-location-arrow"></i>
+                    </a>
+                    <a class="dropdown-item">
+                        FAQ
+                        <i class="dropdown-item-icon ti-help-alt"></i>
+                    </a>
+                    <a
+                        class="dropdown-item"
+                        (click)="logout()">
+                        Sign Out
+                        <i class="dropdown-item-icon ti-power-off"></i>
+                    </a>
+                </div>
+            </li>
+
+        </ul>
+        <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button" data-toggle="offcanvas">
+        <span class="mdi mdi-menu"></span>
+        </button>
+    </div>
+</nav>

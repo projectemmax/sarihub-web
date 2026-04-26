@@ -1,0 +1,34 @@
+.shop .category-sidebar .cat-name {
+    line-height: 40px;
+}
+
+.shop .category-sidebar .cat-name a {
+    transition: 0.5s;
+}
+
+.shop .category-sidebar .cat-name:hover {
+    color: var(--bs-secondary);
+}
+
+
+.shop .shop-item {
+    height: 100%;
+    transition: 0.5s;
+}
+.shop .shop-item:hover {
+    box-shadow: 0 0 55px rgba(0, 0, 0, 0.4);
+}
+
+.shop .shop-item .fruite-img {
+    overflow: hidden;
+    transition: 0.5s;
+    border-radius: 10px 10px 0 0;
+}
+
+.shop .shop-item .shop-img img {
+    transition: 0.5s;
+}
+
+.shop .shop-item .shop-img img:hover {
+    transform: scale(1.3);
+}

@@ -1,0 +1,166 @@
+<form *ngIf="form" [formGroup]="form">
+
+    <div *ngFor="let group of grouped | keyvalue" class="mb-4">
+        <div class="card shadow-sm border-0">
+            <!-- HEADER -->
+            <div class="card-header d-flex justify-content-between align-items-center"
+                (click)="toggle(group.key)"
+                style="cursor:pointer">
+
+                <div class="d-flex align-items-center gap-3">
+                    <div class="icon-wrapper bg-primary text-white rounded-circle d-flex align-items-center justify-content-center icon-size">
+                        <i [class]="schema.groupUI?.[group.key]?.icon"></i>
+                    </div>
+
+                    <div>
+                        <h5 class="mb-0">{{ group.key }}</h5>
+                        <small class="text-muted">
+                        {{ schema.groupUI?.[group.key]?.subtitle }}
+                        </small>
+                    </div>
+                </div>
+
+                <i class="mdi"
+                [ngClass]="collapsed[group.key] ? 'mdi-chevron-down' : 'mdi-chevron-up'">
+                </i>
+            </div>
+
+            <!-- BODY -->
+            <div class="card-body" *ngIf="!collapsed[group.key]">
+
+                <div *ngFor="let field of group.value" class="mb-3">
+
+                    <!-- BOOLEAN -->
+                    <div *ngIf="field.type === 'boolean'" class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" role="switch"
+                            [formControlName]="field.key" />
+                        <label class="form-check-label">{{ field.label }}</label>
+                    </div>
+
+                    <!-- TEXT -->
+                    <div *ngIf="field.type === 'text'">
+                        <label class="form-label">{{ field.label }}</label>
+                        <input class="form-control"
+                            [formControlName]="field.key" />
+                    </div>
+
+                    <!-- SELECT -->
+                    <div *ngIf="field.type === 'select'" class="form-group">
+                        <label class="form-label">{{ field.label }}</label>
+                        <select class="form-select form-control"
+                                [formControlName]="field.key">
+                            <option *ngFor="let opt of field.options" [value]="opt">
+                                {{ opt }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- ARRAY -->
+                    <div *ngIf="field.type === 'array'">
+                        <label class="form-label">{{ field.label }}</label>
+                        <div 
+                            [formArrayName]="field.key"
+                            cdkDropList
+                            (cdkDropListDropped)="drop(field.key, $event)"
+                        >
+                            <div 
+                            *ngFor="let ctrl of getArray(field.key).controls; let i = index"
+                            class="d-flex mb-2 align-items-center"
+                            cdkDrag
+                            >
+                            <!-- drag handle -->
+                            <span class="me-2 text-muted" cdkDragHandle style="cursor: grab">
+                                ☰
+                            </span>
+                            <input 
+                                class="form-control me-2"
+                                [class.border-warning]="isArrayItemChanged(field.key, i)"
+                                [class.is-invalid]="isInvalidArrayItem(field.key, i)"
+                                [formControlName]="i"
+                            />
+                            <div *ngIf="isInvalidArrayItem(field.key, i)" class="text-danger small mt-1">
+                                <span *ngIf="!getArray(field.key).at(i).value">
+                                    This field is required
+                                </span>
+
+                                <span *ngIf="isDuplicateArrayItem(field.key, i)">
+                                    Duplicate value not allowed
+                                </span>
+                            </div>
+                            <button 
+                                type="button"
+                                class="btn btn-danger btn-sm"
+                                (click)="removeItem(field.key, i)">
+                                ✕
+                            </button>
+                            </div>
+                        </div>
+                        <button type="button"
+                                class="btn btn-outline-primary btn-sm"
+                                (click)="addItem(field.key)">
+                            + Add
+                        </button>
+                    </div>
+
+                    <div *ngIf="field.type === 'number'" class="mb-3">
+                        <label class="form-label">{{ field.label }}</label>
+
+                        <div class="input-group">
+                            <span class="input-group-text">₱</span>
+
+                            <input
+                            type="number"
+                            min="0"
+                            class="form-control"
+                            [formControlName]="field.key"
+                            [placeholder]="field.placeholder || ''"
+                            />
+                        </div>
+
+                        <small *ngIf="field.help" class="text-muted d-block mt-1">
+                            {{ field.help }}
+                        </small>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SAVE BUTTON -->
+<div class="d-flex justify-content-between align-items-center mt-3">
+
+  <!-- LEFT: STATUS -->
+  <div>
+    <small *ngIf="loading" class="text-muted">
+      <span class="spinner-border spinner-border-sm me-1"></span>
+      Saving...
+    </small>
+
+    <small *ngIf="!loading && !isDirty" class="text-success">
+      ✔ All changes saved
+    </small>
+
+    <small *ngIf="isDirty && !loading" class="text-warning">
+      Unsaved changes
+    </small>
+  </div>
+
+  <!-- RIGHT: BUTTON -->
+  <!-- <button 
+    class="btn btn-primary px-4"
+    [disabled]="isSubmitting"
+  >
+    <span *ngIf="!isSubmitting">
+      <i class="mdi mdi-content-save"></i> Save
+    </span>
+
+    <span *ngIf="isSubmitting">
+      <span class="spinner-border spinner-border-sm me-2"></span>
+      Saving...
+    </span>
+  </button> -->
+
+</div>
+
+</form>

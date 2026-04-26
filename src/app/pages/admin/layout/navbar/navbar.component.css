@@ -1,0 +1,26 @@
+
+.navbar.default-layout .navbar-brand-wrapper .navbar-brand.brand-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #ffffff;
+    transition: color 0.3s ease;
+}
+.navbar.default-layout .navbar-brand-wrapper .navbar-brand .company-name:hover {
+    color: #28c76f;
+}
+
+.navbar.default-layout .navbar-brand-wrapper .navbar-brand .brand-logo-icon {
+    height: 40px;
+    margin-right: 5px;
+    width: 40px;
+    transition: filter 0.3s ease;
+}
+
+.navbar.default-layout .navbar-brand-wrapper .navbar-brand .company-name {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #ffffff;
+    transition: color 0.3s ease;
+
+}

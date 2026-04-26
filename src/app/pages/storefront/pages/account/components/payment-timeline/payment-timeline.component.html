@@ -1,0 +1,36 @@
+<div class="timeline">
+
+  <div 
+    *ngFor="let attempt of attempts" 
+    class="timeline-item"
+    [class.latest]="isLatest(attempt)"
+  >
+
+    <div class="dot" [ngClass]="getStatusClass(attempt.status)"></div>
+
+    <div class="content">
+      <div class="header">
+        <strong>Attempt #{{ attempt.attemptNo }}</strong>
+
+        <span class="badge" [ngClass]="getStatusClass(attempt.status)">
+          {{ attempt.status }}
+        </span>
+      </div>
+
+      <div class="meta">
+        {{ attempt.createdAt | date:'medium' }}
+      </div>
+
+      <div *ngIf="isLatest(attempt) && attempt.status !== 'PAID'">
+        <button 
+            class="retry-btn"
+            (click)="onRetry()">
+          Retry Payment
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

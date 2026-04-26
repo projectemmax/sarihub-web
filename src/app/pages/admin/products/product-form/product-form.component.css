@@ -1,0 +1,58 @@
+.variant-table-wrapper {
+  max-height: 400px;
+  overflow: auto;
+  border: 1px solid #eee;
+  border-radius: 6px;
+}
+
+.table th,
+.table td {
+  white-space: nowrap;
+  font-size: 13px;
+}
+
+.sticky-top {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #f8f9fa;
+}
+
+.unsaved {
+  border: 1px solid #ffc107 !important;
+  background-color: #fff8e1;
+}
+
+.merchandising-switch {
+  padding: 1rem;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  background: #fafafa;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-height: 90px;
+}
+
+.merchandising-switch .form-check-input {
+  width: 2.8rem;
+  height: 1.4rem;
+  margin-top: 0.2rem;
+  cursor: pointer;
+}
+
+.merchandising-switch .form-check-label {
+  cursor: pointer;
+}
+
+.form-switch .form-check-input {
+  margin-left: 0;
+}
+
+.form-check .form-check-label, .form-radio .form-check-label {
+  padding-left: 60px;
+}
+.field-changed {
+  border-color: #a37f08;
+  background: #fff8e1;
+}

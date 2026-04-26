@@ -1,0 +1,121 @@
+<form *ngIf="profileForm" [formGroup]="profileForm">
+
+    <h4 class="fw-bold mb-4">My Profile</h4>
+
+    <p class="text-muted mb-4">
+        Manage and protect your account
+    </p>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="mb-3">
+                <label class="form-label">Username</label>
+                <input class="form-control" formControlName="username">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Name</label>
+                <input class="form-control" formControlName="name">
+                <div
+                    class="text-danger small"
+                    *ngIf="profileForm.get('name')?.touched && profileForm.get('name')?.errors">
+                    Name is required
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input class="form-control" formControlName="email">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Phone</label>
+                <input class="form-control" formControlName="phone">
+                <div
+                    class="text-danger small"
+                    *ngIf="profileForm.get('phone')?.touched">
+
+                    <div *ngIf="profileForm.get('phone')?.errors?.['required']">
+                    Phone number is required
+                    </div>
+
+                    <div *ngIf="profileForm.get('phone')?.errors?.['pattern']">
+                    Enter a valid PH mobile number (09XXXXXXXXX)
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label d-block">Gender</label>
+                <div class="row">
+                    <div class="col-4">
+                        <div class="form-radio">
+                            <label class="form-check-label">
+                            <input type="radio" class="form-check-input" formControlName="gender" value="MALE"> Male</label>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="form-radio">
+                            <label class="form-check-label">
+                            <input type="radio" class="form-check-input bg-primary" formControlName="gender" value="FEMALE"> Female</label>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="form-radio">
+                            <label class="form-check-label">
+                            <input type="radio" class="form-check-input" formControlName="gender" value="OTHER"> Other</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    class="text-danger small"
+                    *ngIf="profileForm.get('gender')?.touched && profileForm.get('gender')?.invalid">
+                    Please select a gender
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label">Date of Birth</label>
+                <input type="date" class="form-control" formControlName="birthdate">
+                <div
+                    class="text-danger small"
+                    *ngIf="profileForm.get('birthdate')?.touched && profileForm.get('birthdate')?.invalid">
+                    Birthdate is required
+                </div>
+            </div>
+
+            <button
+                class="btn btn-primary"
+                (click)="saveProfile()"
+                [disabled]="profileForm.invalid || isSaving || profileForm.pristine">
+                <span *ngIf="!isSaving">Save</span>
+
+                <span *ngIf="isSaving">
+                    <span class="spinner-border spinner-border-sm me-2"></span>
+                    Saving...
+                </span>
+            </button>
+        </div>
+
+        <!-- RIGHT SIDE AVATAR -->
+        <div class="col-md-4 text-center">
+            <img
+                [src]="avatarUrl()"
+                class="avatar mb-3"
+                alt="Avatar"
+            >
+            <div class="small">
+                <input type="file" class="form-control" (change)="onFileSelected($event)">
+            </div>
+            <div *ngIf="uploadError" class="text-danger small mt-1">
+                {{ uploadError }}
+            </div>
+            <p class="text-muted small mt-2">
+                Max size 1MB<br>
+                JPEG / PNG
+            </p>
+        </div>
+    </div>
+</form>

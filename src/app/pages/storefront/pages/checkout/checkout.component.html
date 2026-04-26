@@ -1,0 +1,474 @@
+<!-- ===============================
+  PAGE HEADER
+================================ -->
+<div class="container-fluid page-header py-5">
+  <h1 class="text-center text-white display-6">{{ title$ | async }}</h1>
+
+  <app-breadcrumb
+    *ngIf="breadcrumb$ | async as breadcrumb"
+    [items]="breadcrumb">
+  </app-breadcrumb>
+</div>
+
+<div class="container-fluid py-5">
+    <div class="container">
+
+        <!-- ========================= -->
+        <!-- DELIVERY ADDRESS -->
+        <!-- ========================= -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <h5 class="text-danger mb-3">
+                <i class="fa fa-map-marker-alt"></i> Delivery Address
+                </h5>
+
+                <div class="d-flex justify-content-between align-items-center">
+                <div *ngIf="selectedAddress">
+                    <strong>
+                    {{ selectedAddress.name }} ({{ selectedAddress.phone }})
+                    </strong>
+                    <div class="text-muted">
+                    {{ selectedAddress.address }},
+                    {{ selectedAddress.city }},
+                    {{ selectedAddress.province }}
+                    </div>
+                </div>
+
+                <button
+                    class="btn btn-sm btn-outline-primary"
+                    (click)="showAddressModal = true">
+                    Change
+                </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+
+        <!-- ========================= -->
+        <!-- LEFT SIDE -->
+        <!-- ========================= -->
+        <div class="col-lg-8">
+
+            <!-- PRODUCTS -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h4 class="mb-4">Products Ordered</h4>
+
+                    <div *ngFor="let item of cartItems"
+                        class="row align-items-center mb-4 border-bottom pb-3"
+                        [class.border-danger]="item.error"
+                        [style.background]="item.error ? '#fff5f5' : 'transparent'">
+
+                    <!-- IMAGE -->
+                    <div class="col-2">
+                        <img
+                            [src]="getImageUrl(item.productImage)"
+                            class="img-fluid rounded"
+                            style="height:70px;"
+                            alt="{{ item.productName }}"
+                        />
+                    </div>
+
+                    <!-- NAME + STATUS -->
+                    <div class="col-4">
+                        <div>{{ item.productName }}</div>
+
+                        <!-- 🔥 STOCK WARNING -->
+                        <div *ngIf="item.availableStock && item.availableStock <= 5"
+                            class="text-warning small">
+                        Only {{ item.availableStock }} left
+                        </div>
+
+                        <!-- 🔥 ERROR -->
+                        <div *ngIf="item.error"
+                            class="text-danger small">
+                        {{ item.error }}
+                        </div>
+                    </div>
+
+                    <!-- PRICE -->
+                    <div class="col-2 text-muted">
+                        ₱ {{ +item.priceSnapshot | number:'1.2-2' }}
+                    </div>
+
+                    <!-- QUANTITY -->
+                    <div class="col-2">
+                        Qty: {{ item.quantity }}
+                    </div>
+
+                    <!-- SUBTOTAL -->
+                    <div class="col-2 text-end fw-bold">
+                        ₱ {{ +item.subtotal | number:'1.2-2' }}
+                    </div>
+
+                    </div>
+
+                    <!-- MESSAGE -->
+                    <div class="mt-3">
+                        <label>Message for Seller</label>
+                        <textarea
+                            class="form-control"
+                            [(ngModel)]="messageForSeller"
+                            maxlength="200">
+                        </textarea>
+                        <small class="text-muted">
+                            {{ messageForSeller.length }}/200
+                        </small>
+                    </div>
+
+                    <!-- SHIPPING -->
+                    <div class="mt-4 d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Shipping Option:</strong> Standard Shipping
+                        </div>
+                        <div class="fw-bold">
+                            ₱ {{ shippingFee }}
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- PAYMENT -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h4 class="mb-4">Payment Method</h4>
+
+                    <div class="d-flex gap-3 flex-wrap">
+
+                    <button
+                        type="button"
+                        class="btn"
+                        [ngClass]="selectedPayment === 'COD'
+                        ? 'btn-danger'
+                        : 'btn-outline-secondary'"
+                        (click)="selectedPayment = 'COD'">
+                        Cash on Delivery
+                    </button>
+
+                    <button
+                        type="button"
+                        class="btn"
+                        [ngClass]="selectedPayment === 'CARD'
+                        ? 'btn-danger'
+                        : 'btn-outline-secondary'"
+                        (click)="selectedPayment = 'CARD'">
+                        Credit / Debit Card
+                    </button>
+
+                    <button
+                        type="button"
+                        class="btn"
+                        [ngClass]="selectedPayment === 'MAYA'
+                        ? 'btn-danger'
+                        : 'btn-outline-secondary'"
+                        (click)="selectedPayment = 'MAYA'">
+                        Maya
+                    </button>
+
+                    <button
+                        type="button"
+                        class="btn"
+                        [ngClass]="selectedPayment === 'GCASH'
+                        ? 'btn-danger'
+                        : 'btn-outline-secondary'"
+                        (click)="selectedPayment = 'GCASH'">
+                        GCash
+                    </button>
+
+                    </div>
+
+                    <div class="mt-3 text-muted small" *ngIf="selectedPayment === 'COD'">
+                    Pay in cash when your order is delivered.
+                    </div>
+
+                    <div class="mt-3 text-muted small" *ngIf="selectedPayment === 'CARD'">
+                    You will be redirected to PayMongo secure card checkout.
+                    </div>
+
+                    <div class="mt-3 text-muted small" *ngIf="selectedPayment === 'MAYA'">
+                    You will be redirected to Maya via PayMongo.
+                    </div>
+
+                    <div class="mt-3 text-muted small" *ngIf="selectedPayment === 'GCASH'">
+                    You will be redirected to GCash via PayMongo.
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+            <!-- ========================= -->
+            <!-- RIGHT SIDE -->
+            <!-- ========================= -->
+            <div class="col-lg-4">
+
+                <div class="card shadow-sm sticky-summary">
+                <div class="card-body">
+
+                    <h4 class="mb-4">Order Summary</h4>
+
+                    <div class="d-flex justify-content-between mb-2">
+                    <span>Merchandise Subtotal</span>
+                    <span>
+                        ₱ {{ (subtotal$ | async) | number:'1.2-2' }}
+                    </span>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-2">
+                    <span>Shipping</span>
+                    <span>₱ {{ shippingFee | number:'1.2-2' }}</span>
+                    </div>
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between fw-bold fs-5 mb-4">
+                    <span>Total Payment</span>
+                    <span class="text-danger">
+                        ₱ {{ getTotal((subtotal$ | async) ?? 0) | number:'1.2-2' }}
+                    </span>
+                    </div>
+
+                    <!-- 🔥 GLOBAL WARNING -->
+                    <div *ngIf="hasInvalidItems"
+                        class="text-danger small mb-2">
+                    Please fix invalid items before checkout
+                    </div>
+
+                    <!-- 🔥 CTA -->
+                    <button
+                    class="btn btn-danger w-100"
+                    [disabled]="hasInvalidItems || isSubmitting"
+                    (click)="placeOrder()">
+
+                    <span *ngIf="!isSubmitting">
+                        {{ hasInvalidItems ? 'Fix Items to Continue' : 'Place Order' }}
+                    </span>
+
+                    <span *ngIf="isSubmitting">
+                        Processing...
+                    </span>
+
+                    </button>
+
+                </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<div
+  class="address-modal-backdrop"
+  *ngIf="showAddressModal">
+
+    <div class="address-modal-card">
+
+        <!-- HEADER -->
+        <div class="d-flex justify-content-between align-items-center border-bottom p-3">
+        <h5 class="mb-0">Select Delivery Address</h5>
+
+        <button
+            class="btn-close"
+            (click)="closeAddressModal()">
+        </button>
+        </div>
+
+        <!-- ADDRESS LIST -->
+        <div class="p-3">
+
+        <div
+            *ngFor="let address of addresses"
+            class="address-item mb-3"
+            [class.active]="selectedAddress?.id === address.id">
+
+            <div class="d-flex justify-content-between align-items-start">
+
+            <label class="d-flex flex-grow-1 cursor-pointer mb-0">
+                <input
+                type="radio"
+                name="selectedAddress"
+                class="form-check-input me-3 mt-1"
+                [checked]="selectedAddress?.id === address.id"
+                (change)="selectAddress(address); refreshShipping()">
+
+                <div>
+                <div class="fw-bold">
+                    {{ address.name }} ({{ address.phone }})
+
+                    <span
+                    *ngIf="address.isDefault"
+                    class="badge bg-danger ms-2">
+                    Default
+                    </span>
+                </div>
+
+                <div class="text-muted mt-1">
+                    {{ address.address }},
+                    {{ address.barangay ? address.barangay + ', ' : '' }}
+                    {{ address.city }},
+                    {{ address.province }}
+                </div>
+                </div>
+            </label>
+
+            <div class="ms-3 d-flex flex-column gap-2">
+
+                <button
+                *ngIf="!address.isDefault"
+                class="btn btn-sm btn-outline-danger"
+                (click)="setDefault(address)">
+                Set Default
+                </button>
+
+                <button
+                class="btn btn-sm btn-outline-secondary"
+                (click)="editAddress(address)">
+                Edit
+                </button>
+            </div>
+            </div>
+        </div>
+
+            <!-- ADD NEW ADDRESS BUTTON -->
+            <button
+                class="btn btn-outline-primary"
+                (click)="openAddAddressForm()">
+                + Add New Address
+            </button>
+        </div>
+
+        <!-- ADD / EDIT FORM -->
+        <div
+        *ngIf="showAddAddressForm"
+        class="border-top p-3 bg-light">
+
+        <h6 class="mb-3">
+            {{ editingAddress ? 'Edit Address' : 'Add New Address' }}
+        </h6>
+
+        <form
+            [formGroup]="newAddressForm"
+            (ngSubmit)="saveAddress(newAddressForm.value)">
+
+            <div class="row g-3">
+
+            <div class="col-md-6">
+                <input
+                type="text"
+                class="form-control"
+                placeholder="Full Name"
+                formControlName="name">
+            </div>
+
+            <div class="col-md-6">
+                <input
+                type="text"
+                class="form-control"
+                placeholder="Phone Number"
+                formControlName="phone">
+            </div>
+
+            <div class="col-12">
+                <textarea
+                class="form-control"
+                rows="2"
+                placeholder="Street / House No. / Building"
+                formControlName="address">
+                </textarea>
+            </div>
+
+            <div class="col-md-6">
+                <select
+                class="form-select"
+                formControlName="region"
+                (change)="onRegionChange($any($event.target).value)">
+                <option value="">Select Region</option>
+                <option
+                    *ngFor="let region of regions"
+                    [value]="region.code">
+                    {{ region.name }}
+                </option>
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <select
+                    class="form-select"
+                    formControlName="province"
+                    [disabled]="isNcrRegion(newAddressForm.value.region || '')"
+                    (change)="onProvinceChange($any($event.target).value)">
+
+                    <!-- NCR -->
+                    <option
+                    *ngIf="isNcrRegion(newAddressForm.value.region || '')"
+                    [value]="newAddressForm.value.province || '130000000'">
+                    Metro Manila
+                    </option>
+
+                    <!-- Non NCR placeholder -->
+                    <option
+                    *ngIf="!isNcrRegion(newAddressForm.value.region || '')"
+                    value="">
+                    Select Province
+                    </option>
+
+                    <option
+                    *ngFor="let province of provinces"
+                    [value]="province.code">
+                    {{ province.name }}
+                    </option>
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <select
+                class="form-select"
+                formControlName="city"
+                (change)="onCityChange($any($event.target).value)">
+                <option value="">Select City / Municipality</option>
+                <option
+                    *ngFor="let city of cities"
+                    [value]="city.code">
+                    {{ city.name }}
+                </option>
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <select
+                class="form-select"
+                formControlName="barangay">
+                <option value="">Select Barangay</option>
+                <option
+                    *ngFor="let barangay of barangays"
+                    [value]="barangay.name">
+                    {{ barangay.name }}
+                </option>
+                </select>
+            </div>
+
+            <div class="col-12 d-flex justify-content-end gap-2 mt-3">
+                <button
+                type="button"
+                class="btn btn-outline-secondary"
+                (click)="resetAddressForm()">
+                Cancel
+                </button>
+
+                <button
+                type="submit"
+                class="btn btn-danger">
+                {{ editingAddress ? 'Update Address' : 'Save Address' }}
+                </button>
+            </div>
+
+            </div>
+        </form>
+        </div>
+    </div>
+</div>

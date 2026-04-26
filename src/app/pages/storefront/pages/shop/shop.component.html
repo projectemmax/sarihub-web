@@ -1,0 +1,128 @@
+<!-- Page Header -->
+<div class="container-fluid page-header py-5">
+  <h1 class="text-center text-white display-6">{{ title$ | async }}</h1>
+  <app-breadcrumb
+    *ngIf="breadcrumb$ | async as breadcrumb"
+    [items]="breadcrumb">
+  </app-breadcrumb>
+</div>
+
+<!-- Shop Content -->
+<div class="container-fluid shop py-5">
+  <div class="container">
+
+    <h1 class="mb-4">Medical Shop</h1>
+
+    <!-- Search + Sort -->
+    <div class="row g-4 mb-4">
+      <div class="col-lg-3">
+        <app-search-input
+          placeholder="Search medical products"
+          [value]="search$ | async"
+          (searchChange)="onSearchChange($event)">
+        </app-search-input>
+      </div>
+
+      <div class="col-lg-3 ms-auto">
+        <app-sort-dropdown
+          [value]="sort$ | async"
+          (sortChange)="onSortChange($event)">
+        </app-sort-dropdown>
+      </div>
+    </div>
+
+    <!-- Sidebar + Products -->
+    <div class="row g-4">
+
+        <!-- SIDEBAR -->
+        <div class="col-lg-3">
+            <ng-container *ngIf="categories$ | async as categories">
+                <app-category-sidebar
+                    [categories]="categories"
+                    [activeCategoryId]="activeCategoryId$ | async"
+                    [totalProducts]="(totalProducts$ | async) ?? 0"
+                    (categorySelect)="onCategorySelect($event)">
+                </app-category-sidebar>
+            </ng-container>
+
+        <!-- Price filter (placeholder) -->
+        <ng-container *ngIf="price$ | async as price">
+          <ng-container *ngIf="priceBounds$ | async as bounds">
+            <app-price-range
+              [min]="bounds.min"
+              [max]="bounds.max"
+              [value]="price"
+              (priceChange)="onPriceChange($event)"
+              (clear)="onClearPrice()">
+            </app-price-range>
+          </ng-container>
+        </ng-container>
+
+        <div class="mt-4">
+          <app-additional-filter
+            [value]="additional$ | async"
+            [disabled]="!!(featured$ | async)"
+            (filterChange)="onAdditionalChange($event)">
+          </app-additional-filter>
+
+          <!-- UX hint -->
+          <small
+            *ngIf="(additional$ | async) === 'featured'"
+            class="text-muted d-block mt-1"
+          >
+            Additional filters are disabled while viewing Featured products.
+            <a
+              class="ms-1 text-decoration-underline cursor-pointer"
+              (click)="clearFeatured()">
+              Clear
+            </a>
+          </small>
+        </div>
+        
+        <ng-container *ngIf="!(featured$ | async)">
+          <app-featured-products></app-featured-products>
+        </ng-container>
+
+
+      </div>
+
+      <!-- PRODUCTS -->
+      <div class="col-lg-9">
+        <ng-container *ngIf="featured$ | async">
+          <div class="alert alert-info d-flex justify-content-between align-items-center mb-4">
+            <span>
+              <strong>Featured products</strong> are currently shown.
+            </span>
+
+            <button
+              class="btn btn-sm btn-outline-secondary"
+              (click)="clearFeatured()">
+              Show all products
+            </button>
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="products$ | async as products">
+            <app-product-grid
+                [products]="products"
+                [columns]="3">
+            </app-product-grid>
+        </ng-container>
+
+        <!-- PAGINATION -->
+        <ng-container *ngIf="page$ | async as page">
+        <ng-container *ngIf="totalPages$ | async as totalPages">
+            <app-pagination
+            [page]="page"
+            [totalPages]="totalPages"
+            (pageChange)="onPageChange($event)">
+            </app-pagination>
+        </ng-container>
+        </ng-container>
+
+      </div>
+
+    </div>
+
+  </div>
+</div>

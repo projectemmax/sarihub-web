@@ -1,0 +1,25 @@
+<div class="timeline">
+
+  <div
+    class="timeline-step"
+    *ngFor="let step of timeline"
+    [class.completed]="isCompleted(step)"
+  >
+
+    <div class="timeline-icon">
+      <span *ngIf="isCompleted(step)">✓</span>
+    </div>
+
+    <div class="timeline-content">
+      <div class="timeline-title">
+        {{ step }}
+      </div>
+
+      <div class="timeline-date" *ngIf="getTimestamp(step)">
+        {{ getTimestamp(step) | date:'medium' }}
+      </div>
+    </div>
+
+  </div>
+
+</div>

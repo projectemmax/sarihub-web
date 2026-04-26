@@ -1,0 +1,52 @@
+.modal {
+  z-index: 1055;
+}
+
+.modal-backdrop {
+  background-color: #000;
+  opacity: 0.5;
+  z-index: 1050;
+}
+
+.modal-backdrop-custom {
+  background-color: #000;
+  animation: backdropFadeIn 0.2s ease forwards;
+}
+
+.modal-content {
+  width: 100%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+
+  border: 0;
+  box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.2);
+}
+
+.modal-backdrop-custom {
+  animation: backdropFadeIn 0.2s ease;
+}
+
+.modal-custom {
+  animation: modalFadeIn 0.25s ease;
+}
+
+@keyframes backdropFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 0.2;
+  }
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

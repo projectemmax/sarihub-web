@@ -1,0 +1,150 @@
+<!-- Navbar start -->
+<div class="container-fluid fixed-top"
+     [class.shadow]="isScrolled"
+     [class.bg-white]="isScrolled"
+     [style.top.px]="isDesktop && isScrolled ? -55 : 0">
+
+  <!-- Topbar -->
+  <div class="container topbar bg-primary d-none d-lg-block">
+    <div class="d-flex justify-content-between">
+      <div class="top-info ps-2">
+        <small class="me-3">
+          <i class="fas fa-map-marker-alt me-2 text-secondary"></i>
+          <a class="text-white">123 Street, New York</a>
+        </small>
+        <small class="me-3">
+          <i class="fas fa-envelope me-2 text-secondary"></i>
+          <a class="text-white">Email&#64;Example.com</a>
+        </small>
+      </div>
+      <div class="top-link pe-2">
+        <a class="text-white"><small class="mx-2">Privacy Policy</small>/</a>
+        <a class="text-white"><small class="mx-2">Terms of Use</small>/</a>
+        <a class="text-white"><small class="ms-2">Sales and Refunds</small></a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Navbar -->
+  <div class="container px-0">
+    <nav class="navbar navbar-light bg-white navbar-expand-xl">
+
+      <!-- Logo -->
+      <a routerLink="/" class="navbar-brand">
+        <h1 class="text-primary display-6">Medi<span>Store</span></h1>
+      </a>
+
+      <!-- Mobile Toggle -->
+      <button class="navbar-toggler py-2 px-3"
+              type="button"
+              (click)="toggleMobileMenu()">
+        <span class="fa fa-bars text-primary"></span>
+      </button>
+
+      <!-- Menu -->
+      <div class="collapse navbar-collapse bg-white"
+           [class.show]="mobileOpen">
+
+        <div class="navbar-nav mx-auto">
+          <a 
+            routerLink="/storefront" 
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }" 
+            class="nav-item nav-link">Home</a>
+          <a 
+            routerLink="/storefront/shop" 
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }" 
+            class="nav-item nav-link">Shop</a>
+
+          <!-- Dropdown (CSS hover works on desktop) -->
+          <!-- <div class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle">Pages</a>
+            <div class="dropdown-menu m-0 bg-secondary rounded-0">
+              <a routerLink="/cart" class="dropdown-item">Cart</a>
+              <a routerLink="/checkout" class="dropdown-item">Checkout</a>
+            </div>
+          </div> -->
+
+          <a routerLink="/contact" routerLinkActive="active" class="nav-item nav-link">Contact</a>
+        </div>
+
+        <!-- Right Icons -->
+        <div class="d-flex m-3 me-0 align-items-center">
+          <button class="btn-search btn border border-secondary btn-md-square rounded-circle bg-white me-4">
+            <i class="fas fa-search text-primary"></i>
+          </button>
+
+          <a routerLink="/storefront/cart" class="position-relative me-4 my-auto">
+            <i class="fa fa-shopping-bag fa-2x"></i>
+            <span
+              *ngIf="(cartCount$ | async) as count"
+              [hidden]="count === 0" 
+              class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1"
+                  style="top:-5px;left:15px;height:20px;min-width:20px;">
+              {{ count }}
+            </span>
+          </a>
+          <!-- User / Account -->
+          <div class="dropdown my-auto position-relative">
+            <a
+              class="my-auto cursor-pointer d-flex align-items-center justify-content-center"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              <!-- Logged in -->
+              <div
+                *ngIf="auth.isLoggedIn(); else loggedOutIcon"
+                class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center avatar-enter"
+                style="width: 38px; height: 38px; font-weight: 600;"
+              >
+                {{ auth.getUserInitials() }}
+              </div>
+
+              <span
+                *ngIf="auth.isAdmin()"
+                class="position-absolute bg-danger text-white rounded-circle d-flex align-items-center justify-content-center"
+                style="bottom: -2px; right: -2px; width: 16px; height: 16px; font-size: 10px;"
+              >
+                A
+              </span>
+
+              <!-- Logged out -->
+              <ng-template #loggedOutIcon>
+                <i class="fas fa-user fa-2x text-secondary"></i>
+              </ng-template>
+            </a>
+
+            <!-- dropdown menu stays the same -->
+            <ul class="dropdown-menu dropdown-menu-end">
+              <ng-container *ngIf="!auth.isLoggedIn(); else loggedIn">
+                <li>
+                  <button class="dropdown-item" (click)="goToLogin()">Login</button>
+                </li>
+                <li>
+                  <button class="dropdown-item" (click)="goToRegister()">Register</button>
+                </li>
+              </ng-container>
+
+              <ng-template #loggedIn>
+                <li>
+                  <a class="dropdown-item" routerLink="/storefront/account">
+                    My Account
+                  </a>
+                </li>
+                <li>
+                  <button class="dropdown-item text-danger" (click)="logout()">
+                    Logout
+                  </button>
+                </li>
+              </ng-template>
+            </ul>
+          </div>
+          <!-- End / Account -->
+
+        </div>
+      </div>
+    </nav>
+  </div>
+</div>
+<!-- Navbar End -->

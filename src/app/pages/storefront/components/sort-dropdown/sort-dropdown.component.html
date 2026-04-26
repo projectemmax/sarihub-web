@@ -1,0 +1,15 @@
+<div class="bg-light ps-3 py-3 rounded d-flex justify-content-between align-items-center">
+  <label class="me-2 mb-0">Sort by:</label>
+
+  <select
+    class="border-0 form-select-sm bg-light"
+    [value]="value"
+    (change)="onChange($any($event.target).value)"
+  >
+    <option value="">Default</option>
+    <option value="latest">Latest</option>
+    <option value="price_asc">Price ↑</option>
+    <option value="price_desc">Price ↓</option>
+    <option value="rating">Top Rated</option>
+  </select>
+</div>

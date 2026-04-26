@@ -1,0 +1,247 @@
+<div class="container py-5 order-success-page" *ngIf="order">
+    <!-- HEADER -->
+    <div class="card shadow-sm border-0 mb-4 rounded-4 overflow-hidden">
+        <div class="card-body p-5 text-center">
+
+            <div
+                class="success-icon mx-auto mb-4"
+                [ngClass]="{
+                'bg-success-subtle text-success': order.paymentStatus === 'PAID' || order.paymentMethod === 'COD',
+                'bg-warning-subtle text-warning': order.paymentStatus === 'PENDING' && order.paymentMethod !== 'COD',
+                'bg-danger-subtle text-danger': order.paymentStatus === 'FAILED'
+                }">
+
+                <i
+                    class="fa"
+                    [ngClass]="{
+                        'fa-check-circle': order.paymentStatus === 'PAID' || order.paymentMethod === 'COD',
+                        'fa-clock': order.paymentStatus === 'PENDING' && order.paymentMethod !== 'COD',
+                        'fa-times-circle': order.paymentStatus === 'FAILED'
+                    }">
+                </i>
+            </div>
+
+            <h2 class="fw-bold mb-3" *ngIf="order.paymentMethod === 'COD'">
+                Order Placed Successfully
+            </h2>
+
+            <h2
+                class="fw-bold mb-3"
+                *ngIf="order.paymentMethod !== 'COD' && order.paymentStatus === 'PAID'">
+                Payment Successful
+            </h2>
+
+            <h2
+                class="fw-bold mb-3"
+                *ngIf="order.paymentMethod !== 'COD' && order.paymentStatus === 'PENDING'">
+                Payment Processing
+            </h2>
+
+            <h2
+                class="fw-bold mb-3 text-danger"
+                *ngIf="order.paymentStatus === 'FAILED'">
+                Payment Failed
+            </h2>
+
+            <p class="text-muted fs-5 mb-4" *ngIf="order.paymentMethod === 'COD'">
+                Thank you for your purchase. Please prepare the exact amount upon delivery.
+            </p>
+
+            <p
+                class="text-muted fs-5 mb-4"
+                *ngIf="order.paymentMethod !== 'COD' && order.paymentStatus === 'PAID'">
+                Your payment has been confirmed and your order is now being prepared.
+            </p>
+
+            <p
+                class="text-muted fs-5 mb-4"
+                *ngIf="order.paymentMethod !== 'COD' && order.paymentStatus === 'PENDING'">
+                We are waiting for payment confirmation. This page will automatically update once payment is received.
+            </p>
+
+            <div class="row justify-content-center g-3 mt-2">
+                <div class="col-md-3 col-sm-6">
+                    <div class="summary-box rounded-4 p-3 h-100">
+                        <div class="text-muted small mb-1">Order Number</div>
+                        <div class="fw-semibold">{{ order.orderNumber }}</div>
+                    </div>
+                </div>
+
+                <div class="col-md-3 col-sm-6">
+                    <div class="summary-box rounded-4 p-3 h-100">
+                        <div class="text-muted small mb-1">Payment Method</div>
+                        <div class="fw-semibold">{{ order.paymentMethod }}</div>
+                    </div>
+                </div>
+
+                <div class="col-md-3 col-sm-6">
+                    <div class="summary-box rounded-4 p-3 h-100">
+                        <div class="text-muted small mb-1">Payment Status</div>
+                        <span
+                        class="badge px-3 py-2 rounded-pill fs-6"
+                        [ngClass]="{
+                            'bg-success': order.paymentStatus === 'PAID',
+                            'bg-warning text-dark': order.paymentStatus === 'PENDING',
+                            'bg-danger': order.paymentStatus === 'FAILED'
+                        }">
+                        {{ order.paymentStatus }}
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- PAYMENT PENDING NOTICE -->
+    <div
+        class="alert alert-warning border-0 rounded-4 shadow-sm mb-4"
+        *ngIf="order.paymentMethod !== 'COD' && order.paymentStatus === 'PENDING'">
+
+        <div class="d-flex align-items-start gap-3">
+            <i class="fa fa-clock mt-1 fs-4"></i>
+            <div>
+                <div class="fw-bold mb-1">Payment Still Processing</div>
+                <div>
+                    If you already completed the payment, please wait a few seconds. The payment gateway may take a short time to confirm your transaction.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- LEFT COLUMN -->
+        <div class="col-lg-8">
+
+            <!-- SHIPPING -->
+            <div class="card shadow-sm border-0 rounded-4 mb-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4">
+                        <i class="fa fa-map-marker-alt text-danger me-2"></i>
+                        Shipping Address
+                    </h5>
+
+                    <div class="fs-5 fw-semibold mb-2">
+                        {{ order.shippingName }}
+                    </div>
+
+                    <div class="text-muted mb-1">
+                        {{ order.shippingPhone }}
+                    </div>
+
+                    <div class="text-muted">
+                        {{ order.shippingAddress }}, {{ order.shippingCity }}, {{ order.shippingProvince }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- MESSAGE FOR SELLER -->
+            <div
+                class="card shadow-sm border-0 rounded-4 mb-4"
+                *ngIf="order.messageForSeller">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3">
+                        <i class="fa fa-comment-dots me-2 text-primary"></i>
+                        Message for Seller
+                    </h5>
+
+                    <div class="text-muted fst-italic">
+                        "{{ order.messageForSeller }}"
+                    </div>
+                </div>
+            </div>
+
+            <!-- ORDER ITEMS -->
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4">
+                        <i class="fa fa-box-open me-2 text-primary"></i>
+                        Items Ordered
+                    </h5>
+
+                    <div
+                        class="order-item py-3"
+                        *ngFor="let item of order.items; let last = last"
+                        [class.border-bottom]="!last">
+
+                        <div class="row align-items-center g-3">
+
+                        <div class="col-3 col-md-2">
+                            <img
+                            [src]="getImageUrl(item.productImage)"
+                            class="img-fluid rounded-3 border"
+                            style="width: 80px; height: 80px; object-fit: cover;">
+                        </div>
+
+                        <div class="col-9 col-md-5">
+                            <div class="fw-semibold mb-1">
+                            {{ item.productName }}
+                            </div>
+                            <div class="text-muted small">
+                            Quantity: {{ item.quantity }}
+                            </div>
+                        </div>
+
+                        <div class="col-6 col-md-2 text-md-center text-muted">
+                            ₱ {{ item.priceSnapshot | number:'1.2-2' }}
+                        </div>
+
+                        <div class="col-6 col-md-3 text-end fw-bold text-danger">
+                            ₱ {{ item.subtotal | number:'1.2-2' }}
+                        </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 rounded-4 sticky-top" style="top: 100px;">
+                <div class="card-body p-4">
+
+                <h5 class="fw-bold mb-4">Order Summary</h5>
+
+                <div class="d-flex justify-content-between mb-3 text-muted">
+                    <span>Subtotal</span>
+                    <span>₱ {{ (order.totalAmount - order.shippingFee) | number:'1.2-2' }}</span>
+                </div>
+
+                <div class="d-flex justify-content-between mb-3 text-muted">
+                    <span>Shipping Fee</span>
+                    <span>₱ {{ order.shippingFee | number:'1.2-2' }}</span>
+                </div>
+
+                <hr>
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <span class="fw-bold fs-5">
+                    {{ order.paymentMethod === 'COD'
+                        ? 'Amount to Pay Upon Delivery'
+                        : 'Total Paid' }}
+                    </span>
+
+                    <span class="fw-bold fs-4 text-danger">
+                    ₱ {{ order.totalAmount | number:'1.2-2' }}
+                    </span>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <a
+                    routerLink="/storefront/account/orders"
+                    class="btn btn-primary btn-lg rounded-3">
+                    View My Orders
+                    </a>
+
+                    <a
+                    routerLink="/storefront/shop"
+                    class="btn btn-outline-secondary btn-lg rounded-3">
+                    Continue Shopping
+                    </a>
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

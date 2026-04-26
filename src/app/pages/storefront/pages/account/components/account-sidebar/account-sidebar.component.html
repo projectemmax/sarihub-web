@@ -1,0 +1,87 @@
+<div class="border rounded p-4 account-sidebar">
+    <!-- Avatar -->
+    <div *ngIf="user$ | async as user" class="text-center mb-3">
+        <img *ngIf="user.avatar; else initialsTpl"
+            [src]="avatarUrl(user.avatar)"
+            class="avatar-img rounded-circle mb-2">
+
+        <ng-template #initialsTpl>
+            <div class="avatar">
+            {{ user.initials }}
+            </div>
+        </ng-template>
+        <h6 class="fw-bold mt-2">
+            {{ user.name }}
+        </h6>
+        <p class="text-muted small mb-0">
+            {{ user.email }}
+        </p>
+    </div>
+
+    <hr>
+
+    <!-- Navigation -->
+    <div class="list-group list-group-flush">
+
+        <a
+        routerLink="/storefront/account/overview"
+        routerLinkActive="active"
+        class="list-group-item list-group-item-action">
+
+        <i class="fas fa-tachometer-alt me-2"></i>
+        Account Overview
+
+        </a>
+
+        <a
+        routerLink="/storefront/account/profile"
+        routerLinkActive="active"
+        class="list-group-item list-group-item-action">
+
+        <i class="far fa-address-card me-2"></i>
+        My Profile
+
+        </a>
+
+        <a
+        routerLink="/storefront/account/orders"
+        routerLinkActive="active"
+        class="list-group-item list-group-item-action">
+
+        <i class="fa fa-box me-2"></i>
+        My Orders
+
+        </a>
+
+        <a
+        routerLink="/storefront/account/addresses"
+        routerLinkActive="active"
+        class="list-group-item list-group-item-action">
+
+        <i class="fa fa-map-marker-alt me-2"></i>
+        Addresses
+
+        </a>
+
+        <a
+        routerLink="/storefront/account/payments"
+        routerLinkActive="active"
+        class="list-group-item list-group-item-action">
+
+        <i class="fa fa-credit-card me-2"></i>
+        Payment Methods
+
+        </a>
+
+        <button
+        class="list-group-item list-group-item-action text-danger"
+        (click)="logout()">
+
+        <i class="fa fa-sign-out-alt me-2"></i>
+        Logout
+
+        </button>
+
+    </div>
+
+</div>

@@ -1,0 +1,19 @@
+<h4 class="fw-bold mb-4">
+  Account Overview
+</h4>
+
+    <!-- Welcome -->
+    <div class="alert alert-light border mb-4">
+    <strong>Welcome back 👋</strong><br>
+    Manage your orders, addresses and account settings.
+    </div>
+
+    <!-- Order Stats -->
+    <app-order-summary
+        [stats]="stats">
+    </app-order-summary>
+
+    <!-- Recent Orders -->
+    <app-recent-orders
+        [orders]="recentOrders">
+    </app-recent-orders>

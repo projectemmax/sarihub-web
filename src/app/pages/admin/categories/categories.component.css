@@ -1,0 +1,6 @@
+.form-check {
+    padding-left: 2.5em;
+}
+.form-check, .form-radio {
+    margin-top: 5px;
+}

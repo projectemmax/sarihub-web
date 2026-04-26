@@ -1,0 +1,149 @@
+<nav class="sidebar sidebar-offcanvas" id="sidebar">
+    <ul class="nav">
+        <li class="nav-item nav-profile">
+            <a href="#" class="nav-link">
+                <div class="profile-image">
+                    <img 
+                        class="img-xs rounded-circle" 
+                        [src]="currentUser?.avatarUrl || 'assets/admin/images/faces/face8.jpg'"
+                        alt="profile image">
+                    <div class="dot-indicator bg-success"></div>
+                </div>
+                <div class="text-wrapper">
+                    <p class="profile-name">
+                        {{ currentUser?.firstName }} {{ currentUser?.lastName }}
+                    </p>
+                    <p class="designation">
+                        {{ currentUser?.role === 'ADMIN' ? 'Administrator' : currentUser?.role }}
+                    </p>
+                </div>
+            </a>
+        </li>
+        <li class="nav-item nav-category">Main Menu</li>
+        <!-- DASHBOARD -->
+        <li class="nav-item"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }">
+            <a
+                class="nav-link"
+                routerLink="/admin/dashboard">
+                <i class="menu-icon typcn typcn-document-text"></i>
+                <span class="menu-title">Dashboard</span>
+            </a>
+        </li>
+
+        <!-- PRODUCTS -->
+        <li class="nav-item"
+            routerLinkActive="active">
+            <a
+                class="nav-link"
+                routerLink="/admin/products">
+                <i class="menu-icon typcn typcn-shopping-bag"></i>
+                <span class="menu-title">Products</span>
+            </a>
+        </li>
+        <!-- CATEGORIES -->
+        <li class="nav-item"
+            routerLinkActive="active">
+            <a
+                class="nav-link"
+                routerLink="/admin/categories">
+                <i class="menu-icon typcn typcn-tags"></i>
+                <span class="menu-title">Categories</span>
+            </a>
+        </li>
+
+        <!-- CUSTOMERS -->
+        <li class="nav-item"
+        routerLinkActive="active">
+            <a
+                class="nav-link"
+                routerLink="/admin/customers">
+                <i class="menu-icon typcn typcn-user-outline"></i>
+                <span class="menu-title">Customers</span>
+            </a>
+        </li>
+
+        <!-- ORDERS-->
+        <li 
+            class="nav-item"
+            routerLinkActive="active">
+            <a
+                class="nav-link"
+                routerLink="/admin/orders">
+                <i class="menu-icon typcn typcn-user-outline"></i>
+                <span class="menu-title">Orders</span>
+            </a>
+        </li>
+
+        <!-- CARTS -->
+        <li class="nav-item"
+        routerLinkActive="active">
+            <a
+                class="nav-link"
+                routerLink="/admin/carts">
+                <i class="menu-icon typcn typcn-shopping-cart"></i>
+                <span class="menu-title">Carts</span>
+            </a>
+        </li>
+
+        <!-- REVIEWS -->
+        <li class="nav-item"
+        routerLinkActive="active">
+            <a
+                class="nav-link"
+                routerLink="/admin/reviews">
+                <i class="menu-icon typcn typcn-star"></i>
+                <span class="menu-title">Reviews</span>
+            </a>
+        </li>
+        <!-- System Section -->
+        <li class="nav-item nav-category">System</li>
+
+        <li class="nav-item">
+            <a
+                class="nav-link"
+                data-bs-toggle="collapse"
+                href="#settingsMenu"
+                role="button"
+                aria-expanded="false"
+                aria-controls="settingsMenu"
+            >
+                <i class="menu-icon mdi mdi-settings"></i>
+                <span class="menu-title">Settings</span>
+                <i class="menu-arrow"></i>
+            </a>
+
+            <!-- SUB MENU -->
+            <div class="collapse" [class.show]="isSettingsOpen()" id="settingsMenu">
+                <ul class="nav flex-column sub-menu">
+                    <li class="nav-item">
+                        <a
+                            class="nav-link"
+                            routerLink="/admin/settings/profile"
+                            routerLinkActive="active">
+                            Profile
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" 
+                            routerLink="/admin/settings/site-config"
+                            routerLinkActive="active">
+                            Site Config
+                        </a>
+                    </li>
+
+                    <!-- Future -->
+                    <li class="nav-item">
+                        <a class="nav-link">Users</a>
+                    </li>
+
+                </ul>
+            </div>
+        </li>
+
+        
+
+    </ul>
+</nav>

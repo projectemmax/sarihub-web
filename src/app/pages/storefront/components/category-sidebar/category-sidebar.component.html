@@ -1,0 +1,34 @@
+<h4 class="mb-3">Categories</h4>
+
+<ul class="list-unstyled category-sidebar">
+
+  <!-- ALL PRODUCTS -->
+  <li>
+    <div
+      class="d-flex justify-content-between cat-name"
+      [class.active]="activeCategoryId === null"
+    >
+      <a (click)="selectCategory(null)">
+        <i class="fas fa-boxes me-2"></i>
+        All Products
+      </a>
+      <span>({{ totalProducts || 0 }})</span>
+    </div>
+  </li>
+
+  <!-- DYNAMIC CATEGORIES -->
+  <li *ngFor="let c of categories; trackBy: trackById">
+    <div
+      class="d-flex justify-content-between cat-name cursor-pointer"
+      [class.active]="activeCategoryId === c.id"
+      
+    >
+      <a (click)="selectCategory(c.id)">
+        <i class="fas fa-box me-2"></i>
+        {{ c.name }}
+      </a>
+      <span>({{ c.productCount ?? 0 }})</span>
+    </div>
+  </li>
+
+</ul>

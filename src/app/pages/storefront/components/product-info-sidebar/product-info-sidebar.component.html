@@ -1,0 +1,77 @@
+<div class="product-info-sidebar">
+
+    <!-- PRODUCT META -->
+    <div class="mb-4">
+        <h4 class="fw-bold mb-2">Product Info</h4>
+
+        <p class="mb-1">
+            <strong class="me-2">Category:</strong>
+            <span class="text-muted">{{ category }}</span>
+        </p>
+
+        <p class="mb-1">
+            <strong class="me-2">SKU:</strong>
+            <span class="text-muted">{{ sku }}</span>
+        </p>
+
+        <p class="mb-2">
+            <strong class="me-2">Status:</strong>
+            <span
+                class="badge"
+                [ngClass]="{
+                'bg-success': stock && stock > 5,
+                'bg-warning text-dark': stock && stock <= 5 && stock > 0,
+                'bg-danger': stock === 0
+                }">
+
+                {{ stock === 0
+                    ? 'Out of Stock'
+                    : stock && stock <= 5
+                    ? ('Only ' + stock + ' left')
+                    : 'In Stock' }}
+
+            </span>
+        </p>
+    </div>
+
+    <!-- TRUST BADGES -->
+    <div class="mb-4" *ngIf="trustBadges?.length">
+        <h6 class="fw-bold">Why buy from us?</h6>
+        <ul class="list-unstyled small text-muted" >
+            <li class="mb-2" *ngFor="let badge of trustBadges">
+                <i class="fa-solid fa-check"></i>
+                {{ badge }}
+            </li>
+        </ul>
+    </div>
+
+    <!-- SHIPPING -->
+    <div class="mb-4">
+        <h6 class="fw-bold">Delivery</h6>
+        <p 
+            class="small text-muted mb-1" 
+            *ngFor="let info of deliveryInfo; let i = index">
+            <span class="me-1">
+                <i
+                *ngIf="i === 0"
+                class="fa-solid fa-truck-moving text-primary">
+                </i>
+
+                <i
+                *ngIf="i !== 0"
+                class="fa-solid fa-truck-ramp-box text-secondary">
+                </i>
+            </span>
+            {{ info }}
+        </p>
+    </div>
+
+    <!-- SUPPORT -->
+    <div class="border-top pt-3 mb-5">
+        <p class="small mb-2 fw-bold">Need help?</p>
+        <button class="btn btn-outline-primary btn-sm w-100">
+            Contact Support
+        </button>
+    </div>
+
+</div>

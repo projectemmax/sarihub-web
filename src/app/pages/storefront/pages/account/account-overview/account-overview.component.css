@@ -1,0 +1,12 @@
+.order-row {
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.order-row:last-child {
+  border-bottom: none;
+}
+
+.card {
+  border-radius: 10px;
+}

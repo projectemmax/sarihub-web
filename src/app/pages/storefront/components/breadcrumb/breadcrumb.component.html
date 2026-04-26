@@ -1,0 +1,22 @@
+<nav class="breadcrumb justify-content-center">
+  <ng-container *ngFor="let item of items; let last = last">
+
+    <ng-container *ngIf="!last && item.url; else lastItem">
+
+      <a
+        class="px-2"
+        [routerLink]="item.url"
+        [queryParams]="item.queryParams || null">
+        {{ item.label }}
+      </a>
+
+      <span *ngIf="!last"> / </span>
+
+    </ng-container>
+
+    <ng-template #lastItem>
+      <span class="px-2 fw-bold">{{ item.label }}</span>
+    </ng-template>
+
+  </ng-container>
+</nav>
