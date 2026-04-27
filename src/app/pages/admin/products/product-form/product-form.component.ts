@@ -505,10 +505,12 @@ export class ProductFormComponent implements OnInit, CanComponentDeactivate {
             // STEP 1: Upload NEW images
             // ==========================
             const uploadedImages = await Promise.all(
-            this.images
+                this.images
                 .filter(img => img.file)
                 .map(img =>
-                    firstValueFrom(this.productService.uploadTempImage(img.file!))
+                    firstValueFrom(
+                        this.productService.uploadProductImage(this.productId, img.file!)
+                    )
                 )
             );
 
@@ -520,8 +522,9 @@ export class ProductFormComponent implements OnInit, CanComponentDeactivate {
             let finalImages = this.images.map((img, index) => {
                 if (img.file) {
                     const uploaded = uploadedImages[uploadIndex++];
+
                     return {
-                        url: uploaded.url,
+                        url: uploaded.data.imageUrl, // ✅ Cloudinary URL
                         isPrimary: img.isPrimary,
                         order: index
                     };
