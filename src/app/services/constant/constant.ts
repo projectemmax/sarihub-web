@@ -47,6 +47,8 @@ export const Constant = {
             BY_ID: (id: number | string) => `admin/products/${id}`,
             IMAGE_UPLOAD: (id: number | string) =>
                 `admin/products/${id}/image`,
+            VARIANT_IMAGE_UPLOAD: (productId: string, variantId: string) =>
+                `admin/products/${productId}/variants/${variantId}/upload`,
         },
 
         CATEGORIES: {

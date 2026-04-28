@@ -12,6 +12,18 @@ export function getImageUrl(url: string): string {
     return `${Constant.UPLOADS_BASE_URL}${clean}`;
 }
 
+export function getImageUrlCloudinary(publicId: string, width = 100) {
+  if (!publicId) return '/assets/img/no-image.png';
+
+  // Cloudinary case
+  if (!publicId.startsWith('http')) {
+    return `https://res.cloudinary.com/dygz1olfn/image/upload/w_${width},c_fill,f_auto,q_auto/${publicId}`;
+  }
+
+  // fallback (old images)
+  return publicId;
+}
+
 export function getProductImageUrl(product: Product): string {
     // ✅ PRIORITY 1 — new images table
     if (product.images?.length) {

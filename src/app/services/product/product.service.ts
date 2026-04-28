@@ -145,17 +145,27 @@ export class ProductService {
         );
     }
 
-    uploadTempImage(file: File): Observable<{ url: string }> {
+    uploadVariantImage(productId: string, variantId: string, file: File) {
         const formData = new FormData();
         formData.append('file', file);
 
-        return this.http
-            .post<any>(`${this.baseUrl}/upload`, formData)
-            .pipe(
-            map(res => ({
-                url: res.data.url
-            }))
+        return this.http.post<any>(
+            `${Constant.API_BASE_URL}/${Constant.ADMIN.PRODUCTS.VARIANT_IMAGE_UPLOAD(productId, variantId)}`,
+            formData
         );
     }
+
+    // uploadTempImage(file: File): Observable<{ url: string }> {
+    //     const formData = new FormData();
+    //     formData.append('file', file);
+
+    //     return this.http
+    //         .post<any>(`${this.baseUrl}/upload`, formData)
+    //         .pipe(
+    //         map(res => ({
+    //             url: res.data.url
+    //         }))
+    //     );
+    // }
 
 }

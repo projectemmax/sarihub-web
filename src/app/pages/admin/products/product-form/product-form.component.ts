@@ -8,7 +8,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ProductService } from '@app/services/product/product.service';
 import { firstValueFrom } from 'rxjs';
 import { CategoryService } from '@app/services/category/category.service';
-import { getImageUrl } from '@app/core/utils/image.util';
+import { getImageUrl, getImageUrlCloudinary } from '@app/core/utils/image.util';
 import { ToastService } from '@app/core/services/toast.service';
 import { CanComponentDeactivate } from '@app/guards/unsaved-changes.guard';
 
@@ -19,7 +19,7 @@ interface VariantOption {
 }
 
 interface Variant {
-  attributes: string[];
+  attributes: { [key: string]: string };
   price: number;
   stock: number;
   sku: string;
@@ -59,6 +59,7 @@ export class ProductFormComponent implements OnInit, CanComponentDeactivate {
     
 
     getImageUrl = getImageUrl;
+    getImageUrlCloudinary = getImageUrlCloudinary;
 
     canDeactivate(): boolean {
         if (this.isSubmitting) return true;
@@ -184,13 +185,13 @@ export class ProductFormComponent implements OnInit, CanComponentDeactivate {
 
         const category = this.categories.find(c => c.id === categoryId);
 
-        console.log('SELECTED CATEGORY:', category);
+        const templateAttrs = category?.variantTemplate?.attributes || [];
 
         if (hasVariants && category?.variantTemplate?.attributes?.length) {
             this.variantOptions = category.variantTemplate.attributes.map((name: string) => ({
                 name,
                 values: [],
-                locked: true
+                locked: true // 🔥 always locked from template
             }));
         } else {
             this.variantOptions = [];
@@ -266,8 +267,13 @@ export class ProductFormComponent implements OnInit, CanComponentDeactivate {
             // ==========================
 
             if (product.variantOptions?.length) {
-                // ✅ PRIORITY: saved in DB
-                this.variantOptions = product.variantOptions;
+                const category = this.categories.find(c => c.id === product.categoryId);
+                const templateAttrs = category?.variantTemplate?.attributes || [];
+
+                this.variantOptions = product.variantOptions.map((opt: any) => ({
+                    ...opt,
+                    locked: templateAttrs.includes(opt.name) // 🔥 correct usage here
+                }));
 
             } else if (product.variants?.length) {
                 // ✅ FALLBACK: reconstruct (OLD DATA)
@@ -279,9 +285,9 @@ export class ProductFormComponent implements OnInit, CanComponentDeactivate {
 
                 if (category?.variantTemplate?.attributes?.length) {
                     this.variantOptions = category.variantTemplate.attributes.map((name: string) => ({
-                    name,
-                    values: [],
-                    locked: true
+                        name,
+                        values: [],
+                        locked: true
                     }));
                 } else {
                     this.variantOptions = [];
@@ -298,7 +304,9 @@ export class ProductFormComponent implements OnInit, CanComponentDeactivate {
             this.variants = product.variants?.length
                 ? product.variants.map((v: any) => ({
                     id: v.id,
-                    attributes: Object.values(v.attributes ?? {}),
+                    attributes: Array.isArray(v.attributes)
+                        ? this.mapAttributesArrayToObject(v.attributes)
+                        : v.attributes || {},
                     price: v.price,
                     stock: v.stock,
                     sku: v.sku,
@@ -324,6 +332,20 @@ export class ProductFormComponent implements OnInit, CanComponentDeactivate {
 
             this.isInitialized = true;
         });   
+    }
+
+    mapAttributesArrayToObject(values: string[]) {
+        const obj: any = {};
+
+        values.forEach((val, i) => {
+            const key = this.variantOptions[i]?.name
+            ?.toLowerCase()
+            .replace(/\s+/g, '_');
+
+            if (key) obj[key] = val;
+        });
+
+        return obj;
     }
 
     buildForm() {
@@ -560,10 +582,12 @@ export class ProductFormComponent implements OnInit, CanComponentDeactivate {
                     sku: v.sku,
                     price: Number(v.price),
                     stock: Number(v.stock),
-                    attributes: v.attributes,
+                    attributes: Object.values(v.attributes),
                     image: v.image
                 }));
             }
+
+            console.log('PAYLOAD VARIANTS', payload.variants);
 
             // ==========================
             // STEP 4: API CALL
@@ -666,34 +690,51 @@ export class ProductFormComponent implements OnInit, CanComponentDeactivate {
 
     regenerateVariants() {
 
-        if (!this.variantOptions.length ||
-            !this.variantOptions.every(o => o.values.length)) {
-            this.variants = [];
-            return;
-        }
+    if (!this.variantOptions.length ||
+        !this.variantOptions.every(o => o.values.length)) {
+        this.variants = [];
+        return;
+    }
 
-        const combinations = this.generateVariants(this.variantOptions);
+    const combinations = this.generateVariants(this.variantOptions);
 
-        this.variants = combinations.map(combo => {
-            const existing = this.variants.find(v =>
-            JSON.stringify(v.attributes) === JSON.stringify(combo)
-            );
+    // 🔥 PRESERVE OLD VARIANTS
+    const oldVariants = [...this.variants];
 
-            return existing
-            ? {
-                ...existing,
-                attributes: combo // keep synced
-                }
-            : {
-                attributes: combo,
-                price: '',
-                stock: '',
-                sku: this.generateFullSku(combo),
-                image: ''
-            };
+    const matchVariant = (a: any, b: any) =>
+        Object.keys(a).every(key => a[key] === b[key]);
+
+    this.variants = combinations.map(combo => {
+
+        const attributes: any = {};
+
+        combo.forEach((val, i) => {
+            const key = this.variantOptions[i].name
+                .toLowerCase()
+                .replace(/\s+/g, '_');
+
+            attributes[key] = val;
         });
 
-    }
+        // 🔥 USE oldVariants INSTEAD
+        const existing = oldVariants.find(v =>
+            matchVariant(v.attributes, attributes)
+        );
+
+        return existing
+        ? {
+            ...existing, // ✅ keeps image, price, stock
+            attributes
+        }
+        : {
+            attributes,
+            price: '',
+            stock: '',
+            sku: this.generateFullSku(combo),
+            image: ''
+        };
+    });
+}
 
     applyVariantTemplate(category: any) {
         if (!category?.variantTemplate?.attributes?.length) return;
@@ -768,21 +809,43 @@ export class ProductFormComponent implements OnInit, CanComponentDeactivate {
         const file = input.files[0];
         if (!file) return;
 
+        // ✅ STEP 1: preview immediately
+        const reader = new FileReader();
+
+        reader.onload = () => {
+            this.variants[index].preview = reader.result;
+        };
+
+        reader.readAsDataURL(file);
+
         this.loadingIndex = index;
 
         try {
+            const variant = this.variants[index];
+            const variantId = variant.id || `temp-${index}`;
+
+            console.log('🔵 BEFORE UPLOAD', this.variants);
+
             const uploaded = await firstValueFrom(
-            this.productService.uploadTempImage(file)
+                this.productService.uploadVariantImage(
+                    this.productId,
+                    variantId,
+                    file
+                )
             );
 
-            this.variants[index].image = uploaded.url;
+            console.log('🟢 UPLOAD RESPONSE', uploaded);
+
+            // ✅ STEP 2: store Cloudinary public_id
+            const { data } = uploaded;
+            this.variants[index].image = data.public_id;
+
+            console.log('🟢 AFTER SET IMAGE', this.variants);
 
         } catch (err) {
             console.error(err);
         } finally {
             this.loadingIndex = null;
-
-            // ✅ VERY IMPORTANT: reset input
             input.value = '';
         }
     }
@@ -826,6 +889,12 @@ export class ProductFormComponent implements OnInit, CanComponentDeactivate {
 
         this.regenerateVariants();
         this.updateValidation();
+    }
+
+    onCancel() {
+        this.router.navigate(['/admin/products'], {
+            queryParams: this.route.snapshot.queryParams
+        });
     }
 
 

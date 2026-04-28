@@ -139,7 +139,8 @@
                         *ngFor="let val of opt.values; let j = index; trackBy: trackByIndex"
                         class="d-flex align-items-center gap-2 mb-2">
 
-                        <input [(ngModel)]="opt.values[j]"
+                        <input 
+                            [(ngModel)]="opt.values[j]"
                             [ngModelOptions]="{ standalone: true }"
                             name="value-{{i}}-{{j}}"
                             class="form-control me-2"
@@ -147,7 +148,9 @@
                             (input)="onOptionChange()"
                             [class.unsaved]="isOptionFieldChanged(i, j)">
 
-                        <button class="btn btn-danger"
+                        <button 
+                            class="btn btn-danger"
+                            [disabled]="opt.locked"
                             (click)="removeValue(i, j)">✕</button>
                     </div>
 
@@ -235,21 +238,23 @@
 
                         <!-- ✅ FIXED: Attribute Mapping -->
                         <td *ngFor="let opt of variantOptions; let idx = index">
-                            {{ v.attributes[idx] }}
+                            {{ v.attributes[opt.name.toLowerCase().replace(' ', '_')] }}
                         </td>
                         <td>
                             <div class="d-flex flex-column align-items-center">
 
                                 <!-- Preview -->
-                                <img *ngIf="v.image"
-                                    [src]="getImageUrl(v.image)"
-                                    style="width:50px;height:50px;object-fit:cover;border-radius:6px;border:1px solid #ddd;" />
+                                <img
+                                    *ngIf="v.preview || v.image"
+                                    [src]="v.preview || getImageUrlCloudinary(v.image)"
+                                    style="width:50px;height:50px;object-fit:cover;"
+                                />
 
                                 <!-- Placeholder -->
-                                <div *ngIf="!v.image"
+                                <div *ngIf="!v.image && !v.preview"
                                     style="width:50px;height:50px;border:1px dashed #ccc;font-size:10px;
                                             display:flex;align-items:center;justify-content:center;">
-                                No Image
+                                    No Image
                                 </div>
 
                                 <!-- Hidden Input -->
@@ -375,6 +380,13 @@
 
     <div class="col-12">
         <div class="text-end mt-4">
+            <button
+                type="button"
+                class="btn btn-outline-secondary me-2"
+                (click)="onCancel()"
+            >
+                Cancel
+            </button>
             <!-- Publish -->
             <button class="btn btn-success me-2"
                 [disabled]="isSubmitting"

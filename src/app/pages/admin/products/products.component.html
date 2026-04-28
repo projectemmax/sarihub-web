@@ -77,7 +77,9 @@
                         
                         <button
                             class="btn btn-sm btn-success"
-                            routerLink="/admin/products/create">
+                            routerLink="/admin/products/create"
+                            [queryParams]="route.snapshot.queryParams"
+                        >
                             + Add Product
                         </button>
                     </div>
@@ -230,7 +232,9 @@
                                                 <ng-container *ngIf="product.status !== 'ARCHIVED'; else archivedActions">
                                                     <button
                                                         class="btn btn-primary btn-sm"
-                                                        [routerLink]="['/admin/products/edit', product.id]">
+                                                        [routerLink]="['/admin/products/edit', product.id]"
+                                                        [queryParams]="route.snapshot.queryParams"
+                                                    >
                                                         Edit
                                                     </button>
 

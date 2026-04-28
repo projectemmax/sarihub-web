@@ -54,6 +54,8 @@ export class ProductsComponent implements OnInit {
 
     getProductImageUrl = getProductImageUrl;
 
+    
+
     // ===== IMAGE UPLOAD STATE =====
     selectedImageFile: File | null = null;
     imagePreview: string | null = null;
@@ -120,7 +122,7 @@ export class ProductsComponent implements OnInit {
         private fb: FormBuilder,
         private productSrv: ProductService,
         private categorySrv: CategoryService,
-        private route: ActivatedRoute,
+        public route: ActivatedRoute,
         private router: Router,
         private toast: ToastService
     ) {}
