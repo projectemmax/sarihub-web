@@ -82,11 +82,11 @@
               "optimization": true,
               "outputHashing": "all"
             },
-            "qa": {
+            "staging": {
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
-                  "with": "src/environments/environment.qa.ts"
+                  "with": "src/environments/environment.staging.ts"
                 }
               ],
               "optimization": true,
