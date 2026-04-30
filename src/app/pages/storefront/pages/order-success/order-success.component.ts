@@ -3,6 +3,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { StorefrontOrdersService } from '@app/services/storefront/storefront-orders.service';
 import { Constant } from '@app/services/constant/constant';
+import { getItemImage } from '@app/core/utils/image.util'
 
 @Component({
   selector: 'app-order-success',
@@ -14,6 +15,7 @@ import { Constant } from '@app/services/constant/constant';
 export class OrderSuccessComponent implements OnInit {
 
     order: any;
+    getItemImage = getItemImage;
 
     constructor(
         private route: ActivatedRoute,
@@ -34,12 +36,6 @@ export class OrderSuccessComponent implements OnInit {
                 this.order = res.data ?? res;
             });
         });
-    }
-
-    getImageUrl(path?: string): string {
-        if (!path) return 'assets/no-image.png';
-
-        return `${Constant.UPLOADS_BASE_URL}${path.replace('/uploads/', '')}`;
     }
 
 }

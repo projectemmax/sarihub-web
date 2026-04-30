@@ -61,6 +61,14 @@ export function getProductImageUrl(product: Product): string {
 }
 
 export function getItemImage(item: any): string {
+  // ✅ 1. Use productImage FIRST (from order snapshot)
+  if (item.productImage) {
+    return item.productImage.startsWith('http')
+      ? item.productImage
+      : `${Constant.UPLOADS_BASE_URL}${item.productImage.replace(/^\/?uploads\//, '')}`;
+  }
+
+  // ✅ 2. fallback to product.images (if available)
   const primary =
     item.product?.images?.find((img: any) => img.isPrimary) ??
     item.product?.images?.[0];
@@ -69,12 +77,6 @@ export function getItemImage(item: any): string {
     return primary.url.startsWith('http')
       ? primary.url
       : `${Constant.UPLOADS_BASE_URL}${primary.url.replace(/^\/?uploads\//, '')}`;
-  }
-
-  if (item.product?.imageUrl) {
-    return item.product.imageUrl.startsWith('http')
-      ? item.product.imageUrl
-      : `${Constant.UPLOADS_BASE_URL}${item.product.imageUrl.replace(/^\/?uploads\//, '')}`;
   }
 
   return 'assets/img/no-image.png';
