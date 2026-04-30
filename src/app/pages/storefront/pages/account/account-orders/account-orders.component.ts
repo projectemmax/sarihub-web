@@ -44,6 +44,13 @@ export class AccountOrdersComponent implements OnInit {
     getItemImage = getItemImage;
     getImageUrl = getImageUrl;
 
+    statusMap: Record<string, string[]> = {
+        ALL: [],
+        PLACED: ['PLACED', 'PROCESSING'],   // To Ship
+        SHIPPED: ['SHIPPED'],               // To Receive
+        DELIVERED: ['DELIVERED', 'COMPLETED']
+    };
+
     constructor(
         private accountService: AccountService,
         private storefrontCartService: StorefrontCartService,
@@ -78,33 +85,35 @@ export class AccountOrdersComponent implements OnInit {
             return this.orders;
         }
 
-        return this.orders.filter(
-            (o: any) => o.status === this.activeTab
+        const statuses = this.statusMap[this.activeTab];
+
+        return this.orders.filter((o: any) =>
+            statuses.includes(o.status)
         );
     }
 
-    imageUrl(path?: string) {
-        if (!path) {
-            return 'assets/img/no-image.png';
-        }
-
-        return Constant.UPLOADS_BASE_URL + path.replace('/uploads/', '');
-    }
-
     loadOrders() {
-
         this.loading = true;
 
-        const status = this.activeTab === 'ALL' ? undefined : this.activeTab;
+        // Only send API filter for exact statuses
+        let status: string | undefined;
+
+        if (this.activeTab === 'SHIPPED') {
+            status = 'SHIPPED';
+        } else if (this.activeTab === 'DELIVERED') {
+            status = 'DELIVERED';
+        } else if (this.activeTab === 'PLACED') {
+            status = 'PLACED'; // optional (you can also skip)
+        } else {
+            status = undefined; // ALL or grouped tabs
+        }
 
         this.accountService
             .getMyOrders(this.page, this.limit, status)
             .subscribe({
             next: (res: any) => {
-
                 this.orders = res.data;
                 this.totalPages = res.meta?.totalPages ?? 1;
-
                 this.loading = false;
             },
             error: () => {
@@ -140,6 +149,18 @@ export class AccountOrdersComponent implements OnInit {
             queryParams: { page },
             queryParamsHandling: 'merge'
         });
+    }
+
+    getStatusLabel(status: string) {
+        switch (status) {
+            case 'PLACED': return 'Placed';
+            case 'PROCESSING': return 'Processing';
+            case 'SHIPPED': return 'Shipped';
+            case 'DELIVERED': return 'Delivered';
+            case 'COMPLETED': return 'Completed';
+            case 'CANCELLED': return 'Cancelled';
+            default: return status;
+        }
     }
 
 }

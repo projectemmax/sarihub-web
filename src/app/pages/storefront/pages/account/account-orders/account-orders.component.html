@@ -4,33 +4,40 @@
 
 <div class="order-tabs mb-4">
 
-  <button
-    class="btn"
-    [class.active]="activeTab === 'ALL'"
-    (click)="setTab('ALL')">
-    All
-  </button>
+    <button
+        class="btn"
+        [class.active]="activeTab === 'ALL'"
+        (click)="setTab('ALL')">
+        All
+    </button>
 
-  <button
-    class="btn"
-    [class.active]="activeTab === 'PLACED'"
-    (click)="setTab('PLACED')">
-    To Ship
-  </button>
+    <button
+        class="btn"
+        [class.active]="activeTab === 'PLACED'"
+        (click)="setTab('PLACED')">
+        To Ship
+    </button>
 
-  <button
-    class="btn"
-    [class.active]="activeTab === 'SHIPPED'"
-    (click)="setTab('SHIPPED')">
-    To Receive
-  </button>
+    <button
+        class="btn"
+        [class.active]="activeTab === 'SHIPPED'"
+        (click)="setTab('SHIPPED')">
+        To Receive
+    </button>
 
-  <button
-    class="btn"
-    [class.active]="activeTab === 'DELIVERED'"
-    (click)="setTab('DELIVERED')">
-    Completed
-  </button>
+    <button
+        class="btn"
+        [class.active]="activeTab === 'DELIVERED'"
+        (click)="setTab('DELIVERED')">
+        Completed
+    </button>
+
+    <button
+        class="btn"
+        [class.active]="activeTab === 'CANCELLED'"
+        (click)="setTab('CANCELLED')">
+        Cancelled
+    </button>
 
 </div>
 
@@ -71,7 +78,7 @@
 </div>
 
 <!-- Orders -->
-<div *ngFor="let order of orders" class="order-card">
+<div *ngFor="let order of filteredOrders" class="order-card">
     <div class="order-header">
         <div>
             <strong>Order #{{ order.id }}</strong>
@@ -83,6 +90,7 @@
             class="badge"
             [ngClass]="{
                 'bg-warning': order.status === 'PLACED',
+                'bg-info': order.status === 'PROCESSING',
                 'bg-primary': order.status === 'SHIPPED',
                 'bg-success': order.status === 'DELIVERED'
             }">
@@ -93,7 +101,7 @@
     <!-- Order Items -->
     <div *ngFor="let item of order.items" class="order-item">
         <img
-            [src]="getImageUrl(item.productImage)"
+            [src]="getItemImage(item)"
             class="product-img">
 
         <div class="flex-grow-1">
@@ -113,7 +121,7 @@
         </div>
         <div>
             <button
-                class="btn btn-outline-primary btn-sm"
+                class="btn btn-outline-primary btn-sm me-2"
                 [routerLink]="['/storefront/account/orders', order.id]">
                 View Details
             </button>
