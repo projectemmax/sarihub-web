@@ -8,7 +8,7 @@
     >
       <div class="rounded me-4" style="width: 100px; height: 100px;">
         <img
-          [src]="getImageUrl(product.imageUrl) || 'assets/img/no-image.png'"
+          [src]="getProductImageUrl(product)"
           class="img-fluid rounded"
           alt="{{ product.name }}"
         />
@@ -26,11 +26,7 @@
 
         <!-- Rating -->
         <div class="d-flex mb-2">
-          <i
-            *ngFor="let star of stars"
-            class="fa fa-star"
-            [class.text-secondary]="star <= rating"
-          ></i>
+          <app-rating></app-rating>
         </div>
 
         <!-- Price -->
