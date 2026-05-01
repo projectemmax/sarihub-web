@@ -12,16 +12,16 @@
 .product-img img {
   max-width: 100%;
   max-height: 100%;
-  object-fit: contain;         /* 🔑 keeps aspect ratio */
+  object-fit: contain;
 }
 
 .product-title {
   /* font-size: 1.05rem;
   font-weight: 600; */
 
-  white-space: nowrap;         /* 🔑 one line */
+  white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;     /* 🔑 "..." */
+  text-overflow: ellipsis;
 
   margin-bottom: 6px;
 }
@@ -38,4 +38,11 @@
 
 .product-card .actions {
   margin-top: auto; /* pushes Add button to bottom */
+}
+.product-description {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;     /* 👈 number of lines */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  color: #a2a1a1;
 }
