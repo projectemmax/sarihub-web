@@ -2,6 +2,13 @@ export const SITE_CONFIG_META: Record<string, any> = {
   siteName: { label: 'Site Name', type: 'text', group: 'Branding' },
   logoUrl: { label: 'Logo URL', type: 'text', group: 'Branding' },
 
+  'homepageBanner.backgroundImage': {
+    label: 'Hero Background Image',
+    type: 'image', // 👈 important (custom type)
+    group: 'Hero Banner',
+    help: 'Upload background image for hero section'
+  },
+
   enableCheckout: { label: 'Enable Checkout', type: 'boolean', group: 'Checkout' },
   enableCOD: { label: 'Enable COD', type: 'boolean', group: 'Checkout' },
   currency: { label: 'Currency', type: 'select', options: ['PHP', 'USD'], group: 'Checkout' },
@@ -54,6 +61,12 @@ export const SITE_CONFIG_GROUP_UI: Record<string, any> = {
     icon: 'mdi mdi-palette',
     subtitle: 'Logo, name, and identity'
   },
+
+  'Hero Banner': {
+    icon: 'mdi mdi-home-circle',
+    subtitle: 'Upload background image for hero section'
+  },
+
   Checkout: {
     icon: 'mdi mdi-cart',
     subtitle: 'Payment and order settings'
