@@ -327,53 +327,18 @@
             </div>
             <div class="card-body">
                 <!-- Dropzone -->
-                <ngx-dropzone (change)="onSelect($event)">
+                <!-- <ngx-dropzone (change)="onSelect($event)">
                     <ngx-dropzone-label>
                         Drag & drop or click to upload
                     </ngx-dropzone-label>
-                </ngx-dropzone>
+                </ngx-dropzone> -->
 
-                <!-- Preview Grid -->
-                <div class="row mt-3">
-                    <div class="col-md-3 mb-3" *ngFor="let img of images; let i = index">
+                <app-reusable-image-upload
+                    [images]="images"
+                    (imagesChange)="onImagesChange($event)">
+                </app-reusable-image-upload>
 
-                        <div class="card position-relative">
-
-                        <!-- Thumbnail badge -->
-                        <span *ngIf="img.isPrimary"
-                                class="badge bg-primary position-absolute top-0 start-0 m-1">
-                            Thumbnail
-                        </span>
-
-                        <img [src]="img.preview"
-                            class="card-img-top"
-                            style="height: 150px; object-fit: cover;" />
-
-                        <div class="card-body p-2 text-center">
-
-                            <button class="btn btn-sm btn-outline-primary me-1"
-                                    (click)="setPrimary(i)">
-                            Set Main
-                            </button>
-
-                            <button class="btn btn-sm btn-outline-danger me-1"
-                                    (click)="removeImage(i)">
-                            Remove
-                            </button>
-
-                            <div class="mt-2">
-                            <button class="btn btn-sm btn-light me-1"
-                                    (click)="moveImage(i, 'left')">←</button>
-
-                            <button class="btn btn-sm btn-light"
-                                    (click)="moveImage(i, 'right')">→</button>
-                            </div>
-
-                        </div>
-                        </div>
-
-                    </div>
-                </div>
+                
             </div>
         </div>
     </div>

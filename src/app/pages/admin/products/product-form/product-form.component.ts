@@ -11,6 +11,7 @@ import { CategoryService } from '@app/services/category/category.service';
 import { getImageUrl, getImageUrlCloudinary } from '@app/core/utils/image.util';
 import { ToastService } from '@app/core/services/toast.service';
 import { CanComponentDeactivate } from '@app/guards/unsaved-changes.guard';
+import { ReusableImageUploadComponent } from "@app/shared/reusable-image-upload/reusable-image-upload.component";
 
 interface VariantOption {
   name: string;
@@ -30,11 +31,12 @@ interface Variant {
     selector: 'app-product-form',
     standalone: true,
     imports: [
-        CommonModule, 
-        ReactiveFormsModule, 
-        FormsModule,
-        NgxDropzoneModule
-    ],
+    CommonModule,
+    ReactiveFormsModule,
+    FormsModule,
+    NgxDropzoneModule,
+    ReusableImageUploadComponent
+],
     templateUrl: './product-form.component.html',
     styleUrl: './product-form.component.css'
 })
@@ -427,49 +429,53 @@ export class ProductFormComponent implements OnInit, CanComponentDeactivate {
         stockControl?.updateValueAndValidity();
     }
 
-    onSelect(event: any) {
-        event.addedFiles.forEach((file: File) => {
-            const reader = new FileReader();
-
-            reader.onload = () => {
-            this.images.push({
-                file,
-                preview: reader.result as string,
-                isPrimary: this.images.length === 0,
-                isNew: true // 🔥 important
-            });
-            };
-
-            reader.readAsDataURL(file);
-        });
+    onImagesChange(images: any[]) {
+        this.images = images;
     }
 
-    removeImage(index: number) {
-        const img = this.images[index];
+    // onSelect(event: any) {
+    //     event.addedFiles.forEach((file: File) => {
+    //         const reader = new FileReader();
 
-        if (img.id) {
-            this.deletedImageIds.push(img.id);
-        }
+    //         reader.onload = () => {
+    //         this.images.push({
+    //             file,
+    //             preview: reader.result as string,
+    //             isPrimary: this.images.length === 0,
+    //             isNew: true // 🔥 important
+    //         });
+    //         };
 
-        this.images.splice(index, 1);
-    }
+    //         reader.readAsDataURL(file);
+    //     });
+    // }
 
-    setPrimary(index: number) {
-        this.images = this.images.map((img, i) => ({
-            ...img,
-            isPrimary: i === index
-        }));
-    }
+    // removeImage(index: number) {
+    //     const img = this.images[index];
 
-    moveImage(index: number, direction: 'left' | 'right') {
-        const newIndex = direction === 'left' ? index - 1 : index + 1;
+    //     if (img.id) {
+    //         this.deletedImageIds.push(img.id);
+    //     }
 
-        if (newIndex < 0 || newIndex >= this.images.length) return;
+    //     this.images.splice(index, 1);
+    // }
 
-        const temp = this.images[index];
-        this.images[index] = this.images[newIndex];
-        this.images[newIndex] = temp;
-    }
+    // setPrimary(index: number) {
+    //     this.images = this.images.map((img, i) => ({
+    //         ...img,
+    //         isPrimary: i === index
+    //     }));
+    // }
+
+    // moveImage(index: number, direction: 'left' | 'right') {
+    //     const newIndex = direction === 'left' ? index - 1 : index + 1;
+
+    //     if (newIndex < 0 || newIndex >= this.images.length) return;
+
+    //     const temp = this.images[index];
+    //     this.images[index] = this.images[newIndex];
+    //     this.images[newIndex] = temp;
+    // }
 
     isFieldChanged(key: string): boolean {
         if (!this.isInitialized) return false;
