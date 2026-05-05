@@ -18,6 +18,14 @@ export const SITE_CONFIG_META: Record<string, any> = {
     help: 'Supporting text under hero title'
   },
 
+  'homepageBanner.tagline': {
+    label: 'Hero Tagline',
+    type: 'text',
+    group: 'Hero Banner',
+    placeholder: 'Medical Supplies You Can Trust',
+    help: 'Supporting text under hero title'
+  },
+
   'homepageBanner.backgroundImage': {
     label: 'Hero Background Image',
     type: 'image', // 👈 important (custom type)

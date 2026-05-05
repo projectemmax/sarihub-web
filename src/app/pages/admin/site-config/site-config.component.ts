@@ -53,7 +53,7 @@ export class SiteConfigComponent implements OnInit {
     }
 
     save(diff: any) {
-        
+        if (this.isSaving) return;
 
         
 
