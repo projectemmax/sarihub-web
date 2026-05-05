@@ -12,6 +12,8 @@
   border: 2px solid #dc3545 !important;
 }
 
+
+/*- IMAGE UPLOAD UPDATED STYLE-*/
 .cdk-drag-preview {
   box-shadow: 0 5px 15px rgba(0,0,0,0.2);
   border-radius: 6px;
@@ -19,4 +21,41 @@
 
 .cdk-drag-placeholder {
   opacity: 0.3;
+}
+
+.upload-box {
+  border: 2px dashed #ccc;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  position: relative;
+  transition: 0.2s ease;
+}
+
+.upload-box:hover {
+  border-color: #0d6efd;
+  background: #f8f9fa;
+}
+
+.upload-placeholder {
+  color: #6c757d;
+}
+
+.preview-img {
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.overlay {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  padding: 6px;
+  background: rgba(0,0,0,0.6);
+  color: #fff;
+  font-size: 12px;
+  border-radius: 0 0 10px 10px;
 }

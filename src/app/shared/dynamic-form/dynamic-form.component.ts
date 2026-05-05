@@ -5,11 +5,13 @@ import { DynamicField, DynamicFormSchema } from "./dynamic-form.types";
 import { OnChanges, SimpleChanges } from '@angular/core';
 import { debounceTime, distinctUntilChanged, Subscription } from "rxjs";
 import { DragDropModule, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { UploadService } from '../../core/services/upload.service';
+import { ReusableImageUploadComponent } from "../reusable-image-upload/reusable-image-upload.component";
 
 @Component({
   selector: 'app-dynamic-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, DragDropModule],
+  imports: [CommonModule, ReactiveFormsModule, DragDropModule, ReusableImageUploadComponent],
   templateUrl: './dynamic-form.component.html',
   styleUrls: ['./dynamic-form.component.css']
 })
@@ -19,7 +21,9 @@ export class DynamicFormComponent implements OnInit, OnChanges{
     @Input() data: any[] = [];
 
     @Output() submitted = new EventEmitter<any>();
+    @Output() imageChanged = new EventEmitter<any>();
     @Input() loading = false;
+    @Input() showImageSaveButton = false;
 
     form!: FormGroup;
     grouped: Record<string, DynamicField[]> = {};
@@ -29,12 +33,16 @@ export class DynamicFormComponent implements OnInit, OnChanges{
     autoSaveSub?: Subscription;
     private skipNextAutoSave = false;
     initialValue: any = {};
+    imageState: Record<string, any[]> = {};
 
     asFormControl(ctrl: any): FormControl {
         return ctrl as FormControl;
     }
 
-    constructor(private fb: FormBuilder) {}
+    constructor(
+        private fb: FormBuilder,
+        private uploadService: UploadService
+    ) {}
 
     ngOnInit() {
         
@@ -99,23 +107,30 @@ export class DynamicFormComponent implements OnInit, OnChanges{
 
     buildForm() {
         console.log('Building form with:', this.data);
+
         const group: any = {};
 
         this.schema.fields.forEach(field => {
-            const value = this.data.find(d => d.key === field.key)?.value;
+            const normalizedKey = this.normalizeKey(field.key);
+            const value = this.getNestedValue(field.key);
 
             if (field.type === 'array') {
-                group[field.key] = this.fb.array(
+            group[normalizedKey] = this.fb.array(
                 (value || []).map((v: any) => this.fb.control(v))
-                );
+            );
+
+            } else if (field.type === 'number') {
+            group[normalizedKey] = [value ?? 0];
+
+            } else if (field.type === 'boolean') {
+            group[normalizedKey] = [!!value];
+
+            } else if (field.type === 'image') {
+            // 🔥 IMPORTANT: don't bind image to form value
+            group[normalizedKey] = [value ?? null];
+
             } else {
-                if (field.type === 'number') {
-                    group[field.key] = [value ?? 0];
-                } else if (field.type === 'boolean') {
-                    group[field.key] = [!!value];
-                } else {
-                    group[field.key] = [value ?? null];
-                }
+            group[normalizedKey] = [value ?? null];
             }
         });
 
@@ -142,7 +157,7 @@ export class DynamicFormComponent implements OnInit, OnChanges{
     }
 
     getArray(key: string): FormArray {
-        return this.form.get(key) as FormArray;
+        return this.form.get(this.normalizeKey(key)) as FormArray;
     }
 
     addItem(key: string) {
@@ -174,31 +189,39 @@ export class DynamicFormComponent implements OnInit, OnChanges{
         this.submitted.emit(cleanedValue);
     }
 
-   setupAutoSave() {
+    setupAutoSave() {
         this.autoSaveSub?.unsubscribe();
 
         this.autoSaveSub = this.form.valueChanges
-        .pipe(debounceTime(800))
-        .subscribe(value => {
+            .pipe(debounceTime(800))
+            .subscribe(value => {
 
             if (this.loading) return;
 
             if (this.skipNextAutoSave) {
-            this.skipNextAutoSave = false;
-            return;
+                this.skipNextAutoSave = false;
+                return;
             }
 
             const cleaned = this.cleanFormValue(value);
             const diff = this.getDiff(cleaned, this.initialValue);
 
-            // nothing changed
             if (Object.keys(diff).length === 0) return;
+
+            // 🔥 ADD THIS BLOCK
+            const hasManualField = Object.keys(diff).some(key => {
+                const field = this.schema.fields.find(f => f.key === key);
+                return field?.autoSave === false;
+            });
+
+            if (hasManualField) {
+                return; // ❌ skip auto-save for image
+            }
 
             this.isDirty = true;
 
-            this.submitted.emit(diff); // 🔥 ONLY DIFF
+            this.submitted.emit(diff);
 
-            // update snapshot after save
             this.initialValue = { ...this.initialValue, ...diff };
         });
     }
@@ -261,6 +284,89 @@ export class DynamicFormComponent implements OnInit, OnChanges{
         const duplicates = arr.value.filter((v: string) => v === value);
         return duplicates.length > 1;
     }
+
+    onDragOver(event: DragEvent) {
+        event.preventDefault();
+    }
+
+    
+
+    //REUSABLE COMPONENT UPLOAD IMAGE
+    getImageFieldValue(key: string) {
+
+        // 1. user uploaded image
+        if (this.imageState && key in this.imageState) {
+            return this.imageState[key]; // even if []
+        }
+
+        // 2. fallback to existing value
+        const normalizedKey = this.normalizeKey(key);
+        const value = this.form.get(normalizedKey)?.value;
+
+        if (!value) return [];
+
+        return [
+            {
+            preview: value,
+            isPrimary: true
+            }
+        ];
+    }
+
+    onImageChange(key: string, images: any[]) {
+        console.log('🔥 IMAGE CHANGE TRIGGERED', key, images);
+
+        this.imageState[key] = images;
+
+        this.imageChanged.emit({ key, images });
+        this.isDirty = true;
+    }
+
+    getNestedValue(key: string): any {
+        const parts = key.split('.');
+        const parentKey = parts[0];
+        const childKey = parts[1];
+
+        const parent = this.data.find(d => d.key === parentKey);
+
+        if (!parent) return null;
+
+        if (!childKey) return parent.value;
+
+        return parent.value?.[childKey];
+    }
+
+    normalizeKey(key: string): string {
+        return key.replace(/\./g, '__'); // or '_'
+    }
+
+    hasImageChanges(): boolean {
+        if (!this.imageState) return false;
+
+        return Object.keys(this.imageState).some(key => {
+            const images = this.imageState[key];
+            const original = this.getNestedValue(key);
+
+            // 🔥 Case 1: user removed image
+            if ((!images || images.length === 0) && original) {
+            return true;
+            }
+
+            // 🔥 Case 2: user uploaded new image
+            if (images && images.some(img => img.file)) {
+            return true;
+            }
+
+            return false;
+        });
+    }
+
+    emitImageSave() {
+        if (this.loading) return;
+        this.submitted.emit({});
+    }
+
+    
 
     // submit() {
     //     if (this.form.invalid) return;

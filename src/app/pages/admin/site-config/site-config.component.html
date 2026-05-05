@@ -13,7 +13,9 @@
             [schema]="schema"
             [data]="configs"
             [loading]="isSaving"
-            (submitted)="save($event)">
+            [showImageSaveButton]="true"
+            (submitted)="save($event)"
+            (imageChanged)="onImageChanged($event)">
         </app-dynamic-form>
       
     </div>

@@ -2,9 +2,27 @@ export const SITE_CONFIG_META: Record<string, any> = {
   siteName: { label: 'Site Name', type: 'text', group: 'Branding' },
   logoUrl: { label: 'Logo URL', type: 'text', group: 'Branding' },
 
+  'homepageBanner.title': {
+    label: 'Hero Title',
+    type: 'text',
+    group: 'Hero Banner',
+    placeholder: 'Your Health Matters',
+    help: 'Main heading displayed on homepage hero'
+  },
+
+  'homepageBanner.subtitle': {
+    label: 'Hero Subtitle',
+    type: 'text',
+    group: 'Hero Banner',
+    placeholder: 'Quality medical supplies delivered to your door',
+    help: 'Supporting text under hero title'
+  },
+
   'homepageBanner.backgroundImage': {
     label: 'Hero Background Image',
     type: 'image', // 👈 important (custom type)
+    autoSave: false,
+    multiple: false,
     group: 'Hero Banner',
     help: 'Upload background image for hero section'
   },

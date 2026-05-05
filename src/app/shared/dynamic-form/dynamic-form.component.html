@@ -33,7 +33,7 @@
                     <!-- BOOLEAN -->
                     <div *ngIf="field.type === 'boolean'" class="form-check form-switch">
                         <input type="checkbox" class="form-check-input" role="switch"
-                            [formControlName]="field.key" />
+                            [formControlName]="normalizeKey(field.key)" />
                         <label class="form-check-label">{{ field.label }}</label>
                     </div>
 
@@ -41,14 +41,14 @@
                     <div *ngIf="field.type === 'text'">
                         <label class="form-label">{{ field.label }}</label>
                         <input class="form-control"
-                            [formControlName]="field.key" />
+                            [formControlName]="normalizeKey(field.key)" />
                     </div>
 
                     <!-- SELECT -->
                     <div *ngIf="field.type === 'select'" class="form-group">
                         <label class="form-label">{{ field.label }}</label>
                         <select class="form-select form-control"
-                                [formControlName]="field.key">
+                                [formControlName]="normalizeKey(field.key)">
                             <option *ngFor="let opt of field.options" [value]="opt">
                                 {{ opt }}
                             </option>
@@ -59,7 +59,7 @@
                     <div *ngIf="field.type === 'array'">
                         <label class="form-label">{{ field.label }}</label>
                         <div 
-                            [formArrayName]="field.key"
+                            [formArrayName]="normalizeKey(field.key)"
                             cdkDropList
                             (cdkDropListDropped)="drop(field.key, $event)"
                         >
@@ -112,7 +112,7 @@
                             type="number"
                             min="0"
                             class="form-control"
-                            [formControlName]="field.key"
+                            [formControlName]="normalizeKey(field.key)"
                             [placeholder]="field.placeholder || ''"
                             />
                         </div>
@@ -120,6 +120,33 @@
                         <small *ngIf="field.help" class="text-muted d-block mt-1">
                             {{ field.help }}
                         </small>
+                    </div>
+
+                    <!-- IMAGE FIELD -->
+                    <div *ngIf="field.type === 'image'" class="mb-4">
+
+                        <label class="form-label fw-semibold">{{ field.label }}</label>
+
+                        <app-reusable-image-upload
+                            [images]="getImageFieldValue(field.key)"
+                            (imagesChange)="onImageChange(field.key, $event)">
+                        </app-reusable-image-upload>
+
+                        <div *ngIf="showImageSaveButton && hasImageChanges()" class="mt-3">
+                            <button 
+                                class="btn btn-primary"
+                                [disabled]="loading || !hasImageChanges()" 
+                                (click)="emitImageSave()">
+
+                                <span *ngIf="!loading">Save Images</span>
+
+                                <span *ngIf="loading">
+                                    <span class="spinner-border spinner-border-sm me-2"></span>
+                                    Saving...
+                                </span>
+                            </button>
+                        </div>
+                        
                     </div>
 
                 </div>

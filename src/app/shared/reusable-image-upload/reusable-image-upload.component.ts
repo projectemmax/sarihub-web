@@ -41,7 +41,7 @@ export class ReusableImageUploadComponent {
 
     removeImage(index: number) {
         this.images.splice(index, 1);
-        this.emit();
+        this.imagesChange.emit(this.images);
     }
 
     setPrimary(index: number) {

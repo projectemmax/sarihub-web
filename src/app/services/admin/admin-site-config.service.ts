@@ -13,10 +13,10 @@ export class SiteConfigAdminService {
         );
     }
 
-    updateBulk(configs: { key: string; value: any }[]) {
+    updateBulk(body: { configs: { key: string; value: any }[] }) {
         return this.http.patch(
-        `${Constant.API_BASE_URL}/${Constant.SITE_CONFIG.BASE}`,
-        configs
+            `${Constant.API_BASE_URL}/${Constant.SITE_CONFIG.BASE}`,
+            body
         );
     }
 }

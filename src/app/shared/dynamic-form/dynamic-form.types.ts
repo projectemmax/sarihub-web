@@ -1,9 +1,10 @@
-export type FieldType = 'text' | 'number' | 'boolean' | 'select' | 'array';
+export type FieldType = 'text' | 'number' | 'boolean' | 'select' | 'array' | 'image';
 
 export interface DynamicField {
   key: string;
   label: string;
   type: FieldType;
+  autoSave?: boolean;
 
   group?: string;
 
