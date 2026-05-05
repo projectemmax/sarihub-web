@@ -45,4 +45,16 @@ export class StorefrontProductService {
             );
     }
 
+    searchAutocomplete(query: string): Observable<Product[]> {
+        let params = new HttpParams()
+            .set('search', query)
+            .set('limit', 5); // 👈 limit suggestions
+
+        return this.http
+            .get<ApiResponse<Product[]>>(this.baseUrl, { params })
+            .pipe(
+            map(res => res.data ?? [])
+        );
+    }
+
 }

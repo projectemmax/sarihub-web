@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
+import { SiteConfigService } from '@app/core/services/site-config.service';
+
 // 👇 IMPORT FOOTER
 import { FooterComponent } from '@app/pages/storefront/components/footer/footer.component';
 import { NavbarComponent } from
@@ -21,9 +23,14 @@ import { NavbarComponent } from
 })
 export class StorefrontLayoutComponent implements OnInit {
 
+    constructor(
+      private siteConfigService: SiteConfigService
+    ){}
+
     ngOnInit() {
         this.clearTemplateCss();
         this.loadCss('assets/storefront/css/medical-theme.css');
+        this.siteConfigService.loadConfig().subscribe();
     }
 
     loadCss(path: string) {
