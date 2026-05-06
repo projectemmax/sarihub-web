@@ -34,6 +34,8 @@ export class DynamicFormComponent implements OnInit, OnChanges{
     private skipNextAutoSave = false;
     initialValue: any = {};
     imageState: Record<string, any[]> = {};
+    private initialized = false;
+    
 
     asFormControl(ctrl: any): FormControl {
         return ctrl as FormControl;
@@ -59,12 +61,13 @@ export class DynamicFormComponent implements OnInit, OnChanges{
     ngOnChanges(changes: SimpleChanges) {
 
         // ✅ Rebuild form when data arrives
-        if (changes['data'] && this.data?.length) {
+        if (changes['data'] && this.data?.length && !this.initialized) {
             this.buildForm();
             this.groupFields();
             this.setupAutoSave();
 
             this.initialValue = this.cleanFormValue(this.form.value);
+            this.initialized = true;
         }
 
         // ✅ Prevent crash
@@ -141,15 +144,19 @@ export class DynamicFormComponent implements OnInit, OnChanges{
         this.grouped = {};
 
         this.schema.fields.forEach(field => {
-        const group = field.group || 'Other';
+            const group = field.group || 'Other';
 
-        if (!this.grouped[group]) {
-            this.grouped[group] = [];
-            this.collapsed[group] = false;
-        }
+            if (!this.grouped[group]) {
+                this.grouped[group] = [];
+                this.collapsed[group] = group !== 'Hero Banner';
+            }
 
-        this.grouped[group].push(field);
+            this.grouped[group].push(field);
         });
+    }
+
+    trackByField(index: number, item: any) {
+        return item.key;
     }
 
     toggle(group: string) {
@@ -190,39 +197,47 @@ export class DynamicFormComponent implements OnInit, OnChanges{
     }
 
     setupAutoSave() {
+        let firstRun = true;
         this.autoSaveSub?.unsubscribe();
 
         this.autoSaveSub = this.form.valueChanges
             .pipe(debounceTime(800))
             .subscribe(value => {
+                if (firstRun) {
+                    firstRun = false;
+                    return;
+                }
 
-            if (this.loading) return;
+                if (this.loading) return;
+                if (!this.form?.dirty) return;
 
-            if (this.skipNextAutoSave) {
-                this.skipNextAutoSave = false;
-                return;
-            }
+                if (this.skipNextAutoSave) {
+                    this.skipNextAutoSave = false;
+                    return;
+                }
 
-            const cleaned = this.cleanFormValue(value);
-            const diff = this.getDiff(cleaned, this.initialValue);
+                const cleaned = this.cleanFormValue(value);
+                const diff = this.getDiff(cleaned, this.initialValue);
 
-            if (Object.keys(diff).length === 0) return;
+                if (Object.keys(diff).length === 0) return;
 
-            // 🔥 ADD THIS BLOCK
-            const hasManualField = Object.keys(diff).some(key => {
-                const field = this.schema.fields.find(f => f.key === key);
-                return field?.autoSave === false;
-            });
+                // 🔥 ADD THIS BLOCK
+                const hasManualField = Object.keys(diff).some(key => {
+                    const field = this.schema.fields.find(f => f.key === key);
+                    return field?.autoSave === false;
+                });
 
-            if (hasManualField) {
-                return; // ❌ skip auto-save for image
-            }
+                if (hasManualField) {
+                    return; // ❌ skip auto-save for image
+                }
 
-            this.isDirty = true;
+                this.isDirty = true;
 
-            this.submitted.emit(diff);
+                if (!Object.keys(diff).length) return;
 
-            this.initialValue = { ...this.initialValue, ...diff };
+                this.submitted.emit(diff);
+
+                this.initialValue = { ...this.initialValue, ...diff };
         });
     }
 
@@ -366,11 +381,4 @@ export class DynamicFormComponent implements OnInit, OnChanges{
         this.submitted.emit({});
     }
 
-    
-
-    // submit() {
-    //     if (this.form.invalid) return;
-    //     this.isSubmitting = true;
-    //     const result = this.submitted.emit(this.form.value);
-    // }
 }

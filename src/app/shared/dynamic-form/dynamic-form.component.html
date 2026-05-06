@@ -28,7 +28,9 @@
             <!-- BODY -->
             <div class="card-body" *ngIf="!collapsed[group.key]">
 
-                <div *ngFor="let field of group.value" class="mb-3">
+                <div 
+                    *ngFor="let field of group.value; trackBy: trackByField" 
+                    class="mb-3">
 
                     <!-- BOOLEAN -->
                     <div *ngIf="field.type === 'boolean'" class="form-check form-switch">

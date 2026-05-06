@@ -136,7 +136,11 @@ export class SiteConfigComponent implements OnInit {
                 this.isSaving = false;
                 this.toastr.success('Site configuration saved');
                 this.imageState = {};
-                this.loadSiteConfigs();
+                
+                this.configs = this.configs.map(c => {
+                    const updated = payload.find(p => p.key === c.key);
+                    return updated ? { ...c, value: updated.value } : c;
+                });
             },
             error: () => {
                 this.isSaving = false;
