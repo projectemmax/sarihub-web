@@ -8,4 +8,9 @@
     transform: translate(-50%, -50%);
 }
 
+.service .service-item .offer-image {
+    height: 220px;
+    object-fit: cover;
+}
+
 /*** service End ***/

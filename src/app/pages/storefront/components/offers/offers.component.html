@@ -1,47 +1,56 @@
 <!-- Offers Start -->
-        <div class="container-fluid service py-2">
-            <div class="container py-5">
-                <div class="row g-4 justify-content-center">
-                    <div class="col-md-6 col-lg-4">
-                        <a href="#">
-                            <div class="service-item bg-secondary rounded border border-secondary">
-                                <img src="/assets/storefront/medical-ppe.jpg" class="img-fluid rounded-top w-100" alt="PPE Supplies">
-                                <div class="px-4 rounded-bottom">
-                                    <div class="service-content bg-primary text-center p-4 rounded">
-                                    <h5 class="text-white">PPE & Safety Supplies</h5>
-                                    <h3 class="mb-0 text-white">Up to 20% OFF</h3>
-                                    </div>
-                                </div>
+<div class="container-fluid service py-2" *ngIf="shopOffers.length > 0">
+    <div class="container py-5">
+        <div class="row g-4 justify-content-center">
+            <div
+                *ngFor="let offer of shopOffers; let i = index; trackBy: trackByOffer"
+                class="col-md-6 col-lg-4">
+                <a href="#" class="text-decoration-none">
+                    <div 
+                        class="service-item rounded border border-secondary h-100"
+                        [ngClass]="{
+                            'bg-secondary border border-secondary': i === 0,
+                            'bg-dark border border-dark': i === 1,
+                            'bg-primary border border-primary': i === 2
+                        }">
+                        <img
+                            [src]="offer.image || fallbackImage"
+                            class="img-fluid rounded-top w-100 offer-image"
+                            [alt]="offer.title || 'Shop offer'">
+
+                        <div class="px-4 rounded-bottom">
+                            <div 
+                                class="service-content text-center p-4 rounded"
+                                [ngClass]="{
+                                    'bg-primary': i === 0,
+                                    'bg-light': i === 1,
+                                    'bg-secondary': i === 2
+                                }">
+                                <h5
+                                    [ngClass]="{
+                                        'text-white': i === 0 || i === 2,
+                                        'text-primary': i === 1
+                                    }">
+                                    {{ offer.title }}
+                                </h5>
+                                <h3 class="mb-0 text-white"
+                                    [ngClass]="{
+                                        'text-white': i === 0 || i === 2,
+                                        'text-dark': i === 1
+                                    }">
+                                    {{ offer.subtitle }}
+                                </h3>
+                                <span
+                                    *ngIf="offer.buttonText"
+                                    class="btn btn-sm btn-light text-primary mt-3">
+                                    {{ offer.buttonText }}
+                                </span>
                             </div>
-                        </a>
+                        </div>
                     </div>
-                    <div class="col-md-6 col-lg-4">
-                        <a href="#">
-                            <div class="service-item bg-dark rounded border border-dark">
-                            <img src="/assets/storefront/medical-devices.jpg" class="img-fluid rounded-top w-100" alt="Medical Devices">
-                            <div class="px-4 rounded-bottom">
-                                <div class="service-content bg-light text-center p-4 rounded">
-                                <h5 class="text-primary">Medical Devices</h5>
-                                <h3 class="mb-0">Free Shipping</h3>
-                                </div>
-                            </div>
-                            </div>
-                        </a>
-                    </div>
-                    <div class="col-md-6 col-lg-4">
-                        <a href="#">
-                            <div class="service-item bg-primary rounded border border-primary">
-                            <img src="/assets/storefront/sanitation-hygiene.jpg" class="img-fluid rounded-top w-100" alt="Hygiene Products">
-                            <div class="px-4 rounded-bottom">
-                                <div class="service-content bg-secondary text-center p-4 rounded">
-                                <h5 class="text-white">Hygiene & Infection Control</h5>
-                                <h3 class="mb-0">Save ₱500+</h3>
-                                </div>
-                            </div>
-                            </div>
-                        </a>
-                    </div>
-                </div>
+                </a>
             </div>
         </div>
-        <!-- Offers End -->
+    </div>
+</div>
+<!-- Offers End -->
