@@ -48,3 +48,20 @@
   background: #f8d7da;
   color: #721c24;
 }
+
+.courier-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  line-height: 1.25;
+}
+
+.courier-cell strong {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.courier-cell a,
+.courier-cell small {
+  font-size: 12px;
+}

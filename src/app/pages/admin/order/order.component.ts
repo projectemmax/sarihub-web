@@ -14,6 +14,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AdminOrdersService } from '@app/services/admin/admin-orders.service';
 import { AdminOrder } from '@app/models/order.model';
 import { OrderDetailsDialogComponent } from '@app/shared/order-details-dialog/order-details-dialog.component';
+import { ShipOrderDialogComponent } from '@app/shared/ship-order-dialog/ship-order-dialog.component';
 
 @Component({
   selector: 'app-admin-orders',
@@ -55,6 +56,7 @@ export class OrderComponent implements OnInit {
         'total',
         'status',
         'paymentStatus',
+        'courier',
         'actions',
     ];
 
@@ -171,9 +173,30 @@ export class OrderComponent implements OnInit {
 
         if (!nextStatus) return;
 
+        if (nextStatus === 'SHIPPED') {
+            this.openShipDialog(order);
+            return;
+        }
+
         this.ordersService
         .updateStatus(order.id, { status: nextStatus })
         .subscribe(() => this.loadOrders());
+    }
+
+    openShipDialog(order: AdminOrder) {
+        const dialogRef = this.dialog.open(ShipOrderDialogComponent, {
+            width: '620px',
+            maxWidth: '95vw',
+            data: order,
+        });
+
+        dialogRef.afterClosed().subscribe(payload => {
+            if (!payload) return;
+
+            this.ordersService
+                .shipOrder(order.id, payload)
+                .subscribe(() => this.loadOrders());
+        });
     }
 
     clearSearch(): void {

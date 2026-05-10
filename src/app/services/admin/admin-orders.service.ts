@@ -44,4 +44,18 @@ export class AdminOrdersService {
     ) {
         return this.http.patch(`${this.api}/${id}/status`, payload);
     }
+
+    shipOrder(
+        id: string,
+        payload: {
+            courierName?: string;
+            courierCode?: string;
+            trackingNumber: string;
+            shippingMethod?: string;
+            shippingFee?: number;
+            remarks?: string;
+        },
+    ) {
+        return this.http.patch(`${this.api}/${id}/ship`, payload);
+    }
 }
