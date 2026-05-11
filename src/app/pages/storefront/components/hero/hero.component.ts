@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { SiteConfigService } from '@app/core/services/site-config.service';
 import { CommonModule } from '@angular/common';
-import { debounceTime, distinctUntilChanged, Subject, switchMap } from 'rxjs';
+import { debounceTime, distinctUntilChanged, map, of, Subject, switchMap } from 'rxjs';
 import { StorefrontProductService } from '@app/services/storefront/storefront-product.service';
 
 @Component({
@@ -46,13 +46,30 @@ export class HeroComponent implements OnInit {
             .pipe(
                 debounceTime(300),
                 distinctUntilChanged(),
-                switchMap(query =>
-                this.storefrontProductService.searchAutocomplete(query)
+                switchMap(query => {
+                    const value = query.trim();
+
+                    if (value.length < 2) {
+                        return of({
+                            query: value,
+                            suggestions: [],
+                        });
+                    }
+
+                    return this.storefrontProductService
+                        .searchAutocomplete(value)
+                        .pipe(
+                            map((res: any) => ({
+                                query: value,
+                                suggestions: res?.data || res || [],
+                            }))
+                        );
+                }
                 )
             )
-            .subscribe((res: any) => {
-                this.suggestions = res?.data || res || [];
-                this.showDropdown = true;
+            .subscribe(({ query, suggestions }) => {
+                this.suggestions = suggestions;
+                this.showDropdown = query.length >= 2;
             });
 
     }
@@ -82,14 +99,28 @@ export class HeroComponent implements OnInit {
 
     onInputChange(value: string) {
         this.searchTerm = value;
+        this.search$.next(value);
 
         if (!value.trim() || value.length < 2) {
             this.suggestions = [];
             this.showDropdown = false;
             return;
         }
+    }
 
-        this.search$.next(value);
+    clearSearch() {
+        this.searchTerm = '';
+        this.suggestions = [];
+        this.showDropdown = false;
+        this.search$.next('');
+
+        this.router.navigate([], {
+            queryParams: {
+                search: null,
+                page: null,
+            },
+            queryParamsHandling: 'merge',
+        });
     }
 
 }
