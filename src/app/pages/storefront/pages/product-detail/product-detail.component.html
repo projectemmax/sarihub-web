@@ -292,8 +292,8 @@
         <div class="col-lg-4 col-xl-3">
           <app-product-info-sidebar
             [category]="(product$ | async)?.category?.name"
-            [sku]="(product$ | async)?.sku"
-            [stock]="(product$ | async)?.stock"
+            [sku]="getDisplaySku((product$ | async)!)"
+            [stock]="getAvailableStock((product$ | async)!)"
             [deliveryInfo]="siteConfig?.delivery_info"
             [trustBadges]="siteConfig?.trust_badges">
           </app-product-info-sidebar>

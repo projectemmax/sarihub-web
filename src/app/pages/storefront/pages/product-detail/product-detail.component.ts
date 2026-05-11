@@ -479,10 +479,23 @@ export class ProductDetailComponent {
     }
 
     getAvailableStock(product: Product): number {
+
+        // Variant-based product
         if (product.variants?.length) {
-            return this.selectedVariant?.stock ?? 0;
+
+            // If user selected a variant
+            if (this.selectedVariant) {
+                return this.selectedVariant.stock ?? 0;
+            }
+
+            // Total available stock across variants
+            return product.variants.reduce(
+                (sum, variant) => sum + (variant.stock ?? 0),
+                0
+            );
         }
 
+        // Normal product
         return product.stock ?? 0;
     }
 
@@ -499,6 +512,15 @@ export class ProductDetailComponent {
         } else {
             this.stockWarning = null;
         }
+    }
+
+    getDisplaySku(product: Product): string {
+
+        if (this.selectedVariant?.sku) {
+            return this.selectedVariant.sku;
+        }
+
+        return product.sku || 'N/A';
     }
 
 }
