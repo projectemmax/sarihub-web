@@ -301,11 +301,17 @@
 
                         <!-- SKU -->
                         <td>
-                        <input [(ngModel)]="v.sku"
-                                [ngModelOptions]="{ standalone: true }"
-                                name="sku-{{i}}"
-                                type="text"
-                                class="form-control form-control-sm">
+                            <input [(ngModel)]="v.sku"
+                                    (ngModelChange)="v.manualSku = true"
+                                    [ngModelOptions]="{ standalone: true }"
+                                    name="sku-{{i}}"
+                                    type="text"
+                                    class="form-control form-control-sm">
+                            <div *ngIf="v.manualSku" class="mt-1">
+                                <small class="badge bg-warning text-dark">
+                                    Custom SKU
+                                </small>
+                            </div>
                         </td>
 
                     </tr>

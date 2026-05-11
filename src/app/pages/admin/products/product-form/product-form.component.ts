@@ -24,6 +24,7 @@ interface Variant {
   price: number;
   stock: number;
   sku: string;
+  manualSku?: boolean;
   image?: string;
 }
 
@@ -79,6 +80,7 @@ export class ProductFormComponent implements OnInit, CanComponentDeactivate {
         fields: [
             { key: 'name', type: 'text', label: 'Product Name', required: true },
             { key: 'description', type: 'textarea', label: 'Description' },
+            { key: 'sku', type: 'text', label: 'Base product SKU', required: true },
             { key: 'categoryId', type: 'select', label: 'Category', required: true }
             ]
         },
@@ -108,6 +110,10 @@ export class ProductFormComponent implements OnInit, CanComponentDeactivate {
 
     async ngOnInit() {
         this.buildForm();
+
+        this.form.get('sku')?.valueChanges.subscribe(() => {
+            this.regenerateVariants();
+        });
 
         setTimeout(() => {
             this.initialFormValue = this.form.getRawValue();
@@ -253,6 +259,7 @@ export class ProductFormComponent implements OnInit, CanComponentDeactivate {
                 description: product.description,
                 price: product.price,
                 stock: product.stock,
+                sku: product.sku,
                 categoryId: product.categoryId,
                 hasVariants: !!product.variants?.length,
                 isFeatured: product.isFeatured ?? false,
@@ -433,49 +440,6 @@ export class ProductFormComponent implements OnInit, CanComponentDeactivate {
         this.images = images;
     }
 
-    // onSelect(event: any) {
-    //     event.addedFiles.forEach((file: File) => {
-    //         const reader = new FileReader();
-
-    //         reader.onload = () => {
-    //         this.images.push({
-    //             file,
-    //             preview: reader.result as string,
-    //             isPrimary: this.images.length === 0,
-    //             isNew: true // 🔥 important
-    //         });
-    //         };
-
-    //         reader.readAsDataURL(file);
-    //     });
-    // }
-
-    // removeImage(index: number) {
-    //     const img = this.images[index];
-
-    //     if (img.id) {
-    //         this.deletedImageIds.push(img.id);
-    //     }
-
-    //     this.images.splice(index, 1);
-    // }
-
-    // setPrimary(index: number) {
-    //     this.images = this.images.map((img, i) => ({
-    //         ...img,
-    //         isPrimary: i === index
-    //     }));
-    // }
-
-    // moveImage(index: number, direction: 'left' | 'right') {
-    //     const newIndex = direction === 'left' ? index - 1 : index + 1;
-
-    //     if (newIndex < 0 || newIndex >= this.images.length) return;
-
-    //     const temp = this.images[index];
-    //     this.images[index] = this.images[newIndex];
-    //     this.images[newIndex] = temp;
-    // }
 
     isFieldChanged(key: string): boolean {
         if (!this.isInitialized) return false;
@@ -706,51 +670,55 @@ export class ProductFormComponent implements OnInit, CanComponentDeactivate {
 
     regenerateVariants() {
 
-    if (!this.variantOptions.length ||
-        !this.variantOptions.every(o => o.values.length)) {
-        this.variants = [];
-        return;
-    }
-
-    const combinations = this.generateVariants(this.variantOptions);
-
-    // 🔥 PRESERVE OLD VARIANTS
-    const oldVariants = [...this.variants];
-
-    const matchVariant = (a: any, b: any) =>
-        Object.keys(a).every(key => a[key] === b[key]);
-
-    this.variants = combinations.map(combo => {
-
-        const attributes: any = {};
-
-        combo.forEach((val, i) => {
-            const key = this.variantOptions[i].name
-                .toLowerCase()
-                .replace(/\s+/g, '_');
-
-            attributes[key] = val;
-        });
-
-        // 🔥 USE oldVariants INSTEAD
-        const existing = oldVariants.find(v =>
-            matchVariant(v.attributes, attributes)
-        );
-
-        return existing
-        ? {
-            ...existing, // ✅ keeps image, price, stock
-            attributes
+        if (!this.variantOptions.length ||
+            !this.variantOptions.every(o => o.values.length)) {
+            this.variants = [];
+            return;
         }
-        : {
-            attributes,
-            price: '',
-            stock: '',
-            sku: this.generateFullSku(combo),
-            image: ''
-        };
-    });
-}
+
+        const combinations = this.generateVariants(this.variantOptions);
+
+        // 🔥 PRESERVE OLD VARIANTS
+        const oldVariants = [...this.variants];
+
+        const matchVariant = (a: any, b: any) =>
+            Object.keys(a).every(key => a[key] === b[key]);
+
+        this.variants = combinations.map(combo => {
+
+            const attributes: any = {};
+
+            combo.forEach((val, i) => {
+                const key = this.variantOptions[i].name
+                    .toLowerCase()
+                    .replace(/\s+/g, '_');
+
+                attributes[key] = val;
+            });
+
+            // 🔥 USE oldVariants INSTEAD
+            const existing = oldVariants.find(v =>
+                matchVariant(v.attributes, attributes)
+            );
+
+            return existing
+            ? {
+                ...existing,
+                attributes,
+                sku: existing.manualSku
+                    ? existing.sku
+                    : this.generateFullSku(combo)
+            }
+            : {
+                attributes,
+                price: '',
+                stock: '',
+                sku: this.generateFullSku(combo),
+                manualSku: false,
+                image: ''
+            };
+        });
+    }
 
     applyVariantTemplate(category: any) {
         if (!category?.variantTemplate?.attributes?.length) return;
@@ -795,10 +763,14 @@ export class ProductFormComponent implements OnInit, CanComponentDeactivate {
     }
 
     generateFullSku(attributes: string[]): string {
-        const categoryCode = this.getCategoryCode();
+
+        const baseSku = this.form.get('sku')?.value || '';
         const attrCode = this.generateSku(attributes);
 
-        return [categoryCode, attrCode].filter(Boolean).join('-');
+        return [baseSku, attrCode]
+            .filter(Boolean)
+            .join('-')
+            .toUpperCase();
     }
 
     // Variant Table
