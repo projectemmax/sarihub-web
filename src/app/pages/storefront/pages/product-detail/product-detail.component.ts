@@ -103,6 +103,12 @@ export class ProductDetailComponent {
         map(params => params.get('slug')!),
         tap(() => {
             this.resetProductState();
+
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+
         })
     );
 
