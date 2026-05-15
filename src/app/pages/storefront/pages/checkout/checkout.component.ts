@@ -2,7 +2,8 @@ import {
   Component,
   OnInit,
   inject,
-  DestroyRef
+  DestroyRef,
+  HostListener
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
@@ -31,7 +32,7 @@ import { BreadcrumbComponent } from "../../components/breadcrumb/breadcrumb.comp
 import { SiteConfigService } from '@app/core/services/site-config.service';
 import { AddressModalComponent } from '../../components/address-modal/address-modal.component';
 import { PsgcService } from '@app/services/location/psgc.service';
-import { getProductImageUrl, getImageUrl } from '@app/core/utils/image.util';
+import { getImageUrlCloudinary } from '@app/core/utils/image.util'
 import { PaymentService } from '@app/services/storefront/storefront-payment.service';
 
 // ✅ Extend model (UI state only)
@@ -81,8 +82,12 @@ export class CheckoutComponent implements OnInit {
     selectedPayment: 'COD' | 'CARD' | 'MAYA' | 'GCASH' = 'COD';
     messageForSeller = '';
 
-    readonly getProductImageUrl = getProductImageUrl;
-    readonly getImageUrl = getImageUrl;
+    showExitCheckoutModal = false;
+    pendingNavigationUrl: string | null = null;
+
+    orderPlaced = false;
+
+    readonly getImageUrlCloudinary = getImageUrlCloudinary;
 
     // =========================
     // ADDRESS
@@ -447,6 +452,7 @@ export class CheckoutComponent implements OnInit {
             .subscribe({
             next: ({ order, payment }) => {
                 this.isSubmitting = false;
+                this.orderPlaced = true;
 
                 this.cartService.loadCart().subscribe();
 
@@ -627,6 +633,43 @@ export class CheckoutComponent implements OnInit {
             error: reject
         });
         });
+    }
+
+    //CONFIRM EXIT CHECKOUT
+    confirmExitCheckout(url: string = '/cart') {
+        this.pendingNavigationUrl = url;
+        this.showExitCheckoutModal = true;
+    }
+
+    stayInCheckout() {
+        this.showExitCheckoutModal = false;
+        this.pendingNavigationUrl = null;
+    }
+
+    leaveCheckout() {
+
+        this.showExitCheckoutModal = false;
+
+        if (this.pendingNavigationUrl) {
+            this.router.navigateByUrl(this.pendingNavigationUrl);
+        }
+    }
+
+    // ADD LISTENER
+    @HostListener('window:beforeunload', ['$event'])
+    handleBeforeUnload(event: BeforeUnloadEvent) {
+
+        // prevent warning after successful order
+        if (this.orderPlaced) {
+            return;
+        }
+
+        // only trigger if cart has items
+        if (this.cartItems?.length) {
+
+            event.preventDefault();
+            event.returnValue = '';
+        }
     }
 
 }
