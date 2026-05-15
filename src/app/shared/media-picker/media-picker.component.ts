@@ -13,6 +13,7 @@ import { ToastService } from '@app/core/services/toast.service';
 export class MediaPickerComponent implements OnInit, OnChanges {
     @Output() selected = new EventEmitter<string>();
     @Input() folder: string = 'general';
+    @Input() usage: string = 'all';
 
     media: Media[] = [];
     selectedId?: string;
@@ -28,15 +29,20 @@ export class MediaPickerComponent implements OnInit, OnChanges {
     ) {}
 
     ngOnInit(): void {
-        this.currentFolder = this.folder || 'general';
+        this.syncInputs();
         this.loadMedia();
     }
 
     ngOnChanges(changes: SimpleChanges) {
-        if (changes['folder']) {
-            //this.currentFolder = this.folder || 'general';
+        if (changes['folder'] || changes['usage']) {
+            this.syncInputs();
             this.loadMedia();
         }
+    }
+
+    private syncInputs() {
+        this.currentFolder = this.folder || 'general';
+        this.currentUsage = this.usage || 'all';
     }
 
     onFolderChange(event: any) {
@@ -45,12 +51,17 @@ export class MediaPickerComponent implements OnInit, OnChanges {
     }
 
     loadMedia() {
-        console.log('LOADING FOLDER:', this.folder);
         this.mediaService
             .getAll(1, 50, this.currentFolder, this.currentUsage)
-            .subscribe(res => {
-            this.media = res || [];
-        });
+            .subscribe({
+                next: res => {
+                    this.media = res || [];
+                },
+                error: () => {
+                    this.media = [];
+                    this.toast.error('Failed to load media');
+                }
+            });
     }
 
     pick(media: Media) {
@@ -84,7 +95,7 @@ export class MediaPickerComponent implements OnInit, OnChanges {
     }
 
     changeFolder(folder: string) {
-        this.folder = folder;
+        this.currentFolder = folder;
         this.loadMedia();
     }
 

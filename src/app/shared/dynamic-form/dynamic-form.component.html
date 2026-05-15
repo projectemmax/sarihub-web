@@ -334,6 +334,7 @@
         <app-media-picker
             *ngIf="activeImageField || activeArrayField"
             [folder]="activeFolder"
+            [usage]="activeUsage"
             (selected)="onMediaSelected($event)">
         </app-media-picker>
     </div>

@@ -46,6 +46,7 @@ export class DynamicFormComponent implements OnInit, OnChanges{
     showMediaPicker = false;
     activeImageField?: string;
     activeFolder: string = 'general';
+    activeUsage: string = 'all';
 
     //SHOP OFFERS STATE
     activeArrayField?: {
@@ -395,12 +396,15 @@ export class DynamicFormComponent implements OnInit, OnChanges{
     openMediaPicker(field: DynamicField) {
         this.activeImageField = field.key;
         this.activeFolder = field.folder || 'general';
+        this.activeUsage = field.usage || 'all';
         this.showMediaPicker = true;
     }
 
     closeMediaPicker() {
         this.showMediaPicker = false;
         this.activeImageField = undefined;
+        this.activeArrayField = undefined;
+        this.activeUsage = 'all';
     }
 
     onMediaSelected(url: string) {
@@ -413,8 +417,6 @@ export class DynamicFormComponent implements OnInit, OnChanges{
             group.patchValue({
             [this.normalizeKey(this.activeArrayField.subKey)]: url
             });
-
-            this.activeArrayField = undefined;
 
             const cleaned = this.cleanFormValue(this.form.value);
             this.submitted.emit(cleaned);
@@ -483,6 +485,7 @@ export class DynamicFormComponent implements OnInit, OnChanges{
         };
 
         this.activeFolder = subField.folder || 'general';
+        this.activeUsage = subField.usage || 'all';
         this.showMediaPicker = true;
     }    
     

@@ -12,42 +12,54 @@ import { StorefrontCartService } from '@app/services/storefront/storefront-cart.
   styleUrl: './navbar.component.css',
 })
 export class NavbarComponent {
-  isScrolled = false;
-  isDesktop = window.innerWidth >= 992;
-  mobileOpen = false;
+    isScrolled = false;
+    isDesktop = window.innerWidth >= 992;
+    mobileOpen = false;
 
-  auth = inject(AuthService);
-  private router = inject(Router);
-  private cartService = inject(StorefrontCartService);
+    auth = inject(AuthService);
+    private router = inject(Router);
+    private cartService = inject(StorefrontCartService);
 
-  readonly cartCount$ = this.cartService.cartCount$;
+    readonly cartCount$ = this.cartService.cartCount$;
 
-  @HostListener('window:resize')
-  onResize() {
-    this.isDesktop = window.innerWidth >= 992;
-  }
+    @HostListener('window:resize')
+    onResize() {
+        this.isDesktop = window.innerWidth >= 992;
+    }
 
-  @HostListener('window:scroll')
-  onScroll() {
-    this.isScrolled = window.scrollY > 55;
-  }
+    @HostListener('window:scroll')
+    onScroll() {
+        this.isScrolled = window.scrollY > 55;
+    }
 
-  toggleMobileMenu() {
-    this.mobileOpen = !this.mobileOpen;
-  }
+    toggleMobileMenu() {
+        this.mobileOpen = !this.mobileOpen;
+    }
 
-  goToLogin() {
-    this.router.navigate(['/login']);
-  }
+    goToLogin() {
+        this.router.navigate(['/login']);
+    }
 
-  goToRegister() {
-    this.router.navigate(['/register']);
-  }
+    goToRegister() {
+        this.router.navigate(['/register']);
+    }
 
-  logout() {
-    this.auth.logout();
-  }
-  resetCart() {
-    this.cartService.clear().subscribe();
-  }
+    logout() {
+        this.auth.logout();
+    }
+    resetCart() {
+        this.cartService.clear().subscribe();
+    }
+
+    get isCartPage(): boolean {
+
+        return (
+            this.router.url.startsWith('/storefront/cart') ||
+            this.router.url.startsWith('/storefront/checkout') ||
+            this.router.url.startsWith('/storefront/orders')
+        );
+    }
+
+
+
 }

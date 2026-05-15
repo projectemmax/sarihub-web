@@ -5,6 +5,7 @@ export interface DynamicField {
   label: string;
   type: FieldType;
   folder?: string; // for image fields, specify upload folder
+  usage?: string; // for media picker filtering/upload context
   autoSave?: boolean;
 
   group?: string;

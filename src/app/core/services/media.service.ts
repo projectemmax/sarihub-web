@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ApiResponse } from '@app/models/api-response.model';
 import { Constant } from '@app/services/constant/constant';
@@ -26,15 +26,28 @@ export class MediaService {
         const formData = new FormData();
         formData.append('file', file);
 
+        let params = new HttpParams();
+        if (folder) params = params.set('folder', folder);
+        if (usage && usage !== 'all') params = params.set('usage', usage);
+
         return this.http.post(
-            `${this.baseUrl}/${Constant.ADMIN.MEDIA.UPLOAD}?folder=${folder}&usage=${usage}`,
-            formData
+            `${this.baseUrl}/${Constant.ADMIN.MEDIA.UPLOAD}`,
+            formData,
+            { params }
         );
     }
 
     getAll(page = 1, limit = 20, folder?: string, usage?: string) {
+        let params = new HttpParams()
+            .set('page', page)
+            .set('limit', limit);
+
+        if (folder) params = params.set('folder', folder);
+        if (usage && usage !== 'all') params = params.set('usage', usage);
+
         return this.http.get<ApiResponse<Media[]>>(
-            `${this.baseUrl}/${Constant.ADMIN.MEDIA.BASE}?page=${page}&limit=${limit}&folder=${folder}&usage=${usage}`
+            `${this.baseUrl}/${Constant.ADMIN.MEDIA.BASE}`,
+            { params }
         ).pipe(
             map(res => res.data)
         );

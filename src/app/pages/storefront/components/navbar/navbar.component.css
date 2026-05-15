@@ -48,6 +48,15 @@
     transition: .5s;
 }
 
+.cart-nav-link:hover i {
+    color: var(--bs-primary) !important;
+}
+
+/* ACTIVE HOVER */
+.cart-nav-link.active-cart:hover i {
+    color: white !important;
+}
+
 .navbar {
     height: 100px;
     border-bottom: 1px solid rgba(255, 255, 255, .1);
@@ -111,3 +120,4 @@
     opacity: 1;
   }
 }
+

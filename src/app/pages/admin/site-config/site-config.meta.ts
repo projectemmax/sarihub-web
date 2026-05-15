@@ -31,6 +31,7 @@ export const SITE_CONFIG_META: Record<string, any> = {
         type: 'image', // 👈 important (custom type)
         autoSave: true,
         folder: 'banner',
+        usage: 'hero',
         multiple: false,
         group: 'Hero Banner',
         help: 'Upload background image for hero section'
@@ -92,7 +93,8 @@ export const SITE_CONFIG_META: Record<string, any> = {
                 key: 'image',
                 label: 'Image',
                 type: 'image',
-                folder: 'banner'
+                folder: 'banner',
+                usage: 'shop-offer'
             },
             {
                 key: 'title',
