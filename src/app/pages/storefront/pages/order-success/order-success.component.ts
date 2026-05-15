@@ -3,7 +3,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { StorefrontOrdersService } from '@app/services/storefront/storefront-orders.service';
 import { Constant } from '@app/services/constant/constant';
-import { getItemImage } from '@app/core/utils/image.util'
+import { getImageUrlCloudinary } from '@app/core/utils/image.util'
 
 @Component({
   selector: 'app-order-success',
@@ -15,7 +15,7 @@ import { getItemImage } from '@app/core/utils/image.util'
 export class OrderSuccessComponent implements OnInit {
 
     order: any;
-    getItemImage = getItemImage;
+    getImageUrlCloudinary = getImageUrlCloudinary;
 
     constructor(
         private route: ActivatedRoute,
