@@ -2,3 +2,42 @@
   position: sticky;
   top: 120px; /* adjust depending on your navbar height */
 }
+
+/* Product column */
+.cart-product-name {
+    max-width: 340px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.4;
+}
+
+/* Price + Total */
+.cart-price,
+.cart-total {
+    white-space: nowrap;
+    min-width: 110px;
+    font-weight: 600;
+}
+
+/* Qty column */
+.cart-qty {
+    width: 140px;
+    min-width: 140px;
+}
+
+/* Prevent table collapse */
+.cart-table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+/* Product image */
+.cart-image {
+    width: 80px;
+    min-width: 80px;
+    height: 80px;
+    object-fit: contain;
+}

@@ -40,32 +40,19 @@
                                 </td>
 
                                 <td>
-                                    <div>{{ item.productName }}</div>
+                                    <div class="cart-product-name">{{ item.productName }}</div>
                                     <small *ngIf="item.variantName" class="text-muted">
                                         {{ item.variantName }}
                                     </small>
                                 </td>
 
                                 <td>
-                                ₱ {{ item.priceSnapshot | number:'1.2-2' }}
+                                    <span class="cart-price">
+                                        ₱ {{ item.priceSnapshot | number:'1.2-2' }}
+                                    </span>
                                 </td>
 
                                 <td>
-                                    <!-- <div class="input-group" style="width:110px;">
-                                        <button
-                                        class="btn btn-sm btn-light border"
-                                        (click)="decrease(item)">
-                                        -
-                                        </button>
-                                        <div class="form-control text-center">
-                                        {{ item.quantity }}
-                                        </div>
-                                        <button
-                                        class="btn btn-sm btn-light border"
-                                        (click)="increase(item)">
-                                        +
-                                        </button>
-                                    </div> -->
                                     <app-quantity-selector
                                         [quantity]="item.quantity"
                                         [min]="1"
@@ -83,7 +70,9 @@
                                 </td>
 
                                 <td>
-                                ₱ {{ item.subtotal | number:'1.2-2' }}
+                                    <span class="cart-total">
+                                        ₱ {{ item.subtotal | number:'1.2-2' }}
+                                    </span>
                                 </td>
 
                                 <td>
