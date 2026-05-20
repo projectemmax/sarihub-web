@@ -1,0 +1,26 @@
+.featured-image-wrapper {
+    width: 80px;
+    min-width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.featured-product-img {
+    width: 72px;
+    height: 72px;
+    object-fit: contain; /* keep full image visible */
+    object-position: center;
+    display: block;
+}
+
+.featured-product-title {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.35;
+    min-height: 2.7em;
+    margin-bottom: 8px;
+}
