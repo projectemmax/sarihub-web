@@ -77,14 +77,13 @@
 
           <a 
             routerLink="/storefront/cart" 
-            class="cart-nav-link me-4 my-auto"
+            class="cart-nav-link me-3 my-auto position-relative"
             [class.active-cart]="isCartPage">
             <i class="fa fa-shopping-bag fa-2x"></i>
             <span
               *ngIf="(cartCount$ | async) as count"
               [hidden]="count === 0" 
-              class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1"
-                  style="top:-5px;left:15px;height:20px;min-width:20px;">
+              class="cart-badge">
               {{ count }}
             </span>
           </a>
