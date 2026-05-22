@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { SiteConfigAdminService } from '@app/services/admin/admin-site-config.service';
 import { UserProfileService } from '@app/core/user/user-profile.service';
 import { AdminProfileService } from '@app/services/admin/admin-profile.service';
+import { AuthService } from '@app/core/auth/auth.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -25,7 +26,8 @@ export class SidebarComponent implements OnInit {
     constructor(
       private router: Router,
       private profileService: AdminProfileService,
-      private siteConfigService: SiteConfigAdminService
+      private siteConfigService: SiteConfigAdminService,
+      private auth: AuthService
     ) {}
 
     async ngOnInit(): Promise<void> {
@@ -55,6 +57,30 @@ export class SidebarComponent implements OnInit {
 
     toggleUiMenu() {
         this.uiOpen = !this.uiOpen;
+    }
+
+    get isAdmin(): boolean {
+        return this.auth.getRole() === 'ADMIN';
+    }
+
+    get isSeller(): boolean {
+        return this.auth.getRole() === 'SELLER';
+    }
+
+    get canManageProducts(): boolean {
+        return this.isAdmin || this.isSeller;
+    }
+
+    get canManageOrders(): boolean {
+        return this.isAdmin || this.isSeller;
+    }
+
+    get canManageReviews(): boolean {
+        return this.isAdmin || this.isSeller;
+    }
+
+    get canAccessSystem(): boolean {
+        return this.isAdmin;
     }
 
 }

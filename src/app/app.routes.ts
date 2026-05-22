@@ -14,6 +14,8 @@ import { CategoriesComponent } from '@app/pages/admin/categories/categories.comp
 import { CustomerComponent } from '@app/pages/admin/customer/customer.component';
 import { CartComponent } from '@app/pages/admin/cart/cart.component';
 import { SiteConfigComponent } from '@app/pages/admin/site-config/site-config.component'
+import { ReviewsComponent } from '@app/pages/admin/reviews/reviews.component';
+import { OrderComponent } from '@app/pages/admin/order/order.component';
 
 // =========================
 // STOREFRONT
