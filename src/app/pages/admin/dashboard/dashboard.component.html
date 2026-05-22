@@ -34,7 +34,8 @@
         <div class="card-body">
           <h6 class="text-muted mb-1">{{ card.title }}</h6>
           <h4 [ngClass]="card.class">
-            {{ card.prefix || '' }} {{ card.value | number }}
+            {{ card.prefix || '' }}
+            {{ (card.value ?? 0) | number }}
           </h4>
         </div>
       </div>
@@ -82,7 +83,7 @@
               <div>
                 <small class="text-muted">Total Orders</small>
                 <h5 class="mb-0">
-                  {{ data.totalOrders }}
+                  {{ data.totalOrders | number }}
                 </h5>
               </div>
 
@@ -98,7 +99,7 @@
                   {{ data.growth }}%
                 </h5>
               </div>
-
+`
             </div>
 
             <!-- CHART -->
@@ -131,7 +132,7 @@
 
               <div class="d-flex justify-content-between">
                 <span>{{ p.name }}</span>
-                <span>{{ p.sold }}</span>
+                <span>{{ p.sold | number }}</span>
               </div>
 
               <div class="progress mt-1" style="height:6px;">

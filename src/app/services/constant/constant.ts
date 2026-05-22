@@ -90,6 +90,21 @@ export const Constant = {
 
     },
 
+    SELLER: {
+        DASHBOARD: {
+            STATS:
+                'seller/dashboard/stats',
+            ANALYTICS:
+                'seller/dashboard/analytics',
+            TOP_PRODUCTS:
+                'seller/dashboard/top-products',
+            LATEST_CUSTOMERS:
+                'seller/dashboard/latest-customers',
+            PENDING_REVIEWS:
+                'seller/dashboard/pending-reviews',
+        },
+    },
+
     // =========================
     // STOREFRONT APIs (PUBLIC)
     // =========================

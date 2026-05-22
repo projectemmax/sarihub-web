@@ -61,19 +61,19 @@ export class DashboardComponent implements OnInit {
         growth: 0
     };
 
-  constructor(
-    private dashboardService: DashboardService,
-    public facade: DashboardFacade
-  ) {
-    console.log('AnalyticsChartComponent loaded');
-  }
+    constructor(
+        private dashboardService: DashboardService,
+        public facade: DashboardFacade
+    ) {
+        console.log('AnalyticsChartComponent loaded');
+    }
 
-  // =========================
-  // INIT
-  // =========================
-  ngOnInit(): void {
-    this.loadDashboard();
-  }
+    // =========================
+    // INIT
+    // =========================
+    ngOnInit(): void {
+        this.loadDashboard();
+    }
 
     // =========================
     // LOAD DATA
