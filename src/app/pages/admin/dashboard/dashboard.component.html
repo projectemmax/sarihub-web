@@ -65,40 +65,63 @@
                         <app-filters (change)="facade.setRange($event)"></app-filters>
                     </div>
 
+                    <!-- LOADING -->
+                    <div
+                        *ngIf="facade.analyticsLoading()"
+                        class="skeleton-chart">
+                    </div>
+
                     <!-- DATA -->
-                    <ng-container *ngIf="facade.analytics() as data">
+                    <ng-container *ngIf="!facade.analyticsLoading() && facade.analytics() as data">
+
                         <!-- KPI -->
                         <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+
                             <div>
                                 <small class="text-muted">Total Revenue</small>
+
                                 <h5 class="mb-0">
-                                ₱ {{ data.totalRevenue | number:'1.2-2' }}
-                                </h5>
-                            </div>
-                            <div>
-                                <small class="text-muted">Total Orders</small>
-                                <h5 class="mb-0">
-                                {{ data.totalOrders | number }}
+                                    ₱ {{ data.totalRevenue | number:'1.2-2' }}
                                 </h5>
                             </div>
 
                             <div>
+                                <small class="text-muted">Total Orders</small>
+
+                                <h5 class="mb-0">
+                                    {{ data.totalOrders | number }}
+                                </h5>
+                            </div>
+
+                            <div>
+
                                 <small class="text-muted">Growth</small>
+
                                 <h5
                                     class="mb-0"
+
                                     [ngClass]="{
                                         'text-success': data.growth >= 0,
                                         'text-danger': data.growth < 0
-                                    }"
-                                    >
+                                    }">
+
                                     {{ data.growth }}%
+
                                 </h5>
+
                             </div>
+
                         </div>
+
                         <!-- CHART -->
-                        <div style="height: 300px;">
-                            <app-analytics-chart [data]="data"></app-analytics-chart>
+                        <div style="height:300px;">
+
+                            <app-analytics-chart
+                                [data]="data">
+                            </app-analytics-chart>
+
                         </div>
+
                     </ng-container>
                 </div>
             </div>
