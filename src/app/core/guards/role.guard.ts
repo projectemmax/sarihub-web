@@ -2,73 +2,52 @@ import { CanActivateFn, Router } from '@angular/router';
 import { inject } from '@angular/core';
 import { AuthService } from '@app/core/auth/auth.service';
 
-type Role =
-    | 'ADMIN'
-    | 'SELLER'
-    | 'CUSTOMER';
+type Role=
+  | 'ADMIN'
+  | 'SELLER'
+  | 'CUSTOMER';
 
-export const roleGuard =
-(role: Role): CanActivateFn => {
+export const roleGuard = (role:Role):CanActivateFn =>{
 
-    return () => {
+    return ()=>{
 
-        const auth =
-            inject(AuthService);
+        const auth = inject(AuthService);
 
-        const router =
-            inject(Router);
+        const router = inject(Router);
 
-        const roleFound =
-            auth.getRole();
+        const current = auth.getRole();
 
-        if (
-            roleFound === role
-        ) {
+        if(current===role){
             return true;
         }
 
-        if (
-            role === 'ADMIN'
-            &&
-            roleFound === 'SELLER'
-        ) {
-            return true;
-        }
-
-        router.navigate([
+        return router.createUrlTree([
             '/storefront'
         ]);
-
-        return false;
     };
 };
 
-export const roleGuardAny =
-(roles: Role[]): CanActivateFn => {
+export const roleGuardAny = (roles:Role[]):CanActivateFn => {
 
-    return () => {
+    return ()=>{
 
-        const auth =
-            inject(AuthService);
+        const auth = inject(AuthService);
 
-        const router =
-            inject(Router);
+        const router = inject(Router);
 
-        const current =
-            auth.getRole();
+        const current = auth.getRole();
 
-        if (
+        if(
+            current &&
             roles.includes(
                 current as Role
             )
-        ) {
+        ){
             return true;
         }
 
-        router.navigate([
+        return router.createUrlTree([
             '/storefront'
         ]);
-
-        return false;
     };
 };
