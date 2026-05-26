@@ -21,6 +21,8 @@ import { AnalyticsChartComponent } from '@app/shared/analytics-chart/analytics-c
 import { DashboardFacade } from './dashboard.facade';
 import { FiltersComponent } from '@app/shared/ui/filters.component';
 import { getImageUrl } from '@app/core/utils/image.util';
+import { Router } from '@angular/router';
+import { AuthService } from '@app/core/auth/auth.service';
 
 
 @Component({
@@ -75,7 +77,9 @@ export class DashboardComponent implements OnInit {
 
     constructor(
         private dashboardService: DashboardService,
-        public facade: DashboardFacade
+        public facade: DashboardFacade,
+        private router: Router,
+        private authService: AuthService,
     ) {
         console.log('AnalyticsChartComponent loaded');
     }
@@ -169,4 +173,41 @@ export class DashboardComponent implements OnInit {
             }
         });
     }
+
+    canOpenProducts(): boolean {
+        return this.authService.isAdmin();
+    }
+
+    viewAllProducts(): void {
+
+        if (
+            !this.canOpenProducts()
+        ) {
+            return;
+        }
+
+        this.router.navigate([
+            '/admin/products'
+        ]);
+
+    }
+
+    openProduct(
+        product: any
+    ): void {
+
+        if (
+            !this.canOpenProducts()
+        ) {
+            return;
+        }
+
+        this.router.navigate([
+            '/admin/products'
+        ]);
+
+    }
+
+
+
 }

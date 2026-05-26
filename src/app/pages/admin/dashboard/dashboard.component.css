@@ -59,3 +59,24 @@
       -100% 0;
   }
 }
+
+.product-row {
+    padding: 8px;
+    border-bottom: 1px solid rgba(0,0,0,.10);
+
+    transition:
+        background-color .18s ease,
+        transform .18s ease;
+}
+
+.product-row:hover {
+    background-color: rgba(13,110,253,.04);
+    cursor: pointer;
+}
+
+.product-row-disabled {
+    cursor: default;
+    pointer-events: none;
+    opacity: .9;
+
+}
