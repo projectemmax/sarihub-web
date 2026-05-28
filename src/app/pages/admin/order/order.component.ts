@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { debounceTime, distinctUntilChanged, interval, Subject, takeUntil } from 'rxjs';
+import { debounceTime, delay, distinctUntilChanged, finalize, interval, Subject, takeUntil } from 'rxjs';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
@@ -64,8 +64,10 @@ export class OrderComponent implements OnInit {
     total = 0;
     page = 1;
     limit = 10;
-    loading = false;
     private destroy$ = new Subject<void>();
+
+    readonly showTableSkeleton = signal(false);
+    readonly skeletonRows = Array(8);
 
     constructor(
         private ordersService: AdminOrdersService,
@@ -102,26 +104,32 @@ export class OrderComponent implements OnInit {
     }
 
     loadOrders(showLoader = true) {
-        if (showLoader) this.loading = true;
+        if (showLoader) {
+            this.showLoadingSkeleton();
+        }
 
         this.ordersService
-        .getOrders({
-            page: this.page,
-            limit: this.limit,
-            status: this.selectedTab,
-            search: this.searchControl.value || '',
-        })
-        .subscribe({
-            next: (res: any) => {
-                this.orders = res.data;
-                this.total = res.meta.total;
+            .getOrders({
+                page: this.page,
+                limit: this.limit,
+                status: this.selectedTab,
+                search: this.searchControl.value || '',
+            })
+            .pipe(
+                delay(300),
+                finalize(() => {
+                    if (showLoader) {
+                        this.hideLoadingSkeleton();
+                    }
+                })
+            )
+            .subscribe({
+                next: (res: any) => {
+                    this.orders = res.data;
+                    this.total = res.meta.total;
+                },
+            });
 
-                if (showLoader) this.loading = false;
-            },
-            error: () => {
-                if (showLoader) this.loading = false;
-            },
-        });
     }
 
     onPageChange(event: PageEvent) {
@@ -235,6 +243,15 @@ export class OrderComponent implements OnInit {
             default:
             return 'badge-secondary';
         }
+    }
+
+    //SKELETON LOADERS
+    private showLoadingSkeleton() {
+        this.showTableSkeleton.set(true);
+    }
+
+    private hideLoadingSkeleton() {
+        this.showTableSkeleton.set(false);
     }
 
 }
