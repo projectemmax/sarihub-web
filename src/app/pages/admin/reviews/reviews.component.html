@@ -135,9 +135,17 @@
                         </td>
                     </tr>
                     <!-- EMPTY STATE -->
-                    <tr *ngIf="reviews.length === 0">
+                    <tr *ngIf="filteredReviews.length === 0">
                         <td colspan="7" class="text-center text-muted py-4">
-                            No pending reviews
+
+                            <ng-container *ngIf="searchTerm; else noReviews">
+                                No reviews found matching "{{ searchTerm }}"
+                            </ng-container>
+
+                            <ng-template #noReviews>
+                                No pending reviews
+                            </ng-template>
+
                         </td>
                     </tr>
                 </tbody>

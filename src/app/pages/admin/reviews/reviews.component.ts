@@ -192,7 +192,7 @@ export class ReviewsComponent implements OnInit {
             return this.reviews;
         }
 
-        const term = this.searchTerm.toLowerCase();
+        const term = this.searchTerm.trim().toLowerCase();
 
         return this.reviews.filter(review =>
             review.product?.name?.toLowerCase().includes(term) ||
