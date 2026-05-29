@@ -7,11 +7,12 @@ import { UserProfileService } from '@app/core/user/user-profile.service';
 import { filter, take } from 'rxjs/operators';
 import { getImageUrlCloudinary } from '@app/core/utils/image.util';
 import { FormsModule } from '@angular/forms';
+import { TableSkeletonComponent } from "@app/shared/table-skeleton/table-skeleton.component";
 
 @Component({
   selector: 'app-admin-reviews',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TableSkeletonComponent],
   templateUrl: './reviews.component.html',
   styleUrls: ['./reviews.component.css']
 })
@@ -24,6 +25,8 @@ export class ReviewsComponent implements OnInit {
     isAdmin = false;
     isSeller = false;
     searchTerm = '';
+
+    skeletonRows = new Array(5);
 
     getImageUrlCloudinary = getImageUrlCloudinary;
 

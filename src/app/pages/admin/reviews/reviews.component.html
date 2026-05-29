@@ -60,10 +60,14 @@
             </div>
 
         </div>
-        <!-- LOADING -->
-        <div *ngIf="loading" class="text-center py-4">
-            <div class="spinner-border text-primary"></div>
-        </div>
+
+        <!-- SKELETON LOADING -->
+        <app-table-skeleton
+            *ngIf="loading"
+            [rows]="5"
+            [columns]="isAdmin ? 7 : 5">
+        </app-table-skeleton>
+
         <!-- TABLE -->
         <div class="table-responsive" *ngIf="!loading">
             <table class="table table-hover">
