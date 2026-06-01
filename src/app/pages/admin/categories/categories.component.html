@@ -7,7 +7,7 @@
 
       <!-- ================= HEADER ================= -->
       <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">Categories</h5>
+        <h5 class="mb-0">Categories Management</h5>
 
         <div class="d-flex gap-2 align-items-center">
 
@@ -46,149 +46,336 @@
 
         <!-- TABLE -->
         <table
-          class="table table-striped table-hover"
-          *ngIf="!isLoading">
+            class="table table-striped table-hover mb-4"
+            *ngIf="!isLoading">
 
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Status</th>
-              <th width="120">Actions</th>
-            </tr>
-          </thead>
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th width="120">Status</th>
+                    <th width="150">Actions</th>
+                </tr>
+            </thead>
 
-          <tbody>
-            <tr *ngFor="let cat of pagedCategories$ | async">
-              <td>{{ cat.name }}</td>
-              <td>{{ cat.isActive ? 'Active' : 'Inactive' }}</td>
-              <td>
-                <button
-                  class="btn btn-primary btn-sm"
-                  (click)="onEdit(cat)">
-                  Edit
-                </button>
-              </td>
-            </tr>
-          </tbody>
+            <tbody>
+                <tr *ngFor="let row of displayRows">
+                <!-- CATEGORY -->
+                    <td>
+
+                        <div
+                            class="d-flex align-items-center category-row"
+                            [style.padding-left.px]="row.level * 32"
+                            (click)="row.hasChildren && toggleNode(row)"
+                            >
+
+                            <!-- EXPAND/COLLAPSE -->
+                            <button
+                                *ngIf="row.hasChildren"
+                                type="button"
+                                class="btn btn-link p-0 me-2"
+                                (click)="toggleNode(row)"
+                            >
+                                <i
+                                class="mdi"
+                                [ngClass]="
+                                    row.expanded
+                                    ? 'mdi-chevron-down'
+                                    : 'mdi-chevron-right'
+                                "
+                                ></i>
+                            </button>
+
+                            <!-- EMPTY SPACE FOR LEAF -->
+                            <span
+                                *ngIf="!row.hasChildren"
+                                class="me-4"
+                            ></span>
+
+                            <div class="d-flex flex-column">
+                                <span [class.fw-bold]="row.hasChildren">
+                                    {{ row.name }}
+                                </span>
+
+                                <small
+                                    *ngIf="showHierarchyContext && row.fullPath"
+                                    [class.mt-2]="showHierarchyContext && row.fullPath"
+                                    class="text-muted">
+                                    {{ row.fullPath }}
+                                </small>
+                            </div>
+                            <span
+                                *ngIf="row.childCount > 0"
+                                class="badge badge-info ms-2">
+                                {{ row.childCount }} sub
+                            </span>
+                        </div>
+
+                    </td>
+
+                    <!-- STATUS -->
+                    <td>
+                        
+                        <span
+                            class="badge"
+                            [ngClass]="
+                                row.isActive
+                                ? 'badge-success'
+                                : 'badge-danger'
+                            ">
+                            {{ row.isActive ? 'Active' : 'Inactive' }}
+                        </span>
+
+                    </td>
+
+                    <!-- ACTIONS -->
+                    <td>
+                        <div class="btn-group" role="group">
+                            <button 
+                                class="btn btn-icons btn-rounds btn-secondary"
+                                title="Add Child Category"
+                                [disabled]="!row.isActive"
+                                (click)="addChild(row)">
+                                <i class="fa fa-plus-circle"></i>
+                            </button>
+
+                            <button
+                                class="btn btn-icons btn-rounds btn-secondary"
+                                title="Edit Category"
+                                (click)="onEditById(row.id)">
+                                <i class="fa fa-edit"></i>
+                            </button>
+
+                            <button
+                                class="btn btn-icons btn-rounds btn-danger"
+                                [title]="row.hasChildren
+                                    ? 'Cannot delete category with child categories'
+                                    : 'Delete Category'"
+                                [disabled]="row.hasChildren"
+                                (click)="deleteCategory(row.id)">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </div>
+                        
+
+                    </td>
+
+                </tr>
+            </tbody>
         </table>
 
         <!-- EMPTY -->
-        <div
-          class="text-center text-muted py-3"
-          *ngIf="!(pagedCategories$ | async)?.length && !isLoading">
-          No categories found.
+       <div
+            class="text-center text-muted py-3"
+            *ngIf="!displayRows.length && !isLoading">
+            No categories found.
         </div>
 
         <!-- PAGINATION -->
-        <ng-container *ngIf="totalPages$ | async as totalPages">
+        <!-- <ng-container *ngIf="totalPages$ | async as totalPages">
           <app-pagination
             *ngIf="totalPages > 1"
             [currentPage]="currentPage"
             [totalPages]="totalPages"
             (pageChange)="changePage($event)">
           </app-pagination>
-        </ng-container>
+        </ng-container> -->
 
       </div>
     </div>
   </div>
 
-  <!-- ===== SIDE PANEL (CATEGORY FORM) ===== -->
-  <div class="col-4" *ngIf="isSidePanelVisible">
+    <!-- ===== SIDE PANEL (CATEGORY FORM) ===== -->
+    <div class="col-4" *ngIf="isSidePanelVisible">
+        <div class="card h-100">
+            <!-- PANEL HEADER -->
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <span class="fw-bold">
+                    {{ isEditMode ? 'Edit Category' : 'New Category' }}
+                </span>
 
-    <div class="card h-100">
+                <button
+                    class="btn btn-sm btn-outline-secondary"
+                    (click)="closeSidePanel()">
+                    Close
+                </button>
+            </div>
 
-      <!-- PANEL HEADER -->
-      <div class="card-header bg-light d-flex justify-content-between align-items-center">
-        <span class="fw-bold">
-          {{ isEditMode ? 'Edit Category' : 'New Category' }}
-        </span>
+            <!-- PANEL BODY -->
+            <div class="card-body">
+                <form [formGroup]="categoryForm">
+                    <div class="row">
+                        <!-- NAME -->
+                        <div class="form-group">
+                            <label>Category Name</label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                formControlName="name"
+                                placeholder="e.g. Accessories">
+                        </div>
+                        <div class="form-group">
+                            <label>Category Type</label>
+                            <input
+                                class="form-control"
+                                [value]="selectedCategoryType"
+                                readonly>
+                        </div>
 
-        <button
-          class="btn btn-sm btn-outline-secondary"
-          (click)="closeSidePanel()">
-          Close
-        </button>
-      </div>
+                        <div class="form-group">
+                            <label>Parent Category</label>
+                            <select
+                                class="form-control"
+                                formControlName="parentId">
 
-      <!-- PANEL BODY -->
-      <div class="card-body">
+                                <option [ngValue]="null">
+                                    None (Root Category)
+                                </option>
 
-        <form [formGroup]="categoryForm">
-            <div class="row">
-                <!-- NAME -->
-                <div class="form-group">
-                    <label>Category Name</label>
-                    <input
-                    type="text"
-                    class="form-control"
-                    formControlName="name"
-                    placeholder="e.g. Accessories">
-                </div>
+                                <option
+                                    *ngFor="let option of filteredParentOptions"
+                                    [value]="option.id">
 
-                <!-- ACTIVE -->
-                <div class="form-group">
-                    <label class="m-0">Status:</label>
+                                    {{ option.label }}
 
-                    <div class="form-check form-switch">
-                        <input
-                            class="form-check-input"
-                            type="checkbox"
-                            formControlName="isActive"
-                            id="isActiveToggle">
+                                </option>
 
-                        <label class="form-check-label" for="isActiveToggle">
-                            {{ categoryForm.value.isActive ? 'Active' : 'Inactive' }}
-                        </label>
+                            </select>
+
+                            <small class="text-muted">
+                                Leave empty to create a root category.
+                            </small>
+                        </div>
+
+                        <!-- ACTIVE -->
+                        <div class="form-group">
+                            <label class="m-0">Status:</label>
+                            <div class="form-check form-switch">
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    formControlName="isActive"
+                                    id="isActiveToggle">
+
+                                <label class="form-check-label" for="isActiveToggle">
+                                    {{ categoryForm.value.isActive ? 'Active' : 'Inactive' }}
+                                </label>
+                            </div>
+                        </div>
+                        <div
+                            *ngIf="selectedCategoryHasChildren"
+                            class="form-group d-flex mt-2">
+                            <span class="text-small alert alert-info">
+                                Variant templates are available
+                                only for leaf categories.
+                            </span>
+                        </div>
+                        <ng-container *ngIf="!selectedCategoryHasChildren">
+                            <div class="form-group">
+                                <label class="form-label">Variant Template</label>
+                                <div *ngFor="let field of variantTemplate; let i = index; trackBy: trackByIndex"
+                                    class="d-flex mb-2">
+
+                                    <input [(ngModel)]="variantTemplate[i]"
+                                        [ngModelOptions]="{ standalone: true }"
+                                        name="variant-{{i}}"
+                                        class="form-control me-2"
+                                        placeholder="e.g. Size">
+
+                                    <button 
+                                        class="btn btn-danger"
+                                        (click)="removeTemplateField(i)">
+                                        ✕
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <button 
+                                    class="btn btn-sm btn-outline-primary"
+                                    (click)="addTemplateField()">
+                                    + Add Field
+                                </button>
+                            </div>
+                        </ng-container>
                     </div>
-                </div>
+                </form>
 
-                <div class="form-group">
-                    <label class="form-label">Variant Template</label>
-                    <div *ngFor="let field of variantTemplate; let i = index; trackBy: trackByIndex"
-                        class="d-flex mb-2">
-
-                        <input [(ngModel)]="variantTemplate[i]"
-                            [ngModelOptions]="{ standalone: true }"
-                            name="variant-{{i}}"
-                            class="form-control me-2"
-                            placeholder="e.g. Size">
-
-                        <button class="btn btn-danger"
-                                (click)="removeTemplateField(i)">
-                        ✕
-                        </button>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <button class="btn btn-sm btn-outline-primary"
-                            (click)="addTemplateField()">
-                        + Add Field
+                <!-- ACTIONS -->
+                <div class="d-flex gap-2">
+                    <button
+                        class="btn btn-primary"
+                        *ngIf="!isEditMode"
+                        (click)="onSaveCategory()">
+                        Create Category
+                    </button>
+                    <button
+                        class="btn btn-success"
+                        *ngIf="isEditMode"
+                        (click)="onSaveCategory()">
+                        Update Category
                     </button>
                 </div>
             </div>
-            
-        </form>
-
-        <!-- ACTIONS -->
-        <div class="d-flex gap-2">
-          <button
-            class="btn btn-primary"
-            *ngIf="!isEditMode"
-            (click)="onSaveCategory()">
-            Create Category
-          </button>
-
-          <button
-            class="btn btn-success"
-            *ngIf="isEditMode"
-            (click)="onSaveCategory()">
-            Update Category
-          </button>
         </div>
-
-      </div>
     </div>
-  </div>
 
+</div>
+
+<!------MODAL ACTIVATE/DEACTIVATE ACTION ------->
+<div
+    *ngIf="showDeactivateModal"
+    class="modal fade show"
+    tabindex="-1"
+    style="display:block; background:rgba(0,0,0,.5);">
+
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    Deactivate Category
+                </h5>
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    (click)="closeDeactivateModal()">
+                </button>
+            </div>
+
+            <div class="modal-body">
+
+                <p>
+                    You are about to deactivate
+                    <strong>
+                        {{ editingCategory?.name }}
+                    </strong>.
+                </p>
+
+                <p class="mb-0 text-danger">
+                    All child and descendant categories
+                    will also be deactivated.
+                </p>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    (click)="closeDeactivateModal()">
+                    Cancel
+                </button>
+
+                <button
+                    type="button"
+                    class="btn btn-danger"
+                    (click)="confirmDeactivate()">
+                    Deactivate Category
+                </button>
+
+            </div>
+
+        </div>
+    </div>
 </div>

@@ -6,6 +6,10 @@ import { Constant } from '@app/services/constant/constant';
 import { ApiResponse } from '@app/models/api-response.model';
 import { Category } from '@app/models/category.model';
 import { CategoryPayload } from '@app/models/category-payload.model';
+import {
+  CategoryNode,
+  AdminCategoryNode,
+} from '@app/models/category-tree.model';
 
 @Injectable({ providedIn: 'root' })
 export class CategoryService {
@@ -13,7 +17,7 @@ export class CategoryService {
   // =========================
   // ADMIN BASE URL
   // =========================
-  private readonly baseUrl = `${Constant.API_BASE_URL}/${Constant.ADMIN.CATEGORIES.BASE}`;
+  private readonly baseUrl = `${Constant.API_BASE_URL}/${Constant.ADMIN.CATEGORIES.ADMIN_BASE}`;
 
   constructor(private http: HttpClient) {}
 
@@ -26,6 +30,26 @@ export class CategoryService {
         .pipe(
             map((res) => res.data?.data ?? [])
         );
+    }
+
+    getCategoryTree(): Observable<CategoryNode[]> {
+        return this.http
+            .get<ApiResponse<CategoryNode[]>>(
+                `${this.baseUrl}/tree`
+            )
+            .pipe(
+                map((res) => res.data ?? [])
+            );
+    }
+
+    getAdminCategoryTree(): Observable<AdminCategoryNode[]> {
+        return this.http
+            .get<ApiResponse<AdminCategoryNode[]>>(
+            `${this.baseUrl}/tree`
+            )
+            .pipe(
+            map((res) => res.data ?? [])
+            );
     }
 
   /* =====================================================
@@ -61,4 +85,12 @@ export class CategoryService {
       `${this.baseUrl}/${id}`
     );
   }
+
+  getCategoryById(id: string) {
+      return this.http.get<Category>(
+          `${this.baseUrl}/${id}`
+      );
+  }
+
+
 }
