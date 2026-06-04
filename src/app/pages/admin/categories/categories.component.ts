@@ -10,6 +10,7 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 
 import {
+    delay,
   Subject,
 } from 'rxjs';
 
@@ -20,19 +21,54 @@ import { Category } from '@app/models/category.model';
 import { SearchComponent } from '@app/shared/search/search.component';
 import { PaginationComponent } from '@app/shared/pagination/pagination.component';
 import { AdminCategoryNode, CategoryTreeRow, CategoryOption } from '@app/models/category-tree.model';
+import {
+  trigger,
+  transition,
+  style,
+  animate
+} from '@angular/animations';
+
+import { TableSkeletonComponent } from '@app/shared/table-skeleton/table-skeleton.component';
 
 @Component({
-  selector: 'app-categories',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    SearchComponent,
-    PaginationComponent,
-    FormsModule
-  ],
-  templateUrl: './categories.component.html',
-  styleUrls: ['./categories.component.css'],
+    selector: 'app-categories',
+    standalone: true,
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        SearchComponent,
+        PaginationComponent,
+        TableSkeletonComponent,
+        FormsModule
+    ],
+    templateUrl: './categories.component.html',
+    styleUrls: ['./categories.component.css'],
+    animations: [
+        trigger('expandCollapse', [
+            transition(':enter', [
+            style({
+                opacity: 0,
+                transform: 'translateY(-8px)'
+            }),
+            animate(
+                '200ms ease-out',
+                style({
+                opacity: 1,
+                transform: 'translateY(0)'
+                })
+            )
+            ]),
+            transition(':leave', [
+            animate(
+                '150ms ease-in',
+                style({
+                opacity: 0,
+                transform: 'translateY(-8px)'
+                })
+            )
+            ])
+        ])
+    ]
 })
 export class CategoriesComponent implements OnInit, OnDestroy {
     readonly pageSize = 10;
@@ -334,6 +370,9 @@ export class CategoriesComponent implements OnInit, OnDestroy {
     //================== Category Tree (for future use) ==================
 
     loadCategoryTree(): void {
+
+        this.isLoading = true;
+
         this.categorySrv
             .getAdminCategoryTree()
             .subscribe({
@@ -346,6 +385,8 @@ export class CategoriesComponent implements OnInit, OnDestroy {
                     this.parentOptions = this.buildParentOptions(tree);
                     this.filteredParentOptions = [...this.parentOptions];
                     this.buildDisplayRows();
+
+                    this.isLoading = false;
                 },
                 error: (err) => {
                     console.error(err);
@@ -381,23 +422,23 @@ export class CategoriesComponent implements OnInit, OnDestroy {
     }
 
     private buildCategoryMap(
-    nodes: AdminCategoryNode[]
-): void {
+        nodes: AdminCategoryNode[]
+    ): void {
 
-    nodes.forEach(node => {
+        nodes.forEach(node => {
 
-        this.categoryMap.set(
-            node.id,
-            node
-        );
-
-        if (node.children?.length) {
-            this.buildCategoryMap(
-                node.children
+            this.categoryMap.set(
+                node.id,
+                node
             );
-        }
-    });
-}
+
+            if (node.children?.length) {
+                this.buildCategoryMap(
+                    node.children
+                );
+            }
+        });
+    }
 
     toggleNode(row: CategoryTreeRow): void {
 
@@ -466,25 +507,21 @@ export class CategoriesComponent implements OnInit, OnDestroy {
                         id: node.id,
                         name: node.name,
                         isActive: node.isActive,
-
                         level,
-
                         expanded: this.expandedNodes.has(node.id),
-
-                        hasChildren:
-                            node.children?.length > 0,
-
-                        childCount:
-                            node.children?.length ?? 0,
-
+                        hasChildren: node.children?.length > 0,
+                        childCount: node.children?.length ?? 0,
+                        descendantCount: node.descendantCount ?? 0,
                         parentName,
-
                         fullPath
                     });
                 }
 
                 // Always continue traversing children
-                if (node.children?.length) {
+                if (
+                    node.children?.length &&
+                    this.expandedNodes.has(node.id)
+                ) {
 
                     traverse(
                         node.children,

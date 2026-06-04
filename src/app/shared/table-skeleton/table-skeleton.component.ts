@@ -25,6 +25,8 @@ export class TableSkeletonComponent {
 
     @Input() columnWidths: string[] = [];
 
+    @Input() isAdmin = false;
+
     get columnArray(): number[] {
         return Array(this.columns).fill(0);
     }

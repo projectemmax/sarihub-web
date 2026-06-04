@@ -11,6 +11,10 @@ export interface AdminCategoryNode {
   parentId: string | null;
   isActive: boolean;
   sortOrder: number;
+
+  childCount: number;
+  descendantCount: number;
+
   children: AdminCategoryNode[];
 }
 
@@ -23,7 +27,9 @@ export interface CategoryTreeRow {
 
     expanded: boolean;
     hasChildren: boolean;
+
     childCount: number;
+    descendantCount: number;
 
     parentName?: string;
     fullPath?: string;

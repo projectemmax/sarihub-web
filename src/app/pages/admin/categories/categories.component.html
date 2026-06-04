@@ -7,7 +7,7 @@
 
       <!-- ================= HEADER ================= -->
       <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">Categories Management</h5>
+        <h4 class="card-title mb-0">Categories Management</h4>
 
         <div class="d-flex gap-2 align-items-center">
 
@@ -40,9 +40,12 @@
       <div class="card-body">
 
         <!-- LOADER -->
-        <div *ngIf="isLoading" class="text-center my-3">
-          <div class="spinner-border text-primary"></div>
-        </div>
+        <app-table-skeleton
+            *ngIf="isLoading"
+            [rows]="8"
+            [columns]="3"
+            [isAdmin]="true">
+        </app-table-skeleton>
 
         <!-- TABLE -->
         <table
@@ -58,7 +61,7 @@
             </thead>
 
             <tbody>
-                <tr *ngFor="let row of displayRows">
+                <tr *ngFor="let row of displayRows" @expandCollapse>
                 <!-- CATEGORY -->
                     <td>
 
@@ -76,12 +79,12 @@
                                 (click)="toggleNode(row)"
                             >
                                 <i
-                                class="mdi"
-                                [ngClass]="
-                                    row.expanded
-                                    ? 'mdi-chevron-down'
-                                    : 'mdi-chevron-right'
-                                "
+                                    class="mdi"
+                                    [ngClass]="
+                                        row.expanded
+                                        ? 'mdi-chevron-down'
+                                        : 'mdi-chevron-right'
+                                    "
                                 ></i>
                             </button>
 
@@ -105,8 +108,13 @@
                             </div>
                             <span
                                 *ngIf="row.childCount > 0"
-                                class="badge badge-info ms-2">
-                                {{ row.childCount }} sub
+                                class="badge badge-info ms-2 mr-1">
+                                {{ row.childCount }} child
+                            </span>
+                            <span
+                                *ngIf="row.descendantCount > 0"
+                                class="badge badge-primary">
+                                {{ row.descendantCount }} total
                             </span>
                         </div>
 
