@@ -772,4 +772,30 @@ export class CategoriesComponent implements OnInit, OnDestroy {
         }
     }
 
+    //========= EXPAND/COLLAPSE ALL ===========
+
+    expandAll(): void {
+        const collectIds = (
+            nodes: AdminCategoryNode[]
+        ) => {
+
+            nodes.forEach(node => {
+                if (node.children?.length) {
+                    this.expandedNodes.add(node.id);
+                    collectIds(node.children);
+                }
+            });
+        };
+
+        collectIds(this.categoryTree);
+        this.persistExpandedNodes();
+        this.buildDisplayRows();
+    }
+
+    collapseAll(): void {
+        this.expandedNodes.clear();
+        this.persistExpandedNodes();
+        this.buildDisplayRows();
+    }
+
 }
