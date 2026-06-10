@@ -72,7 +72,7 @@ import { TableSkeletonComponent } from '@app/shared/table-skeleton/table-skeleto
 })
 export class CategoriesComponent implements OnInit, OnDestroy {
     readonly pageSize = 10;
-    private readonly STORAGE_KEY = 'category_state';
+    private readonly TREE_STATE_KEY = 'admin-category-tree-expanded';
 
     private destroy$ = new Subject<void>();
 
@@ -150,13 +150,8 @@ export class CategoriesComponent implements OnInit, OnDestroy {
     // ------------------
     ngOnInit(): void {
         this.initForm();
-
-        const pageParam = Number(this.route.snapshot.queryParamMap.get('page'));
-        const qParam = this.route.snapshot.queryParamMap.get('q');
-
-
-       this.loadCategoryTree();
-
+        this.restoreExpandedNodes();
+        this.loadCategoryTree();
     }
 
     ngOnDestroy(): void {
@@ -223,30 +218,21 @@ export class CategoriesComponent implements OnInit, OnDestroy {
     }
 
     onEdit(cat: Category): void {
-
-        console.log('EDIT CLICKED', cat);
-
         this.isEditMode = true;
-
         this.editingCategory = cat;
-
         this.categoryForm.patchValue(cat);
-
         this.filteredParentOptions =
             this.getAvailableParentOptions(
                 cat.id
             );
-
-        this.variantTemplate =
-            cat.variantTemplate?.attributes ?? [];
+        this.variantTemplate = cat.variantTemplate?.attributes ?? [];
 
         const treeNode = this.findNodeById(
             this.categoryTree,
             cat.id
         );
 
-        this.selectedCategoryHasChildren =
-            !!treeNode?.children?.length;
+        this.selectedCategoryHasChildren = !!treeNode?.children?.length;
 
         this.selectedCategoryType =
             cat.parentId
@@ -285,49 +271,48 @@ export class CategoriesComponent implements OnInit, OnDestroy {
     }
 
     onSaveCategory(): void {
-
-    if (this.categoryForm.invalid) {
-        return;
-    }
-
-    const { id, ...formPayload } = this.categoryForm.value;
-    const payload = formPayload;
-
-    console.log('editingCategory', this.editingCategory);
-    console.log('original isActive', this.editingCategory?.isActive);
-    console.log('new isActive', payload.isActive);
-    console.log('hasChildren', this.selectedCategoryHasChildren);
-
-    if (this.isEditMode) {
-
-        const currentCategory = this.editingCategory;
-
-        const becomingInactive =
-            currentCategory?.isActive === true &&
-            payload.isActive === false;
-
-        console.log('becomingInactive', becomingInactive);
-
-        if (
-            becomingInactive &&
-            this.selectedCategoryHasChildren
-        ) {
-
-            console.log('SHOW MODAL');
-
-            this.pendingCategoryId = id;
-            this.pendingPayload = payload;
-
-            this.showDeactivateModal = true;
+        if (this.categoryForm.invalid) {
             return;
         }
 
-        this.updateCategory(id, payload);
-        return;
-    }
+        const { id, ...formPayload } = this.categoryForm.value;
+        const payload = formPayload;
 
-    // create logic...
-}
+        console.log('editingCategory', this.editingCategory);
+        console.log('original isActive', this.editingCategory?.isActive);
+        console.log('new isActive', payload.isActive);
+        console.log('hasChildren', this.selectedCategoryHasChildren);
+
+        if (this.isEditMode) {
+
+            const currentCategory = this.editingCategory;
+
+            const becomingInactive =
+                currentCategory?.isActive === true &&
+                payload.isActive === false;
+
+            console.log('becomingInactive', becomingInactive);
+
+            if (
+                becomingInactive &&
+                this.selectedCategoryHasChildren
+            ) {
+
+                console.log('SHOW MODAL');
+
+                this.pendingCategoryId = id;
+                this.pendingPayload = payload;
+
+                this.showDeactivateModal = true;
+                return;
+            }
+
+            this.updateCategory(id, payload);
+            return;
+        }
+
+        // create logic...
+    }
 
     private updateCategory(
         id: string,
@@ -346,7 +331,6 @@ export class CategoriesComponent implements OnInit, OnDestroy {
     }
 
     private reloadData(): void {
-        this.expandedNodes.clear();
         this.loadCategoryTree();
     }
 
@@ -398,6 +382,37 @@ export class CategoriesComponent implements OnInit, OnDestroy {
             });
     }
 
+    private restoreExpandedNodes(): void {
+
+        const saved =
+            localStorage.getItem(
+                this.TREE_STATE_KEY
+            );
+
+        if (!saved) {
+            return;
+        }
+
+        try {
+            this.expandedNodes =
+                new Set<string>(
+                    JSON.parse(saved)
+                );
+
+        } catch {
+            this.expandedNodes.clear();
+        }
+    }
+
+    private persistExpandedNodes(): void {
+        localStorage.setItem(
+            this.TREE_STATE_KEY,
+            JSON.stringify(
+                [...this.expandedNodes]
+            )
+        );
+    }
+
     private buildParentOptions(
         nodes: AdminCategoryNode[],
         level = 0
@@ -445,7 +460,6 @@ export class CategoriesComponent implements OnInit, OnDestroy {
     }
 
     toggleNode(row: CategoryTreeRow): void {
-
         if (!row.hasChildren) {
             return;
         }
@@ -458,6 +472,7 @@ export class CategoriesComponent implements OnInit, OnDestroy {
             this.expandedNodes.add(row.id);
         }
 
+        this.persistExpandedNodes();
         this.buildDisplayRows();
     }
 
