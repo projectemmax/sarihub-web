@@ -351,19 +351,27 @@
             </div>
 
             <div class="modal-body">
-
                 <p>
-                    You are about to deactivate
-                    <strong>
-                        {{ editingCategory?.name }}
-                    </strong>.
+                    You are about to deactivate:
                 </p>
-
-                <p class="mb-0 text-danger">
-                    All child and descendant categories
-                    will also be deactivated.
-                </p>
-
+                <h6 class="fw-bold mb-3">
+                    {{ editingCategory?.name }}
+                </h6>
+                <ng-container *ngIf="selectedDescendantCount > 0; else noImpact">
+                    <div class="alert alert-warning text-small mb-0">
+                        This action will also deactivate
+                        <strong>
+                            {{ selectedDescendantCount }}
+                        </strong>
+                        descendant
+                        {{ selectedDescendantCount === 1 ? 'category' : 'categories' }}.
+                    </div>
+                </ng-container>
+                <ng-template #noImpact>
+                    <div class="alert alert-info mb-0">
+                        No descendant categories will be affected.
+                    </div>
+                </ng-template>
             </div>
 
             <div class="modal-footer">

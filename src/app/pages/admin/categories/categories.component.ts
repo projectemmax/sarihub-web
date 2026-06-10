@@ -101,6 +101,9 @@ export class CategoriesComponent implements OnInit, OnDestroy {
 
     selectedCategoryHasChildren = false;
     selectedCategoryType = '';
+
+    selectedDescendantCount = 0;
+
     parentCategories: Category[] = [];
     categories: AdminCategoryNode[] = [];
     parentOptions: CategoryOption[] = [];
@@ -215,6 +218,7 @@ export class CategoriesComponent implements OnInit, OnDestroy {
         this.isSidePanelVisible = false;
         this.editingCategory = null;
         this.selectedCategoryHasChildren = false;
+        this.selectedDescendantCount = 0;
         this.categoryForm.reset();
     }
 
@@ -547,48 +551,49 @@ export class CategoriesComponent implements OnInit, OnDestroy {
 
     onEditById(categoryId: string): void {
 
-    const node =
-        this.findNodeById(
-            this.categoryTree,
-            categoryId
-        );
+        const node =
+            this.findNodeById(
+                this.categoryTree,
+                categoryId
+            );
 
-    if (!node) {
-        return;
+        if (!node) {
+            return;
+        }
+
+        this.isEditMode = true;
+
+        this.editingCategory = {
+            id: node.id,
+            name: node.name,
+            parentId: node.parentId,
+            isActive: node.isActive
+        } as Category;
+
+        this.categoryForm.patchValue({
+            id: node.id,
+            name: node.name,
+            parentId: node.parentId,
+            sortOrder: node.sortOrder,
+            isActive: node.isActive
+        });
+
+        this.filteredParentOptions =
+            this.getAvailableParentOptions(
+                node.id
+            );
+
+        this.selectedCategoryHasChildren = !!node.children?.length;
+
+        this.selectedDescendantCount = node.descendantCount ?? 0;
+
+        this.selectedCategoryType =
+            node.parentId
+                ? 'Child Category'
+                : 'Parent Category';
+
+        this.isSidePanelVisible = true;
     }
-
-    this.isEditMode = true;
-
-    this.editingCategory = {
-        id: node.id,
-        name: node.name,
-        parentId: node.parentId,
-        isActive: node.isActive
-    } as Category;
-
-    this.categoryForm.patchValue({
-        id: node.id,
-        name: node.name,
-        parentId: node.parentId,
-        sortOrder: node.sortOrder,
-        isActive: node.isActive
-    });
-
-    this.filteredParentOptions =
-        this.getAvailableParentOptions(
-            node.id
-        );
-
-    this.selectedCategoryHasChildren =
-        !!node.children?.length;
-
-    this.selectedCategoryType =
-        node.parentId
-            ? 'Child Category'
-            : 'Parent Category';
-
-    this.isSidePanelVisible = true;
-}
 
     addChild(row: CategoryTreeRow): void {
 
