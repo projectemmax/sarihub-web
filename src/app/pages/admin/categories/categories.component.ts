@@ -798,4 +798,31 @@ export class CategoriesComponent implements OnInit, OnDestroy {
         this.buildDisplayRows();
     }
 
+    get canExpandAll(): boolean {
+        let expandableNodes = 0;
+
+        const countNodes = (
+            nodes: AdminCategoryNode[]
+        ) => {
+
+            nodes.forEach(node => {
+
+                if (node.children?.length) {
+
+                    expandableNodes++;
+
+                    countNodes(node.children);
+                }
+            });
+        };
+
+        countNodes(this.categoryTree);
+
+        return this.expandedNodes.size < expandableNodes;
+    }
+
+    get canCollapseAll(): boolean {
+        return this.expandedNodes.size > 0;
+    }
+
 }

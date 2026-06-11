@@ -24,13 +24,19 @@
 
                         <button
                             class="btn btn-sm btn-outline-primary"
+                            [disabled]="!canExpandAll"
                             (click)="expandAll()">
+
+                            <i class="mdi mdi-unfold-more-horizontal"></i>
                             Expand All
                         </button>
 
                         <button
                             class="btn btn-sm btn-outline-secondary"
+                            [disabled]="!canCollapseAll"
                             (click)="collapseAll()">
+
+                            <i class="mdi mdi-unfold-less-horizontal"></i>
                             Collapse All
                         </button>
 
