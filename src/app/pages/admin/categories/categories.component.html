@@ -16,6 +16,7 @@
                         <select
                             class="form-select form-select-sm"
                             style="width: 150px"
+                            [disabled]="isLoading"
                             (change)="onStatusFilterChange($any($event.target).value)">
                             <option value="ALL">All</option>
                             <option value="ACTIVE">Active</option>
@@ -24,7 +25,7 @@
 
                         <button
                             class="btn btn-sm btn-outline-primary"
-                            [disabled]="!canExpandAll"
+                            [disabled]="isLoading || !canExpandAll"
                             (click)="expandAll()">
 
                             <i class="mdi mdi-unfold-more-horizontal"></i>
@@ -33,7 +34,7 @@
 
                         <button
                             class="btn btn-sm btn-outline-secondary"
-                            [disabled]="!canCollapseAll"
+                            [disabled]="isLoading || !canCollapseAll"
                             (click)="collapseAll()">
 
                             <i class="mdi mdi-unfold-less-horizontal"></i>
@@ -57,7 +58,8 @@
                     *ngIf="isLoading"
                     [rows]="8"
                     [columns]="3"
-                    [isAdmin]="true">
+                    [isAdmin]="true"
+                    variant="categories">
                 </app-table-skeleton>
 
                 <!-- TABLE -->

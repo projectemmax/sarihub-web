@@ -363,6 +363,7 @@ export class CategoriesComponent implements OnInit, OnDestroy {
 
         this.categorySrv
             .getAdminCategoryTree()
+            .pipe(delay(2500)) // Simulate loading delay
             .subscribe({
                 next: (tree: AdminCategoryNode[]) => {
                     this.categoryTree = tree;

@@ -12,7 +12,7 @@
         </thead>
         <!-- Body -->
         <tbody>
-            <tr *ngFor="let row of rowArray">
+            <tr *ngFor="let row of rowArray; let rowIndex = index">
                 <td
                     *ngFor="let col of columnArray; let i = index"
                     [style.width]="columnWidths[i] || 'auto'">
@@ -33,6 +33,44 @@
                         <!-- Orders -->
                         <ng-container *ngSwitchCase="'orders'">
                             <div class="skeleton shimmer text"></div>
+                        </ng-container>
+
+                        <!-- Categories -->
+                        <ng-container *ngSwitchCase="'categories'">
+                            <!-- Category Column -->
+                            <ng-container *ngIf="i === 0">
+                                <div class="d-flex align-items-center">
+                                    <div
+                                        class="skeleton shimmer category-chevron me-2">
+                                    </div>
+                                    <div
+                                        class="skeleton shimmer category-name"
+                                        [style.margin-left.px]="(rowIndex % 4) * 40">
+                                    </div>
+                                </div>
+                            </ng-container>
+
+                            <!-- Status Column -->
+                            <ng-container *ngIf="i === 1">
+                                <div
+                                    class="skeleton shimmer status-badge">
+                                </div>
+                            </ng-container>
+
+                            <!-- Actions Column -->
+                            <ng-container *ngIf="i === 2">
+                                <div class="d-flex gap-2">
+                                    <div
+                                        class="skeleton shimmer action-btn">
+                                    </div>
+                                    <div
+                                        class="skeleton shimmer action-btn">
+                                    </div>
+                                    <div
+                                        class="skeleton shimmer action-btn">
+                                    </div>
+                                </div>
+                            </ng-container>
                         </ng-container>
 
                         <!-- Default -->
