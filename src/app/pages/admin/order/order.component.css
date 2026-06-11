@@ -1,3 +1,19 @@
+
+
+table{
+    width:max-content;
+    min-width:100%;
+    border-collapse:collapse;
+}
+
+.mat-column-actions{
+    white-space:nowrap;
+}
+
+.mat-column-actions .d-flex{
+    flex-wrap:wrap;
+}
+
 .empty-row td {
   padding: 48px 24px !important;
   border-bottom: none;
@@ -64,4 +80,70 @@
 .courier-cell a,
 .courier-cell small {
   font-size: 12px;
+}
+
+.table-wrapper{
+    width:100%;
+    overflow-x:auto;
+    overflow-y:hidden;
+    border-radius:12px;
+    -webkit-overflow-scrolling:touch;
+}
+
+.order-skeleton-table{
+    width:max-content;
+    min-width:100%;
+}
+
+.order-skeleton-table tr{
+  height:72px;
+}
+
+.order-skeleton-table td{
+  padding:16px;
+}
+
+.sk-cell,
+.sk-btn{
+  position:relative;
+  overflow:hidden;
+  border-radius:8px;
+  background:#eceff1;
+}
+
+.sk-cell{
+  height:20px;
+}
+
+.sk-btn{
+  width:72px;
+  height:36px;
+}
+
+.sk-cell::after,
+.sk-btn::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  transform:translateX(-100%);
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255,255,255,.6),
+      transparent
+    );
+  animation:skeleton 1.2s infinite;
+}
+
+.w-80{width:80px;}
+.w-100{width:100px;}
+.w-120{width:120px;}
+.w-140{width:140px;}
+.w-180{width:180px;}
+
+@keyframes skeleton{
+  100%{
+    transform:translateX(100%);
+  }
 }

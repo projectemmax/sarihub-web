@@ -70,3 +70,15 @@ export function getItemImage(item: any): string {
 
   return 'assets/img/no-image.png';
 }
+
+export function getReviewImage(review: any): string {
+
+    const firstImage = review.images?.[0];
+
+    if (firstImage?.url) {
+        return firstImage.url;
+    }
+
+    return 'assets/img/no-image.png';
+
+}

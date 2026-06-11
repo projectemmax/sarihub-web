@@ -24,3 +24,59 @@
 .legend-dot.sales {
   background-color: #28D094;
 }
+
+.skeleton-chart {
+  width: 100%;
+  min-height: 300px;
+  border-radius: 10px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #f5f5f5,
+      #f0f2f5,
+      #f5f5f5
+    );
+
+  background-size: 00% 100%;
+
+  animation: shimmer 1.2s infinite;
+}
+
+.placeholder {
+    opacity: .35;
+}
+
+@keyframes shimmer {
+
+  from {
+    background-position:
+      100% 0;
+  }
+
+  to {
+    background-position:
+      -100% 0;
+  }
+}
+
+.product-row {
+    padding: 8px;
+    border-bottom: 1px solid rgba(0,0,0,.10);
+
+    transition:
+        background-color .18s ease,
+        transform .18s ease;
+}
+
+.product-row:hover {
+    background-color: rgba(13,110,253,.04);
+    cursor: pointer;
+}
+
+.product-row-disabled {
+    cursor: default;
+    pointer-events: none;
+    opacity: .9;
+
+}

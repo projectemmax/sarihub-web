@@ -1,0 +1,42 @@
+.skeleton {
+    animation: skeleton-loading 1.2s infinite ease-in-out;
+    background: #e9ecef;
+    border-radius: 4px;
+}
+
+.skeleton-text {
+    height: 16px;
+    width: 100%;
+}
+
+.skeleton-long {
+    height: 16px;
+    width: 90%;
+}
+
+.skeleton-small {
+    height: 16px;
+    width: 40px;
+}
+
+.skeleton-button {
+    height: 32px;
+    width: 90px;
+}
+
+.skeleton-checkbox {
+    width: 18px;
+    height: 18px;
+}
+
+@keyframes skeleton-loading {
+    0% {
+        opacity: .6;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        opacity: .6;
+    }
+}

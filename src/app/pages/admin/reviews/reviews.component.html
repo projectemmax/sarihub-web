@@ -1,31 +1,88 @@
 <div class="card">
     <div class="card-body">
-    <h4 class="card-title">Review Moderation</h4>
-        <!-- BULK ACTIONS -->
-        <div class="mb-3">
-            <button
-                class="btn btn-success btn-sm me-2"
-                (click)="bulkApprove()"
-                [disabled]="selectedReviews.length === 0">
-                Approve Selected
-            </button>
-            <button
-                class="btn btn-danger btn-sm"
-                (click)="bulkReject()"
-                [disabled]="selectedReviews.length === 0">
-                Reject Selected
-            </button>
+        <div class="d-flex justify-content-between align-items-start mb-3">
+            <div>
+                <h4 class="card-title mb-1">
+                    {{ isSeller ? 'Product Reviews' : 'Review Moderation' }}
+                </h4>
+
+                <p class="text-muted mb-0">
+                    {{
+                        isSeller
+                            ? 'Customer feedback from your products'
+                            : 'Manage and moderate submitted reviews'
+                    }}
+                </p>
+            </div>
         </div>
-        <!-- LOADING -->
-        <div *ngIf="loading" class="text-center py-4">
-            <div class="spinner-border text-primary"></div>
+
+        <!-- SEARCH + ACTIONS -->
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+
+            <div style="max-width: 350px; width: 100%;">
+                <div class="input-group">
+
+                    <span class="input-group-text">
+                        <i class="mdi mdi-magnify"></i>
+                    </span>
+
+                    <input
+                        type="text"
+                        class="form-control"
+                        placeholder="Search reviews..."
+                        [(ngModel)]="searchTerm">
+
+                    <button
+                        *ngIf="searchTerm"
+                        class="btn btn-outline-secondary"
+                        type="button"
+                        (click)="clearSearch()">
+                        <i class="mdi mdi-close"></i>
+                    </button>
+
+                </div>
+            </div>
+
+            <div *ngIf="isAdmin">
+                <button
+                    class="btn btn-success btn-sm me-2"
+                    (click)="bulkApprove()"
+                    [disabled]="selectedReviews.length === 0">
+                    Approve Selected
+                </button>
+
+                <button
+                    class="btn btn-danger btn-sm"
+                    (click)="bulkReject()"
+                    [disabled]="selectedReviews.length === 0">
+                    Reject Selected
+                </button>
+            </div>
+
         </div>
+
+        <!-- SKELETON LOADING -->
+        <app-table-skeleton
+            *ngIf="loading"
+            [rows]="5"
+            [columns]="6"
+            variant="reviews"
+            [columnWidths]="[
+                '5%',
+                '15%',
+                '15%',
+                '35%',
+                '15%',
+                '15%'
+            ]">
+        </app-table-skeleton>
+
         <!-- TABLE -->
         <div class="table-responsive" *ngIf="!loading">
             <table class="table table-hover">
                 <thead>
                     <tr>
-                        <th width="40">
+                        <th *ngIf="isAdmin" width="40">
                             <input
                             type="checkbox"
                             (change)="toggleSelectAll($event)">
@@ -35,19 +92,23 @@
                         <th>Rating</th>
                         <th>Comment</th>
                         <th>Images</th>
-                        <th>Actions</th>
+                        <th *ngIf="isAdmin">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let review of reviews">
-                        <td>
+                    <tr *ngFor="let review of filteredReviews">
+                        <td *ngIf="isAdmin">
                             <input
                                 type="checkbox"
                                 [checked]="isSelected(review.id)"
                                 (change)="toggleReview(review.id, $event)">
                         </td>
                         <td>
-                            {{ review.product.name }}
+                            <div>
+                                <div class="fw-semibold">
+                                    {{ review.product.name }}
+                                </div>
+                            </div>
                         </td>
                         <td>
                             {{ review.user.customer?.firstName }}
@@ -60,14 +121,20 @@
                             {{ review.comment || 'No comment' }}
                         </td>
                         <td>
-                            <img
-                                *ngFor="let img of review.images"
-                                [src]="img.url"
-                                width="40"
-                                class="me-1 rounded"
-                            />
+                            <button
+                                *ngIf="review.images?.length"
+                                class="btn btn-outline-primary btn-sm"
+                                (click)="openImagesModal(review)">
+                                {{ review.images?.length }} Image(s)
+                            </button>
+
+                            <span
+                                *ngIf="!review.images?.length"
+                                class="badge bg-secondary">
+                                No Images
+                            </span>
                         </td>
-                        <td>
+                        <td *ngIf="isAdmin">
                             <button
                                 class="btn btn-success btn-sm me-2"
                                 (click)="approveReview(review.id)">
@@ -81,13 +148,73 @@
                         </td>
                     </tr>
                     <!-- EMPTY STATE -->
-                    <tr *ngIf="reviews.length === 0">
+                    <tr *ngIf="filteredReviews.length === 0">
                         <td colspan="7" class="text-center text-muted py-4">
-                            No pending reviews
+
+                            <ng-container *ngIf="searchTerm; else noReviews">
+                                No reviews found matching "{{ searchTerm }}"
+                            </ng-container>
+
+                            <ng-template #noReviews>
+                                No pending reviews
+                            </ng-template>
+
                         </td>
                     </tr>
                 </tbody>
             </table>
+            
         </div>
     </div>
+</div>
+
+<!-- REVIEW IMAGES MODAL -->
+<div
+    class="modal fade show"
+    tabindex="-1"
+    *ngIf="selectedReview"
+    style="display:block;background:rgba(0,0,0,.5);">
+
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title">
+                    Review Images
+                </h5>
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    (click)="closeImagesModal()">
+                </button>
+
+            </div>
+
+            <div class="modal-body">
+
+                <div
+                    class="row g-3">
+
+                    <div
+                        class="col-md-4"
+                        *ngFor="let img of selectedReview.images">
+
+                        <<img
+                            [src]="getImageUrlCloudinary(img.url)"
+                            class="img-fluid rounded border"
+                        />
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
 </div>

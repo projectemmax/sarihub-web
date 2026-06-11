@@ -5,10 +5,15 @@ export interface LoginRequest {
 
 export interface LoginResponse {
   accessToken: string;
+
   user: {
     id: string;
     email: string;
-    role: 'ADMIN' | 'CUSTOMER';
+
+    role:
+      | 'ADMIN'
+      | 'SELLER'
+      | 'CUSTOMER';
   };
 }
 
@@ -19,12 +24,12 @@ export interface RegisterRequest {
     mobileNumber: string;
     password: string;
     gender?: 'MALE' | 'FEMALE' | 'OTHER' | null;
-    role?: 'CUSTOMER' | 'ADMIN';
+    role?: 'CUSTOMER' | 'ADMIN' | 'SELLER';
 }
 
 export interface JwtPayload {
-  sub: string; // ✅ JWT standard (user id)
+  sub: string;
   email: string;
-  role: 'ADMIN' | 'CUSTOMER';
+  role: 'ADMIN' | 'SELLER' | 'CUSTOMER';
   exp: number;
 }

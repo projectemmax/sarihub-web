@@ -2,12 +2,23 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Constant } from '../constant/constant';
+import { AuthService } from '@app/core/auth/auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class AdminOrdersService {
-    private api = `${Constant.API_BASE_URL}/admin/orders`;
+    
+    private get api() {
 
-    constructor(private http: HttpClient) {}
+        return this.auth.getRole() === 'SELLER'
+            ? `${Constant.API_BASE_URL}/seller/orders`
+            : `${Constant.API_BASE_URL}/admin/orders`;
+
+    }
+
+    constructor(
+        private http: HttpClient, 
+        private auth: AuthService
+    ) {}
 
     getOrders(params: {
         page: number;

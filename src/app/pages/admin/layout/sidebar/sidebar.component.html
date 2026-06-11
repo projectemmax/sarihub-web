@@ -14,7 +14,13 @@
                         {{ currentUser?.firstName }} {{ currentUser?.lastName }}
                     </p>
                     <p class="designation">
-                        {{ currentUser?.role === 'ADMIN' ? 'Administrator' : currentUser?.role }}
+                        {{
+                            currentUser?.role === 'ADMIN'
+                            ? 'Administrator'
+                            : currentUser?.role === 'SELLER'
+                            ? 'Seller'
+                            : 'Customer'
+                        }}
                     </p>
                 </div>
             </a>
@@ -33,7 +39,9 @@
         </li>
 
         <!-- PRODUCTS -->
-        <li class="nav-item"
+        <li 
+            *ngIf="canManageProducts"
+            class="nav-item"
             routerLinkActive="active">
             <a
                 class="nav-link"
@@ -43,7 +51,9 @@
             </a>
         </li>
         <!-- CATEGORIES -->
-        <li class="nav-item"
+        <li 
+            *ngIf="isAdmin"
+            class="nav-item"
             routerLinkActive="active">
             <a
                 class="nav-link"
@@ -54,8 +64,10 @@
         </li>
 
         <!-- CUSTOMERS -->
-        <li class="nav-item"
-        routerLinkActive="active">
+        <li 
+            *ngIf="isAdmin"
+            class="nav-item"
+            routerLinkActive="active">
             <a
                 class="nav-link"
                 routerLink="/admin/customers">
@@ -66,6 +78,7 @@
 
         <!-- ORDERS-->
         <li 
+            *ngIf="canManageOrders"
             class="nav-item"
             routerLinkActive="active">
             <a
@@ -77,8 +90,10 @@
         </li>
 
         <!-- CARTS -->
-        <li class="nav-item"
-        routerLinkActive="active">
+        <li 
+            *ngIf="isAdmin"
+            class="nav-item"
+            routerLinkActive="active">
             <a
                 class="nav-link"
                 routerLink="/admin/carts">
@@ -88,8 +103,10 @@
         </li>
 
         <!-- REVIEWS -->
-        <li class="nav-item"
-        routerLinkActive="active">
+        <li 
+            *ngIf="canManageReviews"
+            class="nav-item"
+            routerLinkActive="active">
             <a
                 class="nav-link"
                 routerLink="/admin/reviews">
@@ -98,9 +115,13 @@
             </a>
         </li>
         <!-- System Section -->
-        <li class="nav-item nav-category">System</li>
+        <li 
+            *ngIf="canAccessSystem"
+            class="nav-item nav-category">System</li>
 
-        <li class="nav-item">
+        <li 
+            *ngIf="canAccessSystem"
+            class="nav-item">
             <a
                 class="nav-link"
                 data-bs-toggle="collapse"

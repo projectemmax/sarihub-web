@@ -17,9 +17,12 @@ export interface Analytics {
 }
 
 export interface TopProduct {
-  productId: string;
-  name: string;
-  sold: number;
+    id: string;
+    name: string;
+    sold: number;
+    revenue?: number;
+    image?: string;
+    percentage?: number;
 }
 
 export interface LatestCustomer {

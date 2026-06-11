@@ -20,6 +20,9 @@ import {
 import { AnalyticsChartComponent } from '@app/shared/analytics-chart/analytics-chart.component';
 import { DashboardFacade } from './dashboard.facade';
 import { FiltersComponent } from '@app/shared/ui/filters.component';
+import { getImageUrl } from '@app/core/utils/image.util';
+import { Router } from '@angular/router';
+import { AuthService } from '@app/core/auth/auth.service';
 
 
 @Component({
@@ -61,19 +64,32 @@ export class DashboardComponent implements OnInit {
         growth: 0
     };
 
-  constructor(
-    private dashboardService: DashboardService,
-    public facade: DashboardFacade
-  ) {
-    console.log('AnalyticsChartComponent loaded');
-  }
+    getImageUrl = getImageUrl;
 
-  // =========================
-  // INIT
-  // =========================
-  ngOnInit(): void {
-    this.loadDashboard();
-  }
+    // =========================
+    // SKELETON HELPER
+    readonly statsCardSkeleton = Array.from({ length: 4 });
+    readonly statSkeleton = Array.from({ length: 3 });
+    readonly productSkeleton = Array.from({ length: 5 });
+    readonly reviewSkeleton = Array.from({ length: 4 });
+
+    trackByIndex = (i: number) => i;
+
+    constructor(
+        private dashboardService: DashboardService,
+        public facade: DashboardFacade,
+        private router: Router,
+        private authService: AuthService,
+    ) {
+        console.log('AnalyticsChartComponent loaded');
+    }
+
+    // =========================
+    // INIT
+    // =========================
+    ngOnInit(): void {
+        this.loadDashboard();
+    }
 
     // =========================
     // LOAD DATA
@@ -93,19 +109,53 @@ export class DashboardComponent implements OnInit {
             .subscribe({
             next: (res) => {
 
-                this.stats = {
-                ...res.stats,
-                sales: Number(res.stats.sales)
-                };
+        const stats =
+            res.stats?.data
+            ?? res.stats;
 
-                this.analytics = res.analytics;
+        const customers =
+            res.customers?.data
+            ?? res.customers;
 
-                this.topProducts = res.products;
-                this.customers = res.customers;
-                this.reviews = res.reviews;
+        const reviews =
+            res.reviews?.data
+            ?? res.reviews;
 
-                this.isLoading = false;
-            },
+        this.stats = {
+
+            orders:
+                Number(
+                    stats?.orders ?? 0
+                ),
+
+            sales:
+                Number(
+                    stats?.sales ?? 0
+                ),
+
+            customers:
+                Number(
+                    stats?.customers ?? 0
+                ),
+
+            pendingReviews:
+                Number(
+                    stats?.pendingReviews ?? 0
+                )
+        };
+
+        this.analytics = res.analytics;
+
+        // already array
+        this.topProducts = res.products;
+
+        // unwrap only these
+        this.customers = customers ?? [];
+
+        this.reviews = reviews ?? [];
+
+        this.isLoading = false;
+    },
             error: (err) => {
                 console.error('Dashboard load error:', err);
                 this.errorMessage = 'Failed to load dashboard data.';
@@ -113,4 +163,69 @@ export class DashboardComponent implements OnInit {
             }
         });
     }
+
+    canOpenProducts(): boolean {
+        return this.authService.isAdmin();
+    }
+
+    viewAllProducts(): void {
+
+        if (
+            !this.canOpenProducts()
+        ) {
+            return;
+        }
+
+        this.router.navigate([
+            '/admin/products'
+        ]);
+
+    }
+
+    openProduct(
+        product: any
+    ): void {
+
+        if (
+            !this.canOpenProducts()
+        ) {
+            return;
+        }
+
+        this.router.navigate([
+            '/admin/products'
+        ]);
+
+    }
+
+    viewAllReviews(): void {
+        if (
+            !this.authService.isAdmin()
+        ) {
+            return;
+        }
+
+        this.router.navigate([
+            '/admin/reviews'
+        ]);
+    }
+
+    openReview(
+        review: any
+    ): void {
+
+        if (
+            !this.authService.isAdmin()
+        ) {
+            return;
+        }
+
+        this.router.navigate([
+            '/admin/reviews'
+        ]);
+
+    }
+
+
+
 }
