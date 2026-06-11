@@ -52,7 +52,7 @@ export const Constant = {
         },
 
         CATEGORIES: {
-            BASE: 'admin/categories',
+            ADMIN_BASE: 'admin/categories',
             BY_ID: (id: number | string) => `admin/categories/${id}`,
         },
 
@@ -123,6 +123,7 @@ export const Constant = {
         },
         CATEGORIES: {
             BASE: 'categories',
+            TREE: 'categories/tree',
         },
     },
 

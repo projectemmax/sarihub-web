@@ -1,4 +1,6 @@
 export interface CategoryPayload {
-  name: string;
-  isActive?: boolean; // ✅ optional
+    name: string;
+    parentId?: string | null;
+    isActive?: boolean;
+    sortOrder?: number;
 }

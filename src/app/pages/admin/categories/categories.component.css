@@ -4,3 +4,22 @@
 .form-check, .form-radio {
     margin-top: 5px;
 }
+
+.tree-toggle {
+  cursor: pointer;
+}
+.category-row {
+    cursor: pointer;
+}
+select.form-control {
+    appearance: auto;
+    -webkit-appearance: auto;
+    -moz-appearance: auto;
+}
+.tree-chevron {
+    transition: transform 0.2s ease;
+}
+
+.tree-chevron.expanded {
+    transform: rotate(90deg);
+}

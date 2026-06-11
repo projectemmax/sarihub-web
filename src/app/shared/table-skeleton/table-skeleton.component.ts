@@ -5,7 +5,8 @@ export type SkeletonVariant =
   | 'default'
   | 'reviews'
   | 'orders'
-  | 'products';
+  | 'products'
+  | 'categories';
 
 @Component({
   selector: 'app-table-skeleton',
@@ -24,6 +25,8 @@ export class TableSkeletonComponent {
     @Input() variant: SkeletonVariant = 'default';
 
     @Input() columnWidths: string[] = [];
+
+    @Input() isAdmin = false;
 
     get columnArray(): number[] {
         return Array(this.columns).fill(0);

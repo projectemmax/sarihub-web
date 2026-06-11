@@ -109,63 +109,53 @@ export class DashboardComponent implements OnInit {
             .subscribe({
             next: (res) => {
 
-    console.log(
-        'DASHBOARD RESPONSE',
-        res
-    );
+        const stats =
+            res.stats?.data
+            ?? res.stats;
 
-    const stats =
-        res.stats?.data
-        ?? res.stats;
+        const customers =
+            res.customers?.data
+            ?? res.customers;
 
-    const customers =
-        res.customers?.data
-        ?? res.customers;
+        const reviews =
+            res.reviews?.data
+            ?? res.reviews;
 
-    const reviews =
-        res.reviews?.data
-        ?? res.reviews;
+        this.stats = {
 
-    this.stats = {
+            orders:
+                Number(
+                    stats?.orders ?? 0
+                ),
 
-        orders:
-            Number(
-                stats?.orders ?? 0
-            ),
+            sales:
+                Number(
+                    stats?.sales ?? 0
+                ),
 
-        sales:
-            Number(
-                stats?.sales ?? 0
-            ),
+            customers:
+                Number(
+                    stats?.customers ?? 0
+                ),
 
-        customers:
-            Number(
-                stats?.customers ?? 0
-            ),
+            pendingReviews:
+                Number(
+                    stats?.pendingReviews ?? 0
+                )
+        };
 
-        pendingReviews:
-            Number(
-                stats?.pendingReviews ?? 0
-            )
-    };
+        this.analytics = res.analytics;
 
-    this.analytics =
-        res.analytics;
+        // already array
+        this.topProducts = res.products;
 
-    // already array
-    this.topProducts =
-        res.products;
+        // unwrap only these
+        this.customers = customers ?? [];
 
-    // unwrap only these
-    this.customers =
-        customers ?? [];
+        this.reviews = reviews ?? [];
 
-    this.reviews =
-        reviews ?? [];
-
-    this.isLoading =
-        false;
-},
+        this.isLoading = false;
+    },
             error: (err) => {
                 console.error('Dashboard load error:', err);
                 this.errorMessage = 'Failed to load dashboard data.';
