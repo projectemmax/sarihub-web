@@ -3,6 +3,8 @@ export interface ProductApi {
   sku: string;
   name: string;
   description?: string;
+  shortDescription?: string;
+  seoDescription?: string;
   price: number;
   stock: number;
   categoryId: string;

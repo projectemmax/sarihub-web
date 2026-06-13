@@ -7,5 +7,7 @@ export interface ProductPayload {
 
   imageUrl?: string;
   description?: string;
+  shortDescription?: string;
+  seoDescription?: string;
   status?: 'DRAFT' | 'PUBLISHED';
 }

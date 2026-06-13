@@ -8,6 +8,8 @@ export interface Product {
   sku: string;
   name: string;
   description?: string;
+  shortDescription?: string;
+  seoDescription?: string;
 
   price?: number;
   stock?: number;
