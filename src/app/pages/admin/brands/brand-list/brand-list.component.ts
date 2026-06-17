@@ -5,11 +5,13 @@ import { Brand } from '@app/models/brand.model';
 import { BrandService } from '@app/services/product/brand.service';
 import { BrandListResponse } from '@app/models/brand-response.model';
 import { PaginationComponent } from "@app/shared/pagination/pagination.component";
+import { TableSkeletonComponent } from "@app/shared/table-skeleton/table-skeleton.component";
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-brand-list',
   standalone: true,
-  imports: [CommonModule, PaginationComponent],
+  imports: [CommonModule, PaginationComponent, TableSkeletonComponent, FormsModule],
   templateUrl: './brand-list.component.html',
   styleUrls: ['./brand-list.component.scss'],
 })
@@ -91,6 +93,22 @@ export class BrandListComponent implements OnInit {
     changePage(page: number): void {
         this.currentPage = page;
         this.loadBrands();
+    }
+
+    openCreateModal(): void {
+
+    }
+
+    openEditModal(brand: Brand): void {
+
+    }
+
+    toggleStatus(brand: Brand): void {
+
+    }
+
+    deleteBrand(brand: Brand): void {
+
     }
 
 }

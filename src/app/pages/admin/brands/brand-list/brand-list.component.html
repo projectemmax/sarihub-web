@@ -11,6 +11,72 @@
             </button>
         </div>
 
+        <div class="row mb-3">
+            <!-- Search -->
+            <div class="col-md-4">
+                <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Search brands..."
+                    [(ngModel)]="search"
+                    (keyup.enter)="onSearch()">
+            </div>
+
+            <div class="col-md-2">
+                <button
+                    class="btn btn-outline-primary w-100"
+                    (click)="onSearch()">
+                    Search
+                </button>
+            </div>
+
+            <div class="col-md-2">
+                <button
+                    class="btn btn-outline-secondary w-100"
+                    (click)="clearSearch()">
+                    Clear
+                </button>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+
+            <!-- Status Filter -->
+            <div class="col-md-3">
+                <select
+                    class="form-select"
+                    (change)="setStatusFilter(
+                        $any($event.target).value === ''
+                            ? null
+                            : $any($event.target).value === 'true'
+                    )">
+
+                    <option value="">All Status</option>
+                    <option value="true">Active</option>
+                    <option value="false">Inactive</option>
+
+                </select>
+            </div>
+
+            <!-- Verified Filter -->
+            <div class="col-md-3">
+                <select
+                    class="form-select"
+                    (change)="setVerifiedFilter(
+                        $any($event.target).value === ''
+                            ? null
+                            : $any($event.target).value === 'true'
+                    )">
+
+                    <option value="">All Verification</option>
+                    <option value="true">Verified</option>
+                    <option value="false">Unverified</option>
+
+                </select>
+            </div>
+
+        </div>
+
         <app-table-skeleton
             *ngIf="loading"
             variant="brands"
@@ -40,7 +106,9 @@
                         <th>Slug</th>
                         <th>Verified</th>
                         <th>Status</th>
-                        <th>Products</th>
+                        <th>Product Count</th>
+                        <th>Created Date</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -48,11 +116,17 @@
 
                         <td>
                             <img
-                                *ngIf="brand.logoUrl"
+                                *ngIf="brand.logoUrl; else noLogo"
                                 [src]="brand.logoUrl"
                                 width="40"
                                 height="40"
-                                class="rounded">
+                                class="rounded object-fit-cover">
+
+                            <ng-template #noLogo>
+                                <div class="brand-placeholder">
+                                    {{ brand.name.charAt(0) }}
+                                </div>
+                            </ng-template>
                         </td>
 
                         <td>{{ brand.name }}</td>
@@ -60,17 +134,81 @@
                         <td>{{ brand.slug }}</td>
 
                         <td>
-                            {{ brand.isVerified ? 'Verified' : 'Unverified' }}
+                            <span
+                                class="badge"
+                                [ngClass]="brand.isVerified
+                                    ? 'bg-success'
+                                    : 'bg-secondary'">
+
+                                {{ brand.isVerified
+                                    ? 'Verified'
+                                    : 'Unverified'
+                                }}
+
+                            </span>
                         </td>
 
                         <td>
-                            {{ brand.isActive ? 'Active' : 'Inactive' }}
+                            <span
+                                class="badge"
+                                [ngClass]="brand.isActive
+                                    ? 'bg-success'
+                                    : 'bg-danger'">
+
+                                {{ brand.isActive
+                                    ? 'Active'
+                                    : 'Inactive'
+                                }}
+
+                            </span>
                         </td>
 
                         <td>
                             {{ brand._count?.products ?? 0 }}
                         </td>
 
+                        <td>
+                            {{ brand.createdAt | date:'MMM d, y' }}
+                        </td>
+
+                        <td>
+                            <div class="dropdown">
+                                <button
+                                    class="btn btn-sm btn-light"
+                                    data-bs-toggle="dropdown">
+
+                                    <i class="mdi mdi-dots-vertical"></i>
+
+                                </button>
+
+                                <div class="dropdown-menu">
+
+                                    <button
+                                        class="dropdown-item">
+                                        Edit
+                                    </button>
+
+                                    <button
+                                        class="dropdown-item">
+
+                                        {{ brand.isActive
+                                            ? 'Deactivate'
+                                            : 'Activate'
+                                        }}
+
+                                    </button>
+
+                                    <button
+                                        class="dropdown-item text-danger"
+                                        [disabled]="(brand._count?.products ?? 0) > 0">
+
+                                        Delete
+
+                                    </button>
+
+                                </div>
+                            </div>
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -83,7 +221,7 @@
         </div>
         <!-- Empty State -->
         <div
-            *ngIf="brands.length === 0"
+            *ngIf="!loading && brands.length === 0"
             class="text-center text-muted py-4">
 
             No brands found.
