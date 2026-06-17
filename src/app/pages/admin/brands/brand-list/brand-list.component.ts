@@ -43,9 +43,9 @@ export class BrandListComponent implements OnInit {
 
     brandForm!: FormGroup;
 
-    showCreateModal = false;
+    showModal = false;
     submitting = false;
-    selectedBrand?: Brand;
+    selectedBrand: Brand | null = null;
     isEditMode = false;
 
     constructor(
@@ -129,20 +129,37 @@ export class BrandListComponent implements OnInit {
     }
 
     openCreateModal(): void {
+        this.selectedBrand = null;
+        this.isEditMode = false;
+
         this.brandForm.reset({
             isVerified: false,
             isActive: true
         });
 
-        this.showCreateModal = true;
+        this.showModal = true;
     }
 
-    closeCreateModal(): void {
-        this.showCreateModal = false;
+    closeModal(): void {
+        this.showModal = false;
+        this.selectedBrand = null;
+        this.isEditMode = false;
+        this.brandForm.reset();
     }
 
     openEditModal(brand: Brand): void {
+        this.selectedBrand = brand;
+        this.isEditMode = true;
 
+        this.brandForm.patchValue({
+            name: brand.name,
+            description: brand.description ?? '',
+            logoUrl: brand.logoUrl ?? '',
+            isVerified: brand.isVerified,
+            isActive: brand.isActive
+        });
+
+        this.showModal = true;
     }
 
     toggleStatus(brand: Brand): void {
@@ -161,13 +178,21 @@ export class BrandListComponent implements OnInit {
             .replace(/[^\w-]/g, '');
     }
 
-    createBrand(): void {
-
+    saveBrand(): void {
         if (this.brandForm.invalid) {
             this.brandForm.markAllAsTouched();
             return;
         }
 
+        if (this.isEditMode) {
+            this.updateBrand();
+            return;
+        }
+
+        this.createBrand();
+    }
+
+    private createBrand(): void {
         this.submitting = true;
 
         this.brandService
@@ -176,7 +201,33 @@ export class BrandListComponent implements OnInit {
                 next: () => {
                     this.currentPage = 1;
                     this.submitting = false;
-                    this.closeCreateModal();
+                    this.closeModal();
+                    this.loadBrands();
+                },
+                error: error => {
+                    this.submitting = false;
+                    console.error(error);
+                }
+            });
+    }
+
+    private updateBrand(): void {
+
+        if (!this.selectedBrand) {
+            return;
+        }
+
+        this.submitting = true;
+
+        this.brandService
+            .updateBrand(
+                this.selectedBrand.id,
+                this.brandForm.getRawValue()
+            )
+            .subscribe({
+                next: () => {
+                    this.submitting = false;
+                    this.closeModal();
                     this.loadBrands();
                 },
                 error: error => {

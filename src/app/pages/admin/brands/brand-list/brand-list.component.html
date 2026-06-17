@@ -98,7 +98,7 @@
 
         <div
             *ngIf="!loading"
-            class="table-responsive">
+            class="table-responsive mb-4">
 
             <table class="table table-striped">
                 <thead>
@@ -186,7 +186,8 @@
                                 <div class="dropdown-menu">
 
                                     <button
-                                        class="dropdown-item">
+                                        class="dropdown-item"
+                                        (click)="openEditModal(brand)">
                                         Edit
                                     </button>
 
@@ -214,13 +215,14 @@
                     </tr>
                 </tbody>
             </table>
-            <app-pagination
-                *ngIf="totalPages > 1"
-                [currentPage]="currentPage"
-                [totalPages]="totalPages"
-                (pageChange)="changePage($event)">
-            </app-pagination>
+            
         </div>
+        <app-pagination
+            *ngIf="totalPages > 1"
+            [currentPage]="currentPage"
+            [totalPages]="totalPages"
+            (pageChange)="changePage($event)">
+        </app-pagination>
         <!-- Empty State -->
         <div
             *ngIf="!loading && brands.length === 0"
@@ -233,10 +235,10 @@
 </div>
 
 <app-brand-form-modal
-    [visible]="showCreateModal"
+    [visible]="showModal"
     [title]="isEditMode ? 'Edit Brand' : 'Create Brand'"
     [form]="brandForm"
     [submitting]="submitting"
-    (close)="closeCreateModal()"
-    (save)="createBrand()">
+    (close)="closeModal()"
+    (save)="saveBrand()">
 </app-brand-form-modal>

@@ -82,4 +82,14 @@ export class BrandService {
         );
     }
 
+    updateBrand(
+        id: string,
+        payload: Partial<CreateBrandPayload>
+    ) {
+        return this.http.patch<Brand>(
+            this.baseUrl + `/${id}`,
+            payload
+        );
+    }
+
 }
