@@ -6,6 +6,7 @@ import { Constant } from '@app/services/constant/constant';
 import { ApiResponse } from '@app/models/api-response.model';
 import { Brand } from '@app/models/brand.model';
 import { BrandListResponse } from '@app/models/brand-response.model';
+import { CreateBrandPayload } from '@app/models/brand-create-payload.model';
 
 
 @Injectable({
@@ -73,6 +74,12 @@ export class BrandService {
             .pipe(
                 map(response => response.data)
             );
+    }
+
+    createBrand(payload: CreateBrandPayload) {
+        return this.http.post<Brand>(
+            this.baseUrl, payload
+        );
     }
 
 }

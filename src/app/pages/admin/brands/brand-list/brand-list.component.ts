@@ -174,6 +174,7 @@ export class BrandListComponent implements OnInit {
             .createBrand(this.brandForm.value)
             .subscribe({
                 next: () => {
+                    this.currentPage = 1;
                     this.submitting = false;
                     this.closeCreateModal();
                     this.loadBrands();
