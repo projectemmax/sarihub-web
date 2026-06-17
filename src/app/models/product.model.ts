@@ -24,6 +24,13 @@ export interface Product {
     name: string;
   };
 
+  brand?: {
+    id: string;
+    name: string;
+    slug: string;
+    logoUrl?: string;
+  };
+
   isActive: boolean;
 
   isFeatured: boolean;

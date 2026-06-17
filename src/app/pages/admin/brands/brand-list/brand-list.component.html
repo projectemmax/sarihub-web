@@ -1,0 +1,93 @@
+<div class="card">
+    <div class="card-body">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="card-title mb-0">
+                Brand Management
+            </h4>
+
+            <button class="btn btn-primary">
+                Create Brand
+            </button>
+        </div>
+
+        <app-table-skeleton
+            *ngIf="loading"
+            variant="brands"
+            [rows]="10"
+            [columns]="8"
+            [columnWidths]="[
+                '80px',
+                '220px',
+                '180px',
+                '120px',
+                '120px',
+                '120px',
+                '180px',
+                '160px'
+            ]">
+        </app-table-skeleton>
+
+        <div
+            *ngIf="!loading"
+            class="table-responsive">
+
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Logo</th>
+                        <th>Name</th>
+                        <th>Slug</th>
+                        <th>Verified</th>
+                        <th>Status</th>
+                        <th>Products</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let brand of brands">
+
+                        <td>
+                            <img
+                                *ngIf="brand.logoUrl"
+                                [src]="brand.logoUrl"
+                                width="40"
+                                height="40"
+                                class="rounded">
+                        </td>
+
+                        <td>{{ brand.name }}</td>
+
+                        <td>{{ brand.slug }}</td>
+
+                        <td>
+                            {{ brand.isVerified ? 'Verified' : 'Unverified' }}
+                        </td>
+
+                        <td>
+                            {{ brand.isActive ? 'Active' : 'Inactive' }}
+                        </td>
+
+                        <td>
+                            {{ brand._count?.products ?? 0 }}
+                        </td>
+
+                    </tr>
+                </tbody>
+            </table>
+            <app-pagination
+                *ngIf="totalPages > 1"
+                [currentPage]="currentPage"
+                [totalPages]="totalPages"
+                (pageChange)="changePage($event)">
+            </app-pagination>
+        </div>
+        <!-- Empty State -->
+        <div
+            *ngIf="brands.length === 0"
+            class="text-center text-muted py-4">
+
+            No brands found.
+
+        </div>
+    </div>
+</div>

@@ -6,7 +6,8 @@ export type SkeletonVariant =
   | 'reviews'
   | 'orders'
   | 'products'
-  | 'categories';
+  | 'categories'
+  | 'brands';
 
 @Component({
   selector: 'app-table-skeleton',

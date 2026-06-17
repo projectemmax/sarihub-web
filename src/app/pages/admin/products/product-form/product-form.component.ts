@@ -19,6 +19,8 @@ import { CanComponentDeactivate } from '@app/guards/unsaved-changes.guard';
 import { ReusableImageUploadComponent } from "@app/shared/reusable-image-upload/reusable-image-upload.component";
 import { AuthService } from '@app/core/auth/auth.service';
 import { SellerAiService } from '@app/services/seller/seller-ai.service';
+import { BrandService } from '@app/services/product/brand.service';
+import { Brand } from '@app/models/brand.model';
 
 interface VariantOption {
   name: string;
@@ -76,6 +78,7 @@ export class ProductFormComponent implements OnInit, CanComponentDeactivate {
     aiBrand = '';
     aiFeatures = '';
     aiSpecifications = '';
+    brands: Brand[] = [];
     
 
     getImageUrl = getImageUrl;
@@ -94,20 +97,21 @@ export class ProductFormComponent implements OnInit, CanComponentDeactivate {
     formSections: DynamicSection[] = [
         {
         section: 'Basic Info',
-        fields: [
-            { key: 'name', type: 'text', label: 'Product Name', required: true },
-            { key: 'description', type: 'textarea', label: 'Description' },
-            { key: 'shortDescription', type: 'textarea', label: 'Short Description' },
-            { key: 'seoDescription', type: 'textarea', label: 'SEO Description' },
-            { key: 'sku', type: 'text', label: 'Base product SKU', required: false },
-            { key: 'categoryId', type: 'select', label: 'Category', required: true }
-            ]
-        },
+            fields: [
+                { key: 'name', type: 'text', label: 'Product Name', required: true },
+                { key: 'description', type: 'textarea', label: 'Description' },
+                { key: 'shortDescription', type: 'textarea', label: 'Short Description' },
+                { key: 'seoDescription', type: 'textarea', label: 'SEO Description' },
+                { key: 'sku', type: 'text', label: 'Base product SKU', required: false },
+                { key: 'categoryId', type: 'select', label: 'Category', required: true },
+                { key: 'brandId', type: 'select', label: 'Brand', required: false }
+                ]
+            },
         {
         section: 'Pricing',
             fields: [
-                { key: 'price', type: 'number', label: 'Price', required: false },
-                { key: 'stock', type: 'number', label: 'Stock', required: false }
+                { key: 'price', type: 'number', label: 'Price', required: true },
+                { key: 'stock', type: 'number', label: 'Stock', required: true }
             ]
         }
     ];
@@ -118,10 +122,17 @@ export class ProductFormComponent implements OnInit, CanComponentDeactivate {
         private productService: ProductService,
         private sellerAiService: SellerAiService,
         private categoryService: CategoryService,
+        private brandService: BrandService,
         private router: Router,
         private toast: ToastService,
         private authService: AuthService
     ) {}
+
+    async loadBrands(): Promise<void> {
+        this.brands = await firstValueFrom(
+            this.brandService.getBrands()
+        );
+    }
 
     variants: any[] = [];
 
@@ -153,8 +164,18 @@ export class ProductFormComponent implements OnInit, CanComponentDeactivate {
 
         this.productId = this.route.snapshot.paramMap.get('id') || '';
 
-        await this.loadCategories();
+        await Promise.all([
+            this.loadCategories(),
+            this.loadBrands(),
+        ]);
 
+        this.form.get('brandId')?.valueChanges.subscribe((brandId) => {
+            const brand = this.brands.find(
+                b => b.id === brandId
+            );
+
+            this.aiBrand = brand?.name ?? '';
+        });
 
         if (this.productId) {
             this.isEditMode = true;
@@ -310,6 +331,7 @@ export class ProductFormComponent implements OnInit, CanComponentDeactivate {
                 stock: product.stock,
                 sku: this.generateBaseSku(),
                 categoryId: product.categoryId,
+                brandId: product.brand?.id ?? null,
                 hasVariants: !!product.variants?.length,
                 isFeatured: product.isFeatured ?? false,
                 isBestSeller: product.isBestSeller ?? false
@@ -637,7 +659,20 @@ export class ProductFormComponent implements OnInit, CanComponentDeactivate {
             // VALIDATION (PUBLISH ONLY)
             // ==========================
             if (action === 'publish') {
+                console.log('FORM VALID:', this.form.valid);
+
+                Object.entries(this.form.controls).forEach(([key, control]) => {
+                    if (control.invalid) {
+                        console.log(
+                            'INVALID FIELD:',
+                            key,
+                            control.errors
+                        );
+                    }
+                });
+
                 if (this.form.invalid) {
+                    this.form.markAllAsTouched();
                     this.toast.error('Please complete required fields');
                     return;
                 }

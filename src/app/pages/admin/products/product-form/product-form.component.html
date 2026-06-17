@@ -8,7 +8,14 @@
 
                     <div *ngFor="let field of section.fields" class="mb-3">
                         <div class="form-group">
-                            <label>{{ field.label }}</label>
+                            <label>
+                                {{ field.label }}
+                                <span
+                                    *ngIf="field.required"
+                                    class="text-danger">
+                                    *
+                                </span>
+                            </label>
                             <input *ngIf="field.type === 'text'"
                                 class="form-control"
                                 [formControlName]="field.key" 
@@ -115,31 +122,76 @@
                                 </div>
                             </div>
 
-                            <select *ngIf="field.type === 'select'"
-                                    class="form-control form-control-lg"
-                                    [formControlName]="field.key"
-                                    [class.unsaved]="isFieldChanged(field.key)">
+                            <select
+                                *ngIf="field.type === 'select'"
+                                class="form-control form-control-lg"
+                                [formControlName]="field.key"
+                                [class.unsaved]="isFieldChanged(field.key)">
 
-                                <option value="">Select Category</option>
+                                <!-- CATEGORY -->
+                                <ng-container *ngIf="field.key === 'categoryId'">
 
-                                <option *ngFor="let c of categories" [ngValue]="c.id">
-                                    {{ c.name }}
-                                </option>
+                                    <option value="">
+                                        Select Category
+                                    </option>
+
+                                    <option
+                                        *ngFor="let c of categories"
+                                        [ngValue]="c.id">
+                                        {{ c.name }}
+                                    </option>
+
+                                </ng-container>
+
+                                <!-- BRAND -->
+                                <ng-container *ngIf="field.key === 'brandId'">
+
+                                    <option value="">
+                                        Select Brand
+                                    </option>
+
+                                    <option
+                                        *ngFor="let brand of brands"
+                                        [ngValue]="brand.id">
+                                        {{ brand.name }}
+                                    </option>
+
+                                </ng-container>
 
                             </select>
+                            <div
+                                *ngIf="
+                                    form.get(field.key)?.invalid &&
+                                    form.get(field.key)?.touched
+                                "
+                                class="invalid-feedback d-block">
+
+                                <span *ngIf="form.get(field.key)?.errors?.['required']">
+                                    {{ field.label }} is required.
+                                </span>
+
+                                <span *ngIf="form.get(field.key)?.errors?.['min']">
+                                    {{ field.label }} must be greater than
+                                    {{ form.get(field.key)?.errors?.['min']?.min }}.
+                                </span>
+
+                                <span *ngIf="form.get(field.key)?.errors?.['maxlength']">
+                                    Maximum length exceeded.
+                                </span>
+
+                            </div>
 
                         </div>
-                        <div *ngIf="field.key === 'categoryId'" class="form-check form-check-flat">
-                            <input
-                                type="checkbox"
-                                class="form-check-input"
-                                formControlName="hasVariants"
-                                id="hasVariants"
-                            /> 
+                        <div *ngIf="field.key === 'brandId'" class="form-check form-check-flat">
+                             <input
+                                    type="checkbox"
+                                    class="form-check-input"
+                                    formControlName="hasVariants"
+                                    id="hasVariants"
+                                /> 
                             <label class="form-check-label" for="hasVariants">
                                 This product has variants
                             </label>
-                            
                         </div>
                     </div>
                     
@@ -153,7 +205,7 @@
                     <div class="row">
                         <div class="col-md-6 form-group">
                             <div 
-                                class="form-check form-switch merchandising-switch"
+                                class="merchandising-switch form-check form-switch"
                                 [class.field-changed]="isFieldChanged('isFeatured')">
                                 <input
                                     class="form-check-input"

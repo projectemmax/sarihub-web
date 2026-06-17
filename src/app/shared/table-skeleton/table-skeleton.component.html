@@ -73,6 +73,68 @@
                             </ng-container>
                         </ng-container>
 
+                        <!-- Brands -->
+                        <ng-container *ngSwitchCase="'brands'">
+                            <!-- Logo -->
+                            <ng-container *ngIf="i === 0">
+                                <div
+                                    class="skeleton shimmer image rounded-circle">
+                                </div>
+                            </ng-container>
+
+                            <!-- Brand Name -->
+                            <ng-container *ngIf="i === 1">
+                                <div
+                                    class="skeleton shimmer text">
+                                </div>
+                            </ng-container>
+
+                            <!-- Slug -->
+                            <ng-container *ngIf="i === 2">
+                                <div
+                                    class="skeleton shimmer text">
+                                </div>
+                            </ng-container>
+
+                            <!-- Verified -->
+                            <ng-container *ngIf="i === 3">
+                                <div
+                                    class="skeleton shimmer status-badge">
+                                </div>
+                            </ng-container>
+
+                            <!-- Status -->
+                            <ng-container *ngIf="i === 4">
+                                <div
+                                    class="skeleton shimmer status-badge">
+                                </div>
+                            </ng-container>
+
+                            <!-- Product Count -->
+                            <ng-container *ngIf="i === 5">
+                                <div
+                                    class="skeleton shimmer small-text">
+                                </div>
+                            </ng-container>
+
+                            <!-- Created Date -->
+                            <ng-container *ngIf="i === 6">
+                                <div
+                                    class="skeleton shimmer text">
+                                </div>
+                            </ng-container>
+
+                            <!-- Actions -->
+                            <ng-container *ngIf="i === 7">
+                                <div class="d-flex gap-2">
+                                <div class="skeleton shimmer action-btn"></div>
+                                <div class="skeleton shimmer action-btn"></div>
+                                </div>
+                            </ng-container>
+
+                        </ng-container>
+
+
                         <!-- Default -->
                         <ng-container *ngSwitchDefault>
                             <div class="skeleton shimmer text"></div>
