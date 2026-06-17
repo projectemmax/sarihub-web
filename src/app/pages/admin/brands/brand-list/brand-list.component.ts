@@ -6,14 +6,28 @@ import { BrandService } from '@app/services/product/brand.service';
 import { BrandListResponse } from '@app/models/brand-response.model';
 import { PaginationComponent } from "@app/shared/pagination/pagination.component";
 import { TableSkeletonComponent } from "@app/shared/table-skeleton/table-skeleton.component";
-import { FormsModule } from '@angular/forms';
+import { 
+    FormsModule,
+    FormBuilder,
+    FormGroup,
+    ReactiveFormsModule,
+    Validators 
+} from '@angular/forms';
+import { BrandFormModalComponent } from "../brand-form-modal/brand-form-modal.component";
 
 @Component({
-  selector: 'app-brand-list',
-  standalone: true,
-  imports: [CommonModule, PaginationComponent, TableSkeletonComponent, FormsModule],
-  templateUrl: './brand-list.component.html',
-  styleUrls: ['./brand-list.component.scss'],
+    selector: 'app-brand-list',
+    standalone: true,
+    imports: [
+        CommonModule, 
+        PaginationComponent, 
+        TableSkeletonComponent, 
+        FormsModule,
+        ReactiveFormsModule,
+        BrandFormModalComponent
+    ],
+    templateUrl: './brand-list.component.html',
+    styleUrls: ['./brand-list.component.scss'],
 })
 export class BrandListComponent implements OnInit {
     brands: Brand[] = [];
@@ -27,12 +41,31 @@ export class BrandListComponent implements OnInit {
     total = 0;
     totalPages = 0;
 
+    brandForm!: FormGroup;
+
+    showCreateModal = false;
+    submitting = false;
+    selectedBrand?: Brand;
+    isEditMode = false;
+
     constructor(
-        private readonly brandService: BrandService
+        private readonly brandService: BrandService,
+        private readonly fb: FormBuilder
     ) {}
 
     ngOnInit(): void {
+        this.initializeForm();
         this.loadBrands();
+    }
+
+    private initializeForm(): void {
+        this.brandForm = this.fb.group({
+            name: ['', [Validators.required, Validators.maxLength(100)]],
+            logoUrl: [''],
+            description: ['', [Validators.maxLength(1000)]],
+            isVerified: [false],
+            isActive: [true]
+        });
     }
 
     loadBrands(): void {
@@ -96,7 +129,16 @@ export class BrandListComponent implements OnInit {
     }
 
     openCreateModal(): void {
+        this.brandForm.reset({
+            isVerified: false,
+            isActive: true
+        });
 
+        this.showCreateModal = true;
+    }
+
+    closeCreateModal(): void {
+        this.showCreateModal = false;
     }
 
     openEditModal(brand: Brand): void {
@@ -109,6 +151,38 @@ export class BrandListComponent implements OnInit {
 
     deleteBrand(brand: Brand): void {
 
+    }
+
+    private slugify(value: string): string {
+        return value
+            .toLowerCase()
+            .trim()
+            .replace(/\s+/g, '-')
+            .replace(/[^\w-]/g, '');
+    }
+
+    createBrand(): void {
+
+        if (this.brandForm.invalid) {
+            this.brandForm.markAllAsTouched();
+            return;
+        }
+
+        this.submitting = true;
+
+        this.brandService
+            .createBrand(this.brandForm.value)
+            .subscribe({
+                next: () => {
+                    this.submitting = false;
+                    this.closeCreateModal();
+                    this.loadBrands();
+                },
+                error: error => {
+                    this.submitting = false;
+                    console.error(error);
+                }
+            });
     }
 
 }

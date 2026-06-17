@@ -1,0 +1,15 @@
+.brand-logo-preview {
+    width: 120px;
+    height: 120px;
+
+    object-fit: contain;
+
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+
+    padding: 8px;
+}
+
+.modal {
+    background: rgba(0, 0, 0, 0.2);
+}
