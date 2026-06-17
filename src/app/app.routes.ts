@@ -136,6 +136,13 @@ export const routes: Routes = [
             },
 
             {
+                path: 'brands',
+                loadComponent: () =>
+                    import('./pages/admin/brands/brand-list/brand-list.component')
+                        .then(m => m.BrandListComponent)
+            },
+
+            {
                 path: 'customers',
                 canActivate: [AuthGuard, roleGuard('ADMIN')],
                 loadComponent: () =>

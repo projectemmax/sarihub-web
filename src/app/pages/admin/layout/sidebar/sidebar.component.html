@@ -38,6 +38,21 @@
             </a>
         </li>
 
+        <!-- BRANDS -->
+        <li 
+            *ngIf="isAdmin"
+            class="nav-item"
+            routerLinkActive="active"
+        >
+            <a
+                class="nav-link"
+                routerLink="/admin/brands"
+            >
+                <i class="menu-icon typcn typcn-tags"></i>
+                <span class="menu-title">Brands</span>
+            </a>
+        </li>
+
         <!-- PRODUCTS -->
         <li 
             *ngIf="canManageProducts"
