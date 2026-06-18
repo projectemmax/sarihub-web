@@ -41,7 +41,8 @@ export class BrandService {
         limit = 10,
         search = '',
         isActive?: boolean,
-        isVerified?: boolean
+        isVerified?: boolean,
+        isDeleted?: boolean
     ): Observable<BrandListResponse> {
 
         let params = new HttpParams()
@@ -63,6 +64,13 @@ export class BrandService {
             params = params.set(
             'isVerified',
             String(isVerified)
+            );
+        }
+
+        if (isDeleted !== undefined) {
+            params = params.set(
+                'isDeleted',
+                String(isDeleted)
             );
         }
 
@@ -89,6 +97,19 @@ export class BrandService {
         return this.http.patch<Brand>(
             this.baseUrl + `/${id}`,
             payload
+        );
+    }
+
+    deleteBrand(id: string) {
+        return this.http.delete<void>(
+            this.baseUrl + `/${id}`
+        );
+    }
+
+    restoreBrand(id: string) {
+        return this.http.patch(
+            this.baseUrl + `/${id}/restore`,
+            {}
         );
     }
 

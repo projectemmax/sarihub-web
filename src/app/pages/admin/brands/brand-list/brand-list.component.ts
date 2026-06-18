@@ -35,6 +35,14 @@ export class BrandListComponent implements OnInit {
     search = '';
     statusFilter: boolean | null = null;
     verifiedFilter: boolean | null = null;
+    deletedFilter?: boolean;
+
+    brandStatusFilter:
+        | 'all'
+        | 'active'
+        | 'inactive'
+        | 'deleted'
+        = 'all';
 
     currentPage = 1;
     pageSize = 10;
@@ -71,16 +79,38 @@ export class BrandListComponent implements OnInit {
     loadBrands(): void {
         this.loading = true;
 
+        let isActive: boolean | undefined;
+        let isDeleted: boolean | undefined;
+
+        switch (this.brandStatusFilter) {
+            case 'active':
+                isActive = true;
+                break;
+
+            case 'inactive':
+                isActive = false;
+                break;
+
+            case 'deleted':
+                isDeleted = true;
+                break;
+        }
+
+        if (this.brandStatusFilter === 'deleted') {
+            this.verifiedFilter = null;
+        }
+
         this.brandService
             .getBrandList(
                 this.currentPage,
                 this.pageSize,
                 this.search,
-                this.statusFilter ?? undefined,
-                this.verifiedFilter ?? undefined
+                isActive,
+                this.verifiedFilter ?? undefined,
+                isDeleted
             )
             .subscribe({
-                next: response => {
+                next: (response) => {
                     this.brands = response.items;
                     this.total = response.total;
                     this.totalPages = response.totalPages;
@@ -88,7 +118,7 @@ export class BrandListComponent implements OnInit {
                 },
                 error: () => {
                     this.loading = false;
-                }
+                },
             });
     }
 
@@ -164,10 +194,59 @@ export class BrandListComponent implements OnInit {
 
     toggleStatus(brand: Brand): void {
 
+        const action =
+            brand.isActive
+                ? 'deactivate'
+                : 'activate';
+
+        const confirmed = confirm(
+            `Are you sure you want to ${action} "${brand.name}"?`
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        this.brandService
+            .updateBrand(brand.id,{isActive: !brand.isActive})
+            .subscribe({
+                next: () => {
+                    this.loadBrands();
+                },
+                error: error => {
+                    console.error(error);
+                }
+            });
     }
 
     deleteBrand(brand: Brand): void {
+        const confirmed = confirm(
+            `Delete "${brand.name}"?`
+        );
 
+        if (!confirmed) {
+            return;
+        }
+
+        this.brandService
+            .deleteBrand(brand.id)
+            .subscribe({
+                next: () => {
+                    this.loadBrands();
+                        // TODO: Replace with toast
+                        console.log(
+                        'Brand deleted successfully'
+                    );
+                },
+                error: (error) => {
+                    console.error(error);
+
+                    alert(
+                    error?.error?.message ??
+                    'Failed to delete brand'
+                    );
+                },
+            });
     }
 
     private slugify(value: string): string {
@@ -235,6 +314,27 @@ export class BrandListComponent implements OnInit {
                     console.error(error);
                 }
             });
+    }
+
+    restoreBrand(brand: Brand): void {
+        const confirmed = confirm(
+            `Restore "${brand.name}"?`
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        this.brandService
+            .restoreBrand(brand.id)
+            .subscribe({
+                next: () => {
+                    this.loadBrands();
+                },
+                error: error => {
+                    console.error(error);
+                },
+        });
     }
 
 }

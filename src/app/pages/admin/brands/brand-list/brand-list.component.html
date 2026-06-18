@@ -47,15 +47,13 @@
             <div class="col-md-3">
                 <select
                     class="form-select"
-                    (change)="setStatusFilter(
-                        $any($event.target).value === ''
-                            ? null
-                            : $any($event.target).value === 'true'
-                    )">
+                    [(ngModel)]="brandStatusFilter"
+                    (change)="loadBrands()">
 
-                    <option value="">All Status</option>
-                    <option value="true">Active</option>
-                    <option value="false">Inactive</option>
+                    <option value="all">All Status</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                    <option value="deleted">Deleted</option>
 
                 </select>
             </div>
@@ -64,6 +62,7 @@
             <div class="col-md-3">
                 <select
                     class="form-select"
+                    [disabled]="brandStatusFilter === 'deleted'"
                     (change)="setVerifiedFilter(
                         $any($event.target).value === ''
                             ? null
@@ -184,30 +183,54 @@
                                 </button>
 
                                 <div class="dropdown-menu">
+                                    @if (brandStatusFilter === 'deleted') {
+                                        <button
+                                            class="dropdown-item"
+                                            (click)="restoreBrand(brand)">
+                                            Restore
+                                        </button>
+                                    } @else {
+                                        <button
+                                            class="dropdown-item"
+                                            (click)="openEditModal(brand)">
+                                            Edit
+                                        </button>
 
-                                    <button
-                                        class="dropdown-item"
-                                        (click)="openEditModal(brand)">
-                                        Edit
-                                    </button>
+                                        <button
+                                            class="dropdown-item"
+                                            (click)="toggleStatus(brand)">
 
-                                    <button
-                                        class="dropdown-item">
+                                            <i
+                                                class="mdi"
+                                                [ngClass]="
+                                                brand.isActive
+                                                    ? 'mdi-close-circle-outline'
+                                                    : 'mdi-check-circle-outline'
+                                                "
+                                            ></i>
 
-                                        {{ brand.isActive
-                                            ? 'Deactivate'
-                                            : 'Activate'
-                                        }}
+                                            {{ brand.isActive
+                                                ? 'Deactivate'
+                                                : 'Activate'
+                                            }}
 
-                                    </button>
+                                        </button>
 
-                                    <button
-                                        class="dropdown-item text-danger"
-                                        [disabled]="(brand._count?.products ?? 0) > 0">
+                                        <button
+                                            class="dropdown-item text-danger"
+                                            [disabled]="(brand._count?.products ?? 0) > 0"
+                                            [title]="
+                                                (brand._count?.products ?? 0) > 0
+                                                ? 'Cannot delete brand with products'
+                                                : 'Delete brand'
+                                            "
+                                            (click)="deleteBrand(brand)">
 
-                                        Delete
+                                            Delete
 
-                                    </button>
+                                        </button>
+                                    }
+                                    
 
                                 </div>
                             </div>

@@ -2,12 +2,9 @@
     *ngIf="visible"
     class="modal fade show d-block">
 
-    <div class="modal-dialog modal-lg">
-
+    <div class="modal-dialog brand-modal modal-dialog-centered">
         <div class="modal-content">
-
             <div class="modal-header">
-
                 <h5 class="modal-title">
                     {{ title }}
                 </h5>
@@ -17,108 +14,112 @@
                     class="btn-close"
                     (click)="close.emit()">
                 </button>
-
             </div>
 
             <div class="modal-body">
-
                 <form [formGroup]="form">
+                    <div class="row">
+                        <!-- Name -->
+                        <div class="col-12 mb-1">
+                            <div class="form-group">
+                                <label>
+                                    Brand Name
+                                </label>
 
-                    <!-- Name -->
+                                <input
+                                    class="form-control"
+                                    formControlName="name">
 
-                    <div class="mb-3">
-
-                        <label class="form-label">
-                            Brand Name
-                        </label>
-
-                        <input
-                            class="form-control"
-                            formControlName="name">
-
-                        <div
-                            class="text-danger mt-1"
-                            *ngIf="
-                                form.get('name')?.invalid &&
-                                form.get('name')?.touched
-                            ">
-
-                            Brand name is required
-
+                                <div
+                                    class="text-danger text-small mt-1"
+                                    *ngIf="
+                                        form.get('name')?.invalid &&
+                                        form.get('name')?.touched
+                                    ">
+                                    Brand name is required
+                                </div>
+                            </div>
                         </div>
+                        <!-- Description -->
+                        <div class="col-md-12 mb-1">
+                            <div class="form-group">
+                                <label>
+                                    Description
+                                </label>
+                                <textarea
+                                    rows="4"
+                                    class="form-control"
+                                    formControlName="description">
+                                </textarea>
+                            </div>
+                        </div>
+                        <!-- Logo -->
+                        <div class="col-md-12 mb-1">
+                            <div class="form-group">
+                                <label>
+                                    Logo URL
+                                </label>
 
-                    </div>
+                                <input
+                                    class="form-control"
+                                    formControlName="logoUrl">
 
-                    <!-- Description -->
-
-                    <div class="mb-3">
-
-                        <label class="form-label">
-                            Description
-                        </label>
-
-                        <textarea
-                            rows="4"
-                            class="form-control"
-                            formControlName="description">
-                        </textarea>
-
-                    </div>
-
-                    <!-- Logo -->
-
-                    <div class="mb-3">
-
-                        <label class="form-label">
-                            Logo URL
-                        </label>
-
-                        <input
-                            class="form-control"
-                            formControlName="logoUrl">
-
-                    </div>
-
-                    <!-- Preview -->
-
-                    <div
-                        *ngIf="form.get('logoUrl')?.value"
-                        class="mb-3">
-
-                        <img
-                            [src]="form.get('logoUrl')?.value"
-                            class="brand-logo-preview">
-
+                                <div
+                                    class="text-danger text-small mt-1"
+                                    *ngIf="
+                                        form.get('logoUrl')?.invalid &&
+                                        form.get('logoUrl')?.touched
+                                    ">
+                                    Logo URL is required
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Preview -->
+                        <div
+                            *ngIf="form.get('logoUrl')?.value"
+                            class="mb-3">
+                            <img
+                                [src]="form.get('logoUrl')?.value"
+                                class="brand-logo-preview"
+                                (error)="onImageError($event)">
+                        </div>
                     </div>
 
                     <!-- Flags -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="container-switch form-check form-switch">
+                                <input
+                                    id="verified"
+                                    type="checkbox"
+                                    class="form-check-input"
+                                    formControlName="isVerified">
 
-                    <div class="form-check mb-2">
+                                <label
+                                    class="form-check-label"
+                                    for="verified">
 
-                        <input
-                            type="checkbox"
-                            class="form-check-input"
-                            formControlName="isVerified">
+                                    Verified Brand
 
-                        <label class="form-check-label">
-                            Verified Brand
-                        </label>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="container-switch form-check form-switch">
+                                <input
+                                    id="active"
+                                    type="checkbox"
+                                    class="form-check-input"
+                                    formControlName="isActive">
 
+                                <label
+                                    class="form-check-label"
+                                    for="active">
+                                    Active
+                                </label>
+                            </div>
+                        </div>
                     </div>
-
-                    <div class="form-check">
-
-                        <input
-                            type="checkbox"
-                            class="form-check-input"
-                            formControlName="isActive">
-
-                        <label class="form-check-label">
-                            Active
-                        </label>
-
-                    </div>
-
                 </form>
 
             </div>
