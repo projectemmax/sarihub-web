@@ -14,6 +14,7 @@ import {
     Validators 
 } from '@angular/forms';
 import { BrandFormModalComponent } from "../brand-form-modal/brand-form-modal.component";
+import { ToastService } from "@app/core/services/toast.service";
 
 @Component({
     selector: 'app-brand-list',
@@ -58,7 +59,8 @@ export class BrandListComponent implements OnInit {
 
     constructor(
         private readonly brandService: BrandService,
-        private readonly fb: FormBuilder
+        private readonly fb: FormBuilder,
+        private readonly toast: ToastService
     ) {}
 
     ngOnInit(): void {
@@ -212,9 +214,11 @@ export class BrandListComponent implements OnInit {
             .subscribe({
                 next: () => {
                     this.loadBrands();
+                    this.toast.success(`${brand.name} ${action === 'activate' ? 'activated' : 'deactivated'}`);
                 },
                 error: error => {
                     console.error(error);
+                    this.toast.error('Failed to update brand status');
                 }
             });
     }
@@ -233,18 +237,11 @@ export class BrandListComponent implements OnInit {
             .subscribe({
                 next: () => {
                     this.loadBrands();
-                        // TODO: Replace with toast
-                        console.log(
-                        'Brand deleted successfully'
-                    );
+                    this.toast.success('Brand deleted successfully');
                 },
                 error: (error) => {
                     console.error(error);
-
-                    alert(
-                    error?.error?.message ??
-                    'Failed to delete brand'
-                    );
+                    this.toast.error('Failed to delete brand');
                 },
             });
     }
@@ -281,11 +278,17 @@ export class BrandListComponent implements OnInit {
                     this.currentPage = 1;
                     this.submitting = false;
                     this.closeModal();
+                    this.toast.success('Brand created successfully');
                     this.loadBrands();
                 },
                 error: error => {
                     this.submitting = false;
                     console.error(error);
+                    if (error?.error?.message?.includes('already exists')) {
+                        this.toast.error('Brand already exists');
+                        return;
+                    }
+                    this.toast.error('Failed to create brand');
                 }
             });
     }
@@ -308,10 +311,15 @@ export class BrandListComponent implements OnInit {
                     this.submitting = false;
                     this.closeModal();
                     this.loadBrands();
+                    this.toast.success('Brand updated successfully');
                 },
                 error: error => {
                     this.submitting = false;
-                    console.error(error);
+                    if (error?.error?.message?.includes('already exists')) {
+                        this.toast.error('Brand already exists');
+                        return;
+                    }
+                    this.toast.error('Failed to update brand');
                 }
             });
     }
@@ -330,8 +338,10 @@ export class BrandListComponent implements OnInit {
             .subscribe({
                 next: () => {
                     this.loadBrands();
+                    this.toast.success('Brand restored successfully');
                 },
                 error: error => {
+                    this.toast.error('Failed to restore brand');
                     console.error(error);
                 },
         });
