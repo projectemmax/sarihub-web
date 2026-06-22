@@ -15,6 +15,7 @@ import {
 } from '@angular/forms';
 import { BrandFormModalComponent } from "../brand-form-modal/brand-form-modal.component";
 import { ToastService } from "@app/core/services/toast.service";
+import { MediaService } from '@app/core/services/media.service';
 
 @Component({
     selector: 'app-brand-list',
@@ -56,11 +57,13 @@ export class BrandListComponent implements OnInit {
     submitting = false;
     selectedBrand: Brand | null = null;
     isEditMode = false;
+    uploadingLogo = false;
 
     constructor(
         private readonly brandService: BrandService,
         private readonly fb: FormBuilder,
-        private readonly toast: ToastService
+        private readonly toast: ToastService,
+        private readonly mediaService: MediaService
     ) {}
 
     ngOnInit(): void {
@@ -346,5 +349,9 @@ export class BrandListComponent implements OnInit {
                 },
         });
     }
+
+    
+
+    
 
 }

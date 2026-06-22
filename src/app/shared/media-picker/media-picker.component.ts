@@ -14,6 +14,8 @@ export class MediaPickerComponent implements OnInit, OnChanges {
     @Output() selected = new EventEmitter<string>();
     @Input() folder: string = 'general';
     @Input() usage: string = 'all';
+    @Input() showFolders = true;
+    @Input() showUsageFilters = true;
 
     media: Media[] = [];
     selectedId?: string;
