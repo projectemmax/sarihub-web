@@ -265,3 +265,37 @@
     (close)="closeModal()"
     (save)="saveBrand()">
 </app-brand-form-modal>
+
+<div
+    *ngIf="showConfirmModal"
+    class="modal fade show d-block">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                {{ confirmTitle }}
+                </h5>
+            </div>
+            <div class="modal-body">
+                {{ confirmMessage }}
+            </div>
+            <div class="modal-footer">
+                <button
+                    class="btn btn-light"
+                    (click)="cancelConfirmation()">
+                    Cancel
+                </button>
+
+                <button
+                    class="btn btn-danger"
+                    (click)="confirm()">
+                    Confirm
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div
+    *ngIf="showConfirmModal"
+    class="modal-backdrop fade show">
+</div>

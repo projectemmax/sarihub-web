@@ -82,26 +82,28 @@
     </div>
 
     <!-- GRID -->
-    <div class="media-grid">
-        <div
-            *ngFor="let m of media"
-            class="media-item"
-            [class.selected]="selectedId === m.id"
-            (click)="pick(m)"
-            >
-            <img [src]="m.url" />
+     <div class="media-grid-wrapper">
+        <div class="media-grid">
+            <div
+                *ngFor="let m of media"
+                class="media-item"
+                [class.selected]="selectedId === m.id"
+                (click)="pick(m)"
+                >
+                <img [src]="m.url" />
 
-            <div class="media-overlay">
-                <button
-                    class="delete-btn"
-                    (click)="confirmDelete(m, $event)"
-                    >
-                    ✕
-                </button>
+                <div class="media-overlay">
+                    <button
+                        class="delete-btn"
+                        (click)="confirmDelete(m, $event)"
+                        >
+                        ✕
+                    </button>
+                </div>
             </div>
-
         </div>
-    </div>
+     </div>
+    
 
 </div>
 

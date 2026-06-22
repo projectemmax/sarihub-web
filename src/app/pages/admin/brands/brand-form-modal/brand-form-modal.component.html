@@ -87,27 +87,17 @@
                                     class="mt-3 border rounded p-3">
 
                                     <app-media-picker
-                                    folder="brands"
-                                    usage="general"
-                                    [showFolders]="false"
-                                    [showUsageFilters]="false"
-                                    (selected)="onLogoSelected($event)">
+                                        folder="brands"
+                                        usage="general"
+                                        [showFolders]="false"
+                                        [showUsageFilters]="false"
+                                        (selected)="onLogoSelected($event)">
                                     </app-media-picker>
 
                                 </div>
                             </div>
                         </div>
-                        <!-- Preview -->
-                        <div
-                            *ngIf="form.get('logoUrl')?.value"
-                            class="mt-3 text-center">
-
-                            <img
-                                [src]="form.get('logoUrl')?.value"
-                                class="img-thumbnail"
-                                style="max-height:120px">
-
-                        </div>
+                        
                     </div>
 
                     <!-- Flags -->

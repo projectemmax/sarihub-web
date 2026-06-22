@@ -59,6 +59,11 @@ export class BrandListComponent implements OnInit {
     isEditMode = false;
     uploadingLogo = false;
 
+    showConfirmModal = false;
+    confirmTitle = '';
+    confirmMessage = '';
+    confirmAction: (() => void) | null = null;
+
     constructor(
         private readonly brandService: BrandService,
         private readonly fb: FormBuilder,
@@ -204,49 +209,26 @@ export class BrandListComponent implements OnInit {
                 ? 'deactivate'
                 : 'activate';
 
-        const confirmed = confirm(
-            `Are you sure you want to ${action} "${brand.name}"?`
+        this.openConfirmation(
+            brand.isActive
+                ? 'Deactivate Brand'
+                : 'Activate Brand',
+
+            brand.isActive
+                ? 'Are you sure you want to deactivate this brand?'
+                : 'Are you sure you want to activate this brand?',
+
+            () => this.executeToggleStatus(brand)
         );
-
-        if (!confirmed) {
-            return;
-        }
-
-        this.brandService
-            .updateBrand(brand.id,{isActive: !brand.isActive})
-            .subscribe({
-                next: () => {
-                    this.loadBrands();
-                    this.toast.success(`${brand.name} ${action === 'activate' ? 'activated' : 'deactivated'}`);
-                },
-                error: error => {
-                    console.error(error);
-                    this.toast.error('Failed to update brand status');
-                }
-            });
     }
 
     deleteBrand(brand: Brand): void {
-        const confirmed = confirm(
-            `Delete "${brand.name}"?`
+        this.openConfirmation(
+            'Delete Brand',
+            'Are you sure you want to delete this brand?',
+            () => this.executeDeleteBrand(brand)
         );
 
-        if (!confirmed) {
-            return;
-        }
-
-        this.brandService
-            .deleteBrand(brand.id)
-            .subscribe({
-                next: () => {
-                    this.loadBrands();
-                    this.toast.success('Brand deleted successfully');
-                },
-                error: (error) => {
-                    console.error(error);
-                    this.toast.error('Failed to delete brand');
-                },
-            });
     }
 
     private slugify(value: string): string {
@@ -328,30 +310,121 @@ export class BrandListComponent implements OnInit {
     }
 
     restoreBrand(brand: Brand): void {
-        const confirmed = confirm(
-            `Restore "${brand.name}"?`
+        this.openConfirmation(
+            'Restore Brand',
+            'Restore this brand?',
+            () => this.executeRestoreBrand(brand)
         );
 
-        if (!confirmed) {
-            return;
-        }
+    }
 
+    openConfirmation(
+        title: string,
+        message: string,
+        action: () => void
+    ): void {
+        this.confirmTitle = title;
+        this.confirmMessage = message;
+        this.confirmAction = action;
+
+        this.showConfirmModal = true;
+    }
+
+    confirm(): void {
+        this.confirmAction?.();
+        this.showConfirmModal = false;
+    }
+
+    cancelConfirmation(): void {
+        this.showConfirmModal = false;
+        this.confirmAction = null;
+    }
+
+    private executeRestoreBrand(brand: Brand): void {
         this.brandService
             .restoreBrand(brand.id)
             .subscribe({
                 next: () => {
                     this.loadBrands();
-                    this.toast.success('Brand restored successfully');
+                    this.toast.success(
+                        'Brand restored successfully'
+                    );
                 },
                 error: error => {
-                    this.toast.error('Failed to restore brand');
+                    this.toast.error(
+                        'Failed to restore brand'
+                    );
                     console.error(error);
-                },
-        });
+                }
+            });
     }
 
-    
+    private executeDeleteBrand(
+        brand: Brand
+    ): void {
 
+        this.brandService
+            .deleteBrand(brand.id)
+            .subscribe({
+                next: () => {
+                    this.loadBrands();
+
+                    this.toast.success(
+                        'Brand deleted successfully'
+                    );
+                },
+                error: error => {
+
+                    if (
+                        error?.error?.message?.includes(
+                            'existing products'
+                        )
+                    ) {
+                        this.toast.error(
+                            'Cannot delete brand with existing products'
+                        );
+
+                        return;
+                    }
+
+                    this.toast.error(
+                        'Failed to delete brand'
+                    );
+
+                    console.error(error);
+                }
+            });
+    }
+
+    private executeToggleStatus(
+        brand: Brand
+    ): void {
+
+        const payload = {
+            isActive: !brand.isActive
+        };
+
+        this.brandService
+            .updateBrand(brand.id, payload)
+            .subscribe({
+                next: () => {
+                    this.loadBrands();
+
+                    this.toast.success(
+                        brand.isActive
+                            ? 'Brand deactivated successfully'
+                            : 'Brand activated successfully'
+                    );
+                },
+                error: error => {
+                    this.toast.error(
+                        'Failed to update brand status'
+                    );
+
+                    console.error(error);
+                }
+            });
+    }
     
 
 }

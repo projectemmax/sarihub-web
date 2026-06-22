@@ -14,7 +14,16 @@
     background: rgba(0, 0, 0, 0.2);
 }
 .brand-modal {
-    max-width: 750px !important;
+    max-width: 800px;
+}
+
+.brand-modal .modal-content {
+    max-height: 90vh;
+}
+
+.brand-modal .modal-body {
+    overflow-y: auto;
+    max-height: calc(90vh - 140px);
 }
 
 .container-switch {

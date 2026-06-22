@@ -1,4 +1,18 @@
 /* WRAPPER */
+.media-grid-wrapper {
+    max-height: 300px;
+    overflow-y: auto;
+}
+.media-toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: white;
+}
+.modal-body {
+    max-height: 70vh;
+    overflow-y: auto;
+}
 .media-wrapper {
   display: flex;
   flex-direction: column;
