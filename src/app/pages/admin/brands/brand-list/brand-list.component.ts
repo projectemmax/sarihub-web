@@ -103,22 +103,22 @@ export class BrandListComponent implements OnInit {
 
             const status = params['status'];
 
-this.brandStatusFilter =
-    status === 'active' ||
-    status === 'inactive' ||
-    status === 'deleted'
-        ? status
-        : 'all';
+            this.brandStatusFilter =
+                status === 'active' ||
+                status === 'inactive' ||
+                status === 'deleted'
+                    ? status
+                    : 'all';
 
-const verified = params['verified'];
+            const verified = params['verified'];
 
-if (verified === 'true') {
-    this.verifiedFilter = true;
-} else if (verified === 'false') {
-    this.verifiedFilter = false;
-} else {
-    this.verifiedFilter = null;
-}
+            if (verified === 'true') {
+                this.verifiedFilter = true;
+            } else if (verified === 'false') {
+                this.verifiedFilter = false;
+            } else {
+                this.verifiedFilter = null;
+            }
 
             // existing filter logic
             this.loadBrands();
