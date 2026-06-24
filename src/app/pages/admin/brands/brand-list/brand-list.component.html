@@ -21,22 +21,21 @@
                     class="form-control"
                     placeholder="Search brands..."
                     [(ngModel)]="search"
-                    (keyup.enter)="onSearch()">
+                    (ngModelChange)="onSearchChange($event)">
             </div>
 
             <div class="col-md-2">
-                <button
-                    class="btn btn-outline-primary w-100"
-                    (click)="onSearch()">
-                    Search
-                </button>
-            </div>
+               <button
+                    *ngIf="
+                        search ||
+                        brandStatusFilter !== 'all' ||
+                        verifiedFilter !== null
+                    "
+                    class="btn btn-outline-danger"
+                    (click)="resetFilters()">
 
-            <div class="col-md-2">
-                <button
-                    class="btn btn-outline-secondary w-100"
-                    (click)="clearSearch()">
-                    Clear
+                    Reset Filters
+
                 </button>
             </div>
         </div>
@@ -44,11 +43,11 @@
         <div class="row mb-3">
 
             <!-- Status Filter -->
-            <div class="col-md-3">
+            <div class="col-md-3 form-group">
                 <select
-                    class="form-select"
+                    class="form-control"
                     [(ngModel)]="brandStatusFilter"
-                    (change)="loadBrands()">
+                    (change)="onStatusFilterChange()">
 
                     <option value="all">All Status</option>
                     <option value="active">Active</option>
@@ -61,15 +60,12 @@
             <!-- Verified Filter -->
             <div class="col-md-3">
                 <select
-                    class="form-select"
+                    class="form-control"
                     [disabled]="brandStatusFilter === 'deleted'"
-                    (change)="setVerifiedFilter(
-                        $any($event.target).value === ''
-                            ? null
-                            : $any($event.target).value === 'true'
-                    )">
+                    [(ngModel)]="verifiedFilter"
+                    (change)="setVerifiedFilter(verifiedFilter)">
 
-                    <option value="">All Verification</option>
+                    <option value="all">All Verification</option>
                     <option value="true">Verified</option>
                     <option value="false">Unverified</option>
 

@@ -16,6 +16,9 @@ import {
 import { BrandFormModalComponent } from "../brand-form-modal/brand-form-modal.component";
 import { ToastService } from "@app/core/services/toast.service";
 import { MediaService } from '@app/core/services/media.service';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
     selector: 'app-brand-list',
@@ -32,6 +35,7 @@ import { MediaService } from '@app/core/services/media.service';
     styleUrls: ['./brand-list.component.scss'],
 })
 export class BrandListComponent implements OnInit {
+    private searchSubject = new Subject<string>();
     brands: Brand[] = [];
     loading = false;
     search = '';
@@ -68,12 +72,61 @@ export class BrandListComponent implements OnInit {
         private readonly brandService: BrandService,
         private readonly fb: FormBuilder,
         private readonly toast: ToastService,
-        private readonly mediaService: MediaService
+        private readonly mediaService: MediaService,
+        private readonly route: ActivatedRoute,
+        private readonly router: Router
     ) {}
 
     ngOnInit(): void {
         this.initializeForm();
-        this.loadBrands();
+
+        this.searchSubject
+            .pipe(
+                debounceTime(500),
+                distinctUntilChanged()
+            )
+            .subscribe(value => {
+
+                this.search = value;
+                this.currentPage = 1;
+
+                this.updateQueryParams();
+            });
+
+        this.route.queryParams.subscribe(params => {
+
+            this.currentPage =
+                Number(params['page']) || 1;
+
+            this.search =
+                params['search'] || '';
+
+            // existing filter logic
+            this.loadBrands();
+        });
+    }
+
+    onSearchChange(value: string): void {
+        this.searchSubject.next(value);
+    }
+
+    private updateQueryParams(): void {
+        this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: {
+                page: this.currentPage,
+                search: this.search || null,
+                status:
+                    this.brandStatusFilter !== 'all'
+                        ? this.brandStatusFilter
+                        : null,
+                verified:
+                    this.verifiedFilter !== null
+                        ? this.verifiedFilter
+                        : null
+            },
+            queryParamsHandling: 'merge'
+        });
     }
 
     private initializeForm(): void {
@@ -132,40 +185,49 @@ export class BrandListComponent implements OnInit {
             });
     }
 
-    onSearch(): void {
-        this.currentPage = 1;
-        this.loadBrands();
-    }
-
     clearSearch(): void {
         this.search = '';
         this.currentPage = 1;
-        this.loadBrands();
+        this.updateQueryParams();
+    }
+
+    resetFilters(): void {
+        this.search = '';
+        this.brandStatusFilter = 'all';
+        this.verifiedFilter = null;
+        this.currentPage = 1;
+
+        this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: {
+                page: null,
+                search: null,
+                status: null,
+                verified: null
+            },
+            queryParamsHandling: 'merge'
+        });
     }
 
     setStatusFilter(
         value: boolean | null
     ): void {
-
         this.statusFilter = value;
         this.currentPage = 1;
-
-        this.loadBrands();
+        this.updateQueryParams();
     }
 
     setVerifiedFilter(
         value: boolean | null
     ): void {
-
         this.verifiedFilter = value;
         this.currentPage = 1;
-
-        this.loadBrands();
+        this.updateQueryParams();
     }
 
     changePage(page: number): void {
         this.currentPage = page;
-        this.loadBrands();
+        this.updateQueryParams();
     }
 
     openCreateModal(): void {
@@ -424,6 +486,11 @@ export class BrandListComponent implements OnInit {
                     console.error(error);
                 }
             });
+    }
+
+    onStatusFilterChange(): void {
+        this.currentPage = 1;
+        this.updateQueryParams();
     }
     
 
