@@ -45,7 +45,7 @@
             <!-- Status Filter -->
             <div class="col-md-3 form-group">
                 <select
-                    class="form-control"
+                    class="form-control form-select"
                     [(ngModel)]="brandStatusFilter"
                     (change)="onStatusFilterChange()">
 
@@ -60,12 +60,12 @@
             <!-- Verified Filter -->
             <div class="col-md-3">
                 <select
-                    class="form-control"
+                    class="form-control form-select"
                     [disabled]="brandStatusFilter === 'deleted'"
                     [(ngModel)]="verifiedFilter"
-                    (change)="setVerifiedFilter(verifiedFilter)">
+                    (ngModelChange)="setVerifiedFilter($event)">
 
-                    <option value="all">All Verification</option>
+                    <option value="null">All Verification</option>
                     <option value="true">Verified</option>
                     <option value="false">Unverified</option>
 
