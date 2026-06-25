@@ -275,13 +275,7 @@ export class CategoriesComponent implements OnInit, OnDestroy {
             return;
         }
 
-        const { id, ...formPayload } = this.categoryForm.value;
-        const payload = formPayload;
-
-        console.log('editingCategory', this.editingCategory);
-        console.log('original isActive', this.editingCategory?.isActive);
-        console.log('new isActive', payload.isActive);
-        console.log('hasChildren', this.selectedCategoryHasChildren);
+        const { id, payload } = this.buildCategoryPayload();
 
         if (this.isEditMode) {
 
@@ -290,8 +284,6 @@ export class CategoriesComponent implements OnInit, OnDestroy {
             const becomingInactive =
                 currentCategory?.isActive === true &&
                 payload.isActive === false;
-
-            console.log('becomingInactive', becomingInactive);
 
             if (
                 becomingInactive &&
@@ -312,6 +304,26 @@ export class CategoriesComponent implements OnInit, OnDestroy {
         }
 
         // create logic...
+    }
+
+    private buildCategoryPayload() {
+        const { id, ...formPayload } = this.categoryForm.value;
+
+        return {
+            id,
+            payload: {
+                ...formPayload,
+                variantTemplate: this.variantTemplate
+                    .map(field => field.trim())
+                    .filter(field => field.length > 0).length
+                    ? {
+                        attributes: this.variantTemplate
+                            .map(field => field.trim())
+                            .filter(field => field.length > 0)
+                    }
+                    : null
+            }
+        };
     }
 
     private updateCategory(
@@ -583,7 +595,8 @@ export class CategoriesComponent implements OnInit, OnDestroy {
             id: node.id,
             name: node.name,
             parentId: node.parentId,
-            isActive: node.isActive
+            isActive: node.isActive,
+            variantTemplate: node.variantTemplate
         } as Category;
 
         this.categoryForm.patchValue({
@@ -593,6 +606,10 @@ export class CategoriesComponent implements OnInit, OnDestroy {
             sortOrder: node.sortOrder,
             isActive: node.isActive
         });
+
+        this.variantTemplate = [
+            ...(node.variantTemplate?.attributes ?? [])
+        ];
 
         this.filteredParentOptions =
             this.getAvailableParentOptions(

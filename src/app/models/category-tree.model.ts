@@ -1,6 +1,9 @@
 export interface CategoryNode {
   id: string;
   name: string;
+  variantTemplate?: {
+    attributes: string[];
+  } | null;
   children: CategoryNode[];
 }
 
@@ -9,6 +12,11 @@ export interface AdminCategoryNode {
   name: string;
   slug: string;
   parentId: string | null;
+  
+  variantTemplate?: {
+    attributes: string[];
+  } | null;
+
   isActive: boolean;
   sortOrder: number;
 
