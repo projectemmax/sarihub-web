@@ -437,7 +437,8 @@ export class CategoriesComponent implements OnInit, OnDestroy {
 
             options.push({
                 id: node.id,
-                label: `${'— '.repeat(level)}${node.name}`
+                label: `${'— '.repeat(level)}${node.name}`,
+                hasChildren: node.children.length > 0
             });
 
             if (node.children?.length) {

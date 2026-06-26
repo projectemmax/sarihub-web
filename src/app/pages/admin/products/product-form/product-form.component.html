@@ -136,9 +136,10 @@
                                     </option>
 
                                     <option
-                                        *ngFor="let c of categories"
-                                        [ngValue]="c.id">
-                                        {{ c.name }}
+                                        *ngFor="let c of categoryOptions"
+                                        [ngValue]="c.id"
+                                        [disabled]="c.hasChildren">
+                                        {{ c.label }}
                                     </option>
 
                                 </ng-container>

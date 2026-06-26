@@ -12,7 +12,7 @@ export interface AdminCategoryNode {
   name: string;
   slug: string;
   parentId: string | null;
-  
+
   variantTemplate?: {
     attributes: string[];
   } | null;
@@ -46,4 +46,5 @@ export interface CategoryTreeRow {
 export interface CategoryOption {
     id: string;
     label: string;
+    hasChildren: boolean;
 }

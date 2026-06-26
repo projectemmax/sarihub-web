@@ -21,6 +21,7 @@ import { AuthService } from '@app/core/auth/auth.service';
 import { SellerAiService } from '@app/services/seller/seller-ai.service';
 import { BrandService } from '@app/services/product/brand.service';
 import { Brand } from '@app/models/brand.model';
+import { AdminCategoryNode, CategoryOption } from '@app/models/category-tree.model';
 
 interface VariantOption {
   name: string;
@@ -79,6 +80,7 @@ export class ProductFormComponent implements OnInit, CanComponentDeactivate {
     aiFeatures = '';
     aiSpecifications = '';
     brands: Brand[] = [];
+    categoryOptions: CategoryOption[] = [];
     
 
     getImageUrl = getImageUrl;
@@ -305,14 +307,18 @@ export class ProductFormComponent implements OnInit, CanComponentDeactivate {
     }
 
     async loadCategories(): Promise<void> {
+
         const res: any = await firstValueFrom(
-            this.categoryService.getCategories()
+            this.categoryService.getCategoryTree()
         );
 
-        this.categories = res.filter(
-            (c: any) => c.isActive && !c.deletedAt
-        );
+        // Depending on your API response
+        const tree: AdminCategoryNode[] = res.data ?? res;
 
+        this.categories = [];
+        this.categoryOptions = [];
+
+        this.buildCategoryOptions(tree);
     }
 
     loadProduct() {
@@ -1089,6 +1095,29 @@ export class ProductFormComponent implements OnInit, CanComponentDeactivate {
         this.router.navigate(['/admin/products'], {
             queryParams: this.route.snapshot.queryParams
         });
+    }
+
+    private buildCategoryOptions(
+        nodes: AdminCategoryNode[],
+        level = 0
+    ): void {
+
+        for (const node of nodes) {
+
+            // Flat list used elsewhere in the component
+            this.categories.push(node);
+
+            // Dropdown option
+            this.categoryOptions.push({
+                id: node.id,
+                label: `${'\u00A0\u00A0\u00A0\u00A0'.repeat(level)}${node.name}`,
+                hasChildren: node.children.length > 0
+            });
+
+            if (node.children?.length) {
+                this.buildCategoryOptions(node.children, level + 1);
+            }
+        }
     }
 
 
