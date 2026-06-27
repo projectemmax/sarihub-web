@@ -1027,19 +1027,39 @@ export class ProductFormComponent implements OnInit, CanComponentDeactivate {
 
         try {
             const variant = this.variants[index];
-            const variantId = variant.id || `temp-${index}`;
 
-            const uploaded = await firstValueFrom(
-                this.productService.uploadVariantImage(
-                    this.productId,
-                    variantId,
-                    file
-                )
-            );
+            let uploaded: {
+                url: string;
+                publicId?: string;
+            };
 
-            // ✅ STEP 2: store Cloudinary public_id
-            const { data } = uploaded;
-            this.variants[index].image = data.public_id;
+            if (this.isEditMode && this.productId && variant.id) {
+
+                // Existing product & variant
+                const res = await firstValueFrom(
+                    this.productService.uploadVariantImage(
+                        this.productId,
+                        variant.id,
+                        file
+                    )
+                );
+
+                uploaded = {
+                    url: res.data.url,
+                    publicId: res.data.publicId
+                };
+
+            } else {
+
+                // New product
+                uploaded = await firstValueFrom(
+                    this.productService.uploadTempImage(file)
+                );
+
+            }
+
+            variant.image = uploaded.publicId ?? uploaded.url;
+            variant.preview = uploaded.url;
 
 
         } catch (err) {
