@@ -22,6 +22,7 @@ import { SellerAiService } from '@app/services/seller/seller-ai.service';
 import { BrandService } from '@app/services/product/brand.service';
 import { Brand } from '@app/models/brand.model';
 import { AdminCategoryNode, CategoryOption } from '@app/models/category-tree.model';
+import { SkuGenerator } from '@app/core/utils/sku-generator.util';
 
 interface VariantOption {
   name: string;
@@ -920,74 +921,26 @@ export class ProductFormComponent implements OnInit, CanComponentDeactivate {
         this.variants = [];
     }
 
-    // ==========================
-    // SKU GENERATOR
-    // ==========================
-    generateShortCode(value: string): string {
-        return value
-            .toUpperCase()
-            .replace(/[^A-Z0-9]/g, '') // remove symbols
-            .slice(0, 3); // take first 3 chars
-    }
+    generateFullSku(attributes: string[]): string {
 
-    generateSku(attributes: string[]): string {
-        return attributes
-            .map(attr => this.generateShortCode(attr))
-            .join('-');
-    }
-
-    getCategoryCode(): string {
-        const categoryId = this.form.get('categoryId')?.value;
-        const category = this.categories.find(c => c.id === categoryId);
-
-        if (!category?.name) {
-            return 'GEN';
-        }
-
-        return category.name
-            .split(' ')
-            .map((word: string) => word.substring(0, 2))
-            .join('')
-            .toUpperCase();
-
-    }
-
-    generateFullSku(attributes: string[]) {
-        const baseSku = this.generateBaseSku();
-        const attrCode = this.generateSku(attributes);
-
-        return [
-            baseSku,
-            attrCode
-        ]
-        .filter(Boolean)
-        .join('-');
-
+        return SkuGenerator.generateVariantSku(
+            this.generateBaseSku(),
+            attributes
+        );
     }
 
     generateBaseSku(): string {
-        const productName = this.form.get('name')?.value || '';
 
-        const words = productName
-                .split(' ')
-                .filter(Boolean)
-                .slice(0, 2);
+        const categoryId = this.form.get('categoryId')?.value;
 
-        const productCode =
-            words
-                .map(
-                    (w: string) =>
-                        w.substring(0, 3)
-                )
-                .join('');
+        const category = this.categories.find(
+            c => c.id === categoryId
+        );
 
-        return [
-            this.getCategoryCode(),
-            productCode
-        ]
-        .filter(Boolean)
-        .join('-')
-        .toUpperCase();
+        return SkuGenerator.generateBaseSku(
+            this.form.get('name')?.value ?? '',
+            category?.name ?? ''
+        );
     }
 
     // Variant Table
