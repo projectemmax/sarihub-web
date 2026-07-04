@@ -4,6 +4,25 @@ All notable changes to this project will be documented in this file.
 
 The project follows Semantic Versioning (SemVer).
 
+## [Unreleased]
+
+### Added
+
+#### Storefront
+- ProductMediaGalleryComponent
+- Thumbnail carousel navigation
+- Smart carousel navigation controls
+
+### Changed
+
+#### Storefront
+- Redesigned storefront product media gallery
+- Improved main product image layout
+- Improved thumbnail spacing and styling
+- Replaced fixed thumbnail scroll distance with responsive thumbnail-based scrolling
+- Added automatic Previous/Next button state based on carousel position
+
+
 ---
 
 ## [0.6.0] - 2026-07-02

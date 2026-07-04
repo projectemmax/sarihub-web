@@ -8,7 +8,8 @@
 <div class="thumbnail-carousel">
     <button
         class="carousel-btn"
-        (click)="scrollLeft()">
+        (click)="scrollLeft()"
+        [disabled]="!canScrollLeft">
 
         <i class="fas fa-chevron-left"></i>
 
@@ -16,7 +17,8 @@
     <div
         #thumbnailContainer
         *ngIf="getProductThumbnails(product) as thumbnails"
-        class="product-thumbnails">
+        class="product-thumbnails"
+        (scroll)="onThumbnailScroll()">
         <button
             *ngFor="let imageUrl of thumbnails"
             type="button"
@@ -32,7 +34,8 @@
     </div>
     <button
         class="carousel-btn"
-        (click)="scrollRight()">
+        (click)="scrollRight()"
+        [disabled]="!canScrollRight">
 
         <i class="fas fa-chevron-right"></i>
 
