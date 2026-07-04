@@ -5,20 +5,36 @@
         alt="{{ product.name }}"
     />
 </div>
-
-<div
-    *ngIf="getProductThumbnails(product) as thumbnails"
-    class="product-thumbnails">
+<div class="thumbnail-carousel">
     <button
-        *ngFor="let imageUrl of thumbnails"
-        type="button"
-        class="product-thumbnail"
-        [class.active]="getMainImageUrl(product) === imageUrl"
-        (click)="selectProductImage(imageUrl)">
+        class="carousel-btn"
+        (click)="scrollLeft()">
 
-        <img
-            [src]="imageUrl"
-            [alt]="product.name + ' thumbnail'">
-            
+        <i class="fas fa-chevron-left"></i>
+
+    </button>
+    <div
+        #thumbnailContainer
+        *ngIf="getProductThumbnails(product) as thumbnails"
+        class="product-thumbnails">
+        <button
+            *ngFor="let imageUrl of thumbnails"
+            type="button"
+            class="product-thumbnail"
+            [class.active]="getMainImageUrl(product) === imageUrl"
+            (click)="selectProductImage(imageUrl)">
+
+            <img
+                [src]="imageUrl"
+                [alt]="product.name + ' thumbnail'">
+                
+        </button>
+    </div>
+    <button
+        class="carousel-btn"
+        (click)="scrollRight()">
+
+        <i class="fas fa-chevron-right"></i>
+
     </button>
 </div>

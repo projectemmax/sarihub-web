@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, ElementRef, Input, ViewChild } from '@angular/core';
 import { getImageUrl as resolveImageUrl, getImageUrlCloudinary, getProductImageUrl } from '@app/core/utils/image.util';
 import { Product } from '@app/models/product.model';
 
@@ -13,6 +13,9 @@ import { Product } from '@app/models/product.model';
 export class ProductMediaGalleryComponent {
     @Input({ required: true })
     product!: Product;
+
+    @ViewChild('thumbnailContainer')
+    thumbnailContainer!: ElementRef<HTMLDivElement>;
 
     displayImageUrl: string | null = null;
 
@@ -47,6 +50,21 @@ export class ProductMediaGalleryComponent {
 
     selectProductImage(imageUrl: string) {
         this.displayImageUrl = imageUrl;
+    }
+
+    // Media Gallery Scroll Controls
+    scrollLeft() {
+        this.thumbnailContainer.nativeElement.scrollBy({
+            left:-200,
+            behavior:'smooth'
+        });
+    }
+
+    scrollRight() {
+        this.thumbnailContainer.nativeElement.scrollBy({
+            left:200,
+            behavior:'smooth'
+        });
     }
 
 }
