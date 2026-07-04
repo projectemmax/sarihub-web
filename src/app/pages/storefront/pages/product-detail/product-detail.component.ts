@@ -14,7 +14,7 @@ import { ReviewFormComponent } from '../../components/review-form/review-form.co
 import { ProductCarouselComponent } from '../../components/product-carousel/product-carousel.component';
 import { ProductInfoSidebarComponent } from '../../components/product-info-sidebar/product-info-sidebar.component';
 import { BreadcrumbComponent } from '../../components/breadcrumb/breadcrumb.component';
-
+import { getImageUrl as getImageUrlCloudinary } from '@app/core/utils/image.util';
 import { Product } from '@app/models/product.model';
 import { BreadcrumbItem } from '@app/models/breadcrumb.model';
 import { StorefrontCartService } from '@app/services/storefront/storefront-cart.service';
@@ -27,7 +27,8 @@ import { ReviewStatus } from '@app/models/storefront/review.model';
 import { FormsModule } from '@angular/forms';
 import { SiteConfigService } from '@app/core/services/site-config.service';
 import { ProductVariant } from '@app/models/product-variant.model';
-import { getImageUrl as resolveImageUrl, getImageUrlCloudinary, getProductImageUrl } from '@app/core/utils/image.util';
+import { ProductMediaGalleryComponent } from "../../components/product-media-gallery/product-media-gallery.component";
+
 
 @Component({
   standalone: true,
@@ -39,8 +40,9 @@ import { getImageUrl as resolveImageUrl, getImageUrlCloudinary, getProductImageU
     ProductCarouselComponent,
     ProductInfoSidebarComponent,
     BreadcrumbComponent,
-    FormsModule
-  ],
+    FormsModule,
+    ProductMediaGalleryComponent
+],
   templateUrl: './product-detail.component.html',
   styleUrls: ['./product-detail.component.css'],
 })
@@ -76,7 +78,8 @@ export class ProductDetailComponent {
     selectedVariant: ProductVariant | null = null;
     selectedImageUrl: string | null = null;
 
-    getProductImageUrl = getProductImageUrl;
+    getImageUrlCloudinary = getImageUrlCloudinary;
+    getProductImageUrl = getImageUrlCloudinary;
 
     siteConfig = this.siteConfigService.snapshot;
 
@@ -431,36 +434,9 @@ export class ProductDetailComponent {
     }
 
     /** image helper */
-    getImageUrl(path?: string): string {
-        if (!path) {
-        return 'assets/no-image.png';
-        }
+    
 
-        return resolveImageUrl(path);
-    }
-
-    getMainImageUrl(product: Product): string {
-        return this.selectedImageUrl || this.getProductImageUrl(product);
-    }
-
-    getProductThumbnails(product: Product): string[] {
-        if (product.images?.length) {
-            return [...product.images]
-                .sort((a, b) => {
-                    if (a.isPrimary) return -1;
-                    if (b.isPrimary) return 1;
-
-                    return (a.order ?? 0) - (b.order ?? 0);
-                })
-                .map(image => this.getImageUrl(image.url));
-        }
-
-        return [this.getProductImageUrl(product)];
-    }
-
-    selectProductImage(imageUrl: string) {
-        this.selectedImageUrl = imageUrl;
-    }
+   
 
     hasVariants(product: Product): boolean {
         return !!product.variants?.length;
@@ -506,7 +482,7 @@ export class ProductDetailComponent {
     onSelectVariant(variant: ProductVariant) {
         this.selectedVariant = variant;
         this.selectedImageUrl = variant.image
-            ? getImageUrlCloudinary(variant.image, 600)
+            ? getImageUrlCloudinary(variant.image)
             : this.selectedImageUrl;
 
         this.quantity = 1; // reset quantity

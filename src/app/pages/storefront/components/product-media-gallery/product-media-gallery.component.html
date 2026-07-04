@@ -1,0 +1,24 @@
+<div class="product-image-container border rounded">
+    <img
+        [src]="getMainImageUrl(product)"
+        class="img-fluid rounded"
+        alt="{{ product.name }}"
+    />
+</div>
+
+<div
+    *ngIf="getProductThumbnails(product) as thumbnails"
+    class="product-thumbnails">
+    <button
+        *ngFor="let imageUrl of thumbnails"
+        type="button"
+        class="product-thumbnail"
+        [class.active]="getMainImageUrl(product) === imageUrl"
+        (click)="selectProductImage(imageUrl)">
+
+        <img
+            [src]="imageUrl"
+            [alt]="product.name + ' thumbnail'">
+            
+    </button>
+</div>
