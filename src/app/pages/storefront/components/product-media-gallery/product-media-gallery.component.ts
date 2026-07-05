@@ -43,7 +43,7 @@ export class ProductMediaGalleryComponent implements AfterViewInit {
         }
 
         if (changes['selectedVariant']) {
-            this.updateDisplayedImage();
+            this.syncGallerySelection();
         }
     }
 
@@ -109,8 +109,11 @@ export class ProductMediaGalleryComponent implements AfterViewInit {
         }
 
         if (this.galleryImages.length > 0) {
-            this.activeGalleryImage = this.galleryImages[0];
-            this.displayImageUrl = this.activeGalleryImage.imageUrl;
+            this.activeGalleryImage = this.getDefaultGalleryImage();
+
+            if (this.activeGalleryImage) {
+                this.displayImageUrl = this.activeGalleryImage.imageUrl;
+            }
         }
 
         console.table(this.galleryImages);
@@ -160,14 +163,12 @@ export class ProductMediaGalleryComponent implements AfterViewInit {
         return thumbnail.offsetWidth + gap;
     }
 
-    private updateDisplayedImage(): void {
+    private syncGallerySelection(): void {
 
         if (this.selectedVariant?.image) {
 
-            const galleryImage = this.galleryImages.find(image =>
-                image.type === GalleryImageType.VARIANT &&
-                image.variantId === this.selectedVariant!.id
-            );
+            const galleryImage =
+                this.findGalleryImageForVariant(this.selectedVariant);
 
             if (galleryImage) {
                 this.activeGalleryImage = galleryImage;
@@ -181,10 +182,29 @@ export class ProductMediaGalleryComponent implements AfterViewInit {
             return;
         }
 
-        this.activeGalleryImage = this.galleryImages[0];
+        this.activeGalleryImage = this.getDefaultGalleryImage();
 
         this.displayImageUrl =
             this.getProductImageUrl(this.product);
+
+    }
+
+    private findGalleryImageForVariant(
+        variant: ProductVariant
+    ): GalleryImage | undefined {
+
+        return this.galleryImages.find(image =>
+            image.type === GalleryImageType.VARIANT &&
+            image.variantId === variant.id
+        );
+
+    }
+
+    private getDefaultGalleryImage(): GalleryImage | undefined {
+
+        return this.galleryImages.find(image => image.isPrimary)
+            ?? this.galleryImages[0];
+
     }
 
     // Media Gallery Scroll Controls
