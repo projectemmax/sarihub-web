@@ -19,16 +19,24 @@ export function getImageUrl(url: string): string {
     return normalizeUploadUrl(url);
 }
 
-export function getImageUrlCloudinary(publicId: string, width = 100) {
-  if (!publicId) return '/assets/img/no-image.png';
+export function getImageUrlCloudinary(
+    publicId: string,
+    width = 100,
+    height?: number
+): string {
+    if (!publicId) {
+        return '/assets/img/no-image.png';
+    }
 
-  // Cloudinary case
-  if (!publicId.startsWith('http')) {
-    return `https://res.cloudinary.com/dygz1olfn/image/upload/w_${width},c_fill,f_auto,q_auto/${publicId}`;
-  }
+    if (!publicId.startsWith('http')) {
+        const transformation = height
+            ? `w_${width},h_${height},c_fill,g_auto,f_auto,q_auto`
+            : `w_${width},c_fit,f_auto,q_auto`;
 
-  // fallback (old images)
-  return publicId;
+        return `https://res.cloudinary.com/dygz1olfn/image/upload/${transformation}/${publicId}`;
+    }
+
+    return publicId;
 }
 
 export function getProductImageUrl(product: Product): string {

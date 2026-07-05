@@ -16,18 +16,17 @@
     </button>
     <div
         #thumbnailContainer
-        *ngIf="getProductThumbnails(product) as thumbnails"
         class="product-thumbnails"
         (scroll)="onThumbnailScroll()">
         <button
-            *ngFor="let imageUrl of thumbnails"
+            *ngFor="let image of galleryImages trackBy: trackByGalleryImage"
             type="button"
             class="product-thumbnail"
-            [class.active]="getMainImageUrl(product) === imageUrl"
-            (click)="selectProductImage(imageUrl)">
+            [class.active]="getMainImageUrl(product) === image.imageUrl"
+            (click)="selectProductImage(image)">
 
             <img
-                [src]="imageUrl"
+                [src]="image.imageUrl"
                 [alt]="product.name + ' thumbnail'">
                 
         </button>

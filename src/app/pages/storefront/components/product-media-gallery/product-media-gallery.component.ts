@@ -3,6 +3,7 @@ import { AfterViewInit, Component, ElementRef, Input, SimpleChanges, ViewChild }
 import { getImageUrl as resolveImageUrl, getImageUrlCloudinary, getProductImageUrl } from '@app/core/utils/image.util';
 import { ProductVariant } from '@app/models/product-variant.model';
 import { Product } from '@app/models/product.model';
+import { GalleryImage, GalleryImageType } from '@app/models/storefront/gallery-image.model';
 
 export const CloudinaryImageSize = {
     THUMBNAIL: 120,
@@ -28,12 +29,19 @@ export class ProductMediaGalleryComponent implements AfterViewInit {
     selectedVariant: ProductVariant | null = null;
 
     displayImageUrl: string | null = null;
+    galleryImages: GalleryImage[] = [];
+    activeGalleryImage?: GalleryImage;
+
     canScrollLeft = false;
     canScrollRight = false;
 
     getProductImageUrl = getProductImageUrl;
 
     ngOnChanges(changes: SimpleChanges) {
+        if (changes['product']) {
+            this.buildGalleryImages();
+        }
+
         if (changes['selectedVariant']) {
             this.updateDisplayedImage();
         }
@@ -55,6 +63,59 @@ export class ProductMediaGalleryComponent implements AfterViewInit {
         return this.displayImageUrl || this.getProductImageUrl(product);
     }
 
+    private buildGalleryImages(): void {
+
+        this.galleryImages = [];
+
+        if (!this.product?.images?.length) {
+            return;
+        }
+
+        const sortedImages = [...this.product.images].sort((a, b) => {
+
+            if (a.isPrimary) return -1;
+            if (b.isPrimary) return 1;
+
+            return (a.order ?? 0) - (b.order ?? 0);
+
+        });
+
+        this.galleryImages = sortedImages.map(image => ({
+            id: image.id ?? image.url,
+            imageUrl: this.getImageUrl(image.url),
+            type: GalleryImageType.PRODUCT,
+            isPrimary: image.isPrimary
+        }));
+
+        for (const variant of this.product.variants ?? []) {
+
+            if (!variant.image) {
+                continue;
+            }
+
+            this.galleryImages.push({
+                id: variant.id,
+                imageUrl: getImageUrlCloudinary(
+                    variant.image,
+                    CloudinaryImageSize.THUMBNAIL
+                ),
+                type: GalleryImageType.VARIANT,
+                isPrimary: false,
+
+                variantId: variant.id,
+                variantName: variant.attributes.join(' / ')
+            });
+
+        }
+
+        if (this.galleryImages.length > 0) {
+            this.activeGalleryImage = this.galleryImages[0];
+            this.displayImageUrl = this.activeGalleryImage.imageUrl;
+        }
+
+        console.table(this.galleryImages);
+    }
+
     getProductThumbnails(product: Product): string[] {
         if (product.images?.length) {
             return [...product.images]
@@ -70,8 +131,13 @@ export class ProductMediaGalleryComponent implements AfterViewInit {
         return [this.getProductImageUrl(product)];
     }
 
-    selectProductImage(imageUrl: string) {
-        this.displayImageUrl = imageUrl;
+    selectProductImage(image: GalleryImage): void {
+        this.activeGalleryImage = image;
+        this.displayImageUrl = image.imageUrl;
+    }
+
+    trackByGalleryImage(index: number, image: GalleryImage): string {
+        return image.id;
     }
 
     // Media Gallery Scroll Controls
@@ -115,13 +181,31 @@ export class ProductMediaGalleryComponent implements AfterViewInit {
     }
 
     private updateDisplayedImage(): void {
+
         if (this.selectedVariant?.image) {
-            this.displayImageUrl =
-                getImageUrlCloudinary(this.selectedVariant.image, CloudinaryImageSize.PREVIEW);
+
+            const galleryImage = this.galleryImages.find(
+                image =>
+                    image.type === GalleryImageType.VARIANT &&
+                    image.variantId === this.selectedVariant?.id
+            );
+
+            if (galleryImage) {
+                this.activeGalleryImage = galleryImage;
+                this.displayImageUrl = galleryImage.imageUrl;
+                return;
+            }
+
+            this.displayImageUrl = getImageUrlCloudinary(
+                this.selectedVariant.image,
+                CloudinaryImageSize.PREVIEW
+            );
+
             return;
         }
 
-        this.displayImageUrl = this.getProductImageUrl(this.product);
+        this.activeGalleryImage = this.galleryImages[0];
+        this.displayImageUrl = this.activeGalleryImage?.imageUrl ?? this.getProductImageUrl(this.product);
     }
 
     public updateScrollButtons(): void {
