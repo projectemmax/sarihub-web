@@ -12,6 +12,7 @@ The project follows Semantic Versioning (SemVer).
 - ProductMediaGalleryComponent
 - Thumbnail carousel navigation
 - Smart carousel navigation controls
+- Automatic thumbnail auto-centering when the active gallery image changes
 
 ### Changed
 
@@ -20,6 +21,7 @@ The project follows Semantic Versioning (SemVer).
 - Refactored the product media gallery to use a unified gallery model for product and variant images
 - Updated the thumbnail gallery to render from a single `GalleryImage` collection
 - Synchronized variant selection with the product media gallery so the corresponding thumbnail is automatically activated
+- Automatically scroll the thumbnail carousel to keep the active image visible
 - Improved main product image layout
 - Improved thumbnail spacing and styling
 - Replaced fixed thumbnail scroll distance with responsive thumbnail-based scrolling
@@ -30,7 +32,8 @@ The project follows Semantic Versioning (SemVer).
 #### Storefront
 - Introduced `GalleryImage` and `GalleryImageType` models
 - Refactored `ProductMediaGalleryComponent` to build a unified media collection from product and variant images
-- Added the initial `activeGalleryImage` state to support the upcoming single-source-of-truth gallery architecture
+- Added `activeGalleryImage` state to support gallery synchronization and future single-source-of-truth architecture
+- Added reusable thumbnail auto-centering helper for gallery navigation
 
 
 ---

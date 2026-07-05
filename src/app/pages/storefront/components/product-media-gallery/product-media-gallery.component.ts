@@ -59,7 +59,7 @@ export class ProductMediaGalleryComponent implements AfterViewInit {
         return resolveImageUrl(path);
     }
 
-     getMainImageUrl(product: Product): string {
+    getMainImageUrl(product: Product): string {
         return this.displayImageUrl || this.getProductImageUrl(product);
     }
 
@@ -137,6 +137,7 @@ export class ProductMediaGalleryComponent implements AfterViewInit {
     selectProductImage(image: GalleryImage): void {
         this.activeGalleryImage = image;
         this.displayImageUrl = image.imageUrl;
+        this.scrollToActiveThumbnail();
     }
 
     trackByGalleryImage(index: number, image: GalleryImage): string {
@@ -172,6 +173,7 @@ export class ProductMediaGalleryComponent implements AfterViewInit {
 
             if (galleryImage) {
                 this.activeGalleryImage = galleryImage;
+                this.scrollToActiveThumbnail();
             }
 
             this.displayImageUrl = getImageUrlCloudinary(
@@ -204,6 +206,34 @@ export class ProductMediaGalleryComponent implements AfterViewInit {
 
         return this.galleryImages.find(image => image.isPrimary)
             ?? this.galleryImages[0];
+
+    }
+
+    private scrollToActiveThumbnail(): void {
+
+        queueMicrotask(() => {
+            if (!this.thumbnailContainer || !this.activeGalleryImage) {
+                return;
+            }
+
+            const container = this.thumbnailContainer.nativeElement;
+
+            const activeThumbnail = container.querySelector<HTMLElement>(
+                `[data-gallery-id="${this.activeGalleryImage.id}"]`
+            );
+
+            if (!activeThumbnail) {
+                return;
+            }
+
+            activeThumbnail.scrollIntoView({
+                behavior: 'smooth',
+                inline: 'center',
+                block: 'nearest'
+            });
+
+            this.updateScrollButtons();
+        });
 
     }
 
