@@ -26,6 +26,8 @@ The project follows Semantic Versioning (SemVer).
 - Improved thumbnail spacing and styling
 - Replaced fixed thumbnail scroll distance with responsive thumbnail-based scrolling
 - Added automatic Previous/Next button state based on carousel position
+- Refactored gallery image rendering to resolve thumbnail and preview images independently using image sources.
+- Fixed blurry preview images when selecting variant thumbnails.
 
 ### Internal
 
@@ -34,7 +36,8 @@ The project follows Semantic Versioning (SemVer).
 - Refactored `ProductMediaGalleryComponent` to build a unified media collection from product and variant images
 - Added `activeGalleryImage` state to support gallery synchronization and future single-source-of-truth architecture
 - Added reusable thumbnail auto-centering helper for gallery navigation
-
+- Updated the gallery model to store image sources instead of pre-rendered image URLs.
+- Added reusable image resolver methods for thumbnail and preview rendering.
 
 ---
 

@@ -5,7 +5,7 @@ export enum GalleryImageType {
 
 export interface GalleryImage {
     id: string;
-    imageUrl: string;
+    imageSource: string;
     type: GalleryImageType;
     isPrimary: boolean;
 

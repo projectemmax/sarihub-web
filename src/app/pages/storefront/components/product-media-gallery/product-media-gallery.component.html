@@ -27,7 +27,7 @@
             (click)="selectProductImage(image)">
 
             <img
-                [src]="image.imageUrl"
+                [src]="getThumbnailImageUrl(image)"
                 [alt]="product.name + ' thumbnail'">
                 
         </button>

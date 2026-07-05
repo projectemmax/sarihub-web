@@ -82,7 +82,7 @@ export class ProductMediaGalleryComponent implements AfterViewInit {
 
         this.galleryImages = sortedImages.map(image => ({
             id: image.id ?? image.url,
-            imageUrl: this.getImageUrl(image.url),
+            imageSource: image.url,
             type: GalleryImageType.PRODUCT,
             isPrimary: image.isPrimary
         }));
@@ -95,10 +95,7 @@ export class ProductMediaGalleryComponent implements AfterViewInit {
 
             this.galleryImages.push({
                 id: variant.id,
-                imageUrl: getImageUrlCloudinary(
-                    variant.image,
-                    CloudinaryImageSize.THUMBNAIL
-                ),
+                imageSource: variant.image,
                 type: GalleryImageType.VARIANT,
                 isPrimary: false,
 
@@ -112,11 +109,37 @@ export class ProductMediaGalleryComponent implements AfterViewInit {
             this.activeGalleryImage = this.getDefaultGalleryImage();
 
             if (this.activeGalleryImage) {
-                this.displayImageUrl = this.activeGalleryImage.imageUrl;
+                this.displayImageUrl = this.getPreviewImageUrl(this.activeGalleryImage);
             }
         }
 
         console.table(this.galleryImages);
+    }
+
+    public getThumbnailImageUrl(image: GalleryImage): string {
+
+        if (image.type === GalleryImageType.PRODUCT) {
+            return this.getImageUrl(image.imageSource);
+        }
+
+        return getImageUrlCloudinary(
+            image.imageSource,
+            CloudinaryImageSize.THUMBNAIL
+        );
+
+    }
+
+    private getPreviewImageUrl(image: GalleryImage): string {
+
+        if (image.type === GalleryImageType.PRODUCT) {
+            return this.getImageUrl(image.imageSource);
+        }
+
+        return getImageUrlCloudinary(
+            image.imageSource,
+            CloudinaryImageSize.PREVIEW
+        );
+
     }
 
     getProductThumbnails(product: Product): string[] {
@@ -136,7 +159,7 @@ export class ProductMediaGalleryComponent implements AfterViewInit {
 
     selectProductImage(image: GalleryImage): void {
         this.activeGalleryImage = image;
-        this.displayImageUrl = image.imageUrl;
+        this.displayImageUrl = this.getPreviewImageUrl(image);
         this.scrollToActiveThumbnail();
     }
 
