@@ -19,6 +19,7 @@ The project follows Semantic Versioning (SemVer).
 - Redesigned storefront product media gallery
 - Refactored the product media gallery to use a unified gallery model for product and variant images
 - Updated the thumbnail gallery to render from a single `GalleryImage` collection
+- Synchronized variant selection with the product media gallery so the corresponding thumbnail is automatically activated
 - Improved main product image layout
 - Improved thumbnail spacing and styling
 - Replaced fixed thumbnail scroll distance with responsive thumbnail-based scrolling

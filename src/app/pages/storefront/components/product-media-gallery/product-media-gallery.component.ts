@@ -140,26 +140,6 @@ export class ProductMediaGalleryComponent implements AfterViewInit {
         return image.id;
     }
 
-    // Media Gallery Scroll Controls
-    scrollLeft(): void {
-        const distance = this.getThumbnailScrollDistance();
-
-        this.thumbnailContainer.nativeElement.scrollBy({
-            left: -distance,
-            behavior: 'smooth'
-        });
-    }
-
-    scrollRight(): void {
-        const container = this.thumbnailContainer.nativeElement;
-        const distance = this.getThumbnailScrollDistance();
-
-        container.scrollBy({
-            left: distance,
-            behavior: 'smooth'
-        });
-    }
-
     private getThumbnailScrollDistance(): number {
         if (!this.thumbnailContainer) {
             return 0;
@@ -184,16 +164,13 @@ export class ProductMediaGalleryComponent implements AfterViewInit {
 
         if (this.selectedVariant?.image) {
 
-            const galleryImage = this.galleryImages.find(
-                image =>
-                    image.type === GalleryImageType.VARIANT &&
-                    image.variantId === this.selectedVariant?.id
+            const galleryImage = this.galleryImages.find(image =>
+                image.type === GalleryImageType.VARIANT &&
+                image.variantId === this.selectedVariant!.id
             );
 
             if (galleryImage) {
                 this.activeGalleryImage = galleryImage;
-                this.displayImageUrl = galleryImage.imageUrl;
-                return;
             }
 
             this.displayImageUrl = getImageUrlCloudinary(
@@ -205,7 +182,29 @@ export class ProductMediaGalleryComponent implements AfterViewInit {
         }
 
         this.activeGalleryImage = this.galleryImages[0];
-        this.displayImageUrl = this.activeGalleryImage?.imageUrl ?? this.getProductImageUrl(this.product);
+
+        this.displayImageUrl =
+            this.getProductImageUrl(this.product);
+    }
+
+    // Media Gallery Scroll Controls
+    scrollLeft(): void {
+        const distance = this.getThumbnailScrollDistance();
+
+        this.thumbnailContainer.nativeElement.scrollBy({
+            left: -distance,
+            behavior: 'smooth'
+        });
+    }
+
+    scrollRight(): void {
+        const container = this.thumbnailContainer.nativeElement;
+        const distance = this.getThumbnailScrollDistance();
+
+        container.scrollBy({
+            left: distance,
+            behavior: 'smooth'
+        });
     }
 
     public updateScrollButtons(): void {

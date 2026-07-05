@@ -22,7 +22,7 @@
             *ngFor="let image of galleryImages trackBy: trackByGalleryImage"
             type="button"
             class="product-thumbnail"
-            [class.active]="getMainImageUrl(product) === image.imageUrl"
+            [class.active]="activeGalleryImage?.id === image.id"
             (click)="selectProductImage(image)">
 
             <img
