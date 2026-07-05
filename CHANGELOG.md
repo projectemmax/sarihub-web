@@ -13,6 +13,8 @@ The project follows Semantic Versioning (SemVer).
 - Thumbnail carousel navigation
 - Smart carousel navigation controls
 - Automatic thumbnail auto-centering when the active gallery image changes
+- Zoom interaction foundation for the product media gallery
+- Clickable product preview with zoom indicator overlay
 
 ### Changed
 
@@ -21,13 +23,13 @@ The project follows Semantic Versioning (SemVer).
 - Refactored the product media gallery to use a unified gallery model for product and variant images
 - Updated the thumbnail gallery to render from a single `GalleryImage` collection
 - Synchronized variant selection with the product media gallery so the corresponding thumbnail is automatically activated
+- Refactored gallery image rendering to resolve thumbnail and preview images independently using image sources
+- Fixed blurry preview images when selecting variant thumbnails
 - Automatically scroll the thumbnail carousel to keep the active image visible
 - Improved main product image layout
 - Improved thumbnail spacing and styling
 - Replaced fixed thumbnail scroll distance with responsive thumbnail-based scrolling
 - Added automatic Previous/Next button state based on carousel position
-- Refactored gallery image rendering to resolve thumbnail and preview images independently using image sources.
-- Fixed blurry preview images when selecting variant thumbnails.
 
 ### Internal
 
@@ -35,9 +37,9 @@ The project follows Semantic Versioning (SemVer).
 - Introduced `GalleryImage` and `GalleryImageType` models
 - Refactored `ProductMediaGalleryComponent` to build a unified media collection from product and variant images
 - Added `activeGalleryImage` state to support gallery synchronization and future single-source-of-truth architecture
+- Updated the gallery model to store image sources instead of pre-rendered image URLs
+- Added reusable image resolver methods for thumbnail and preview rendering
 - Added reusable thumbnail auto-centering helper for gallery navigation
-- Updated the gallery model to store image sources instead of pre-rendered image URLs.
-- Added reusable image resolver methods for thumbnail and preview rendering.
 
 ---
 

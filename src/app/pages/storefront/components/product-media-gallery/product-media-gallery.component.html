@@ -1,9 +1,18 @@
-<div class="product-image-container border rounded">
-    <img
-        [src]="getMainImageUrl(product)"
-        class="img-fluid rounded"
-        alt="{{ product.name }}"
-    />
+<div class="product-image-container">
+
+    <div class="product-preview" (click)="onPreviewClick()">
+
+        <img
+            class="product-preview-image"
+            [src]="getMainImageUrl(product)"
+            [alt]="product.name">
+
+        <div class="zoom-overlay">
+            <i class="fas fa-search-plus"></i>
+        </div>
+
+    </div>
+
 </div>
 <div class="thumbnail-carousel">
     <button

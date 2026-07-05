@@ -260,6 +260,30 @@ export class ProductMediaGalleryComponent implements AfterViewInit {
 
     }
 
+    private getZoomImageUrl(image: GalleryImage): string {
+
+        if (image.type === GalleryImageType.PRODUCT) {
+            return this.getImageUrl(image.imageSource);
+        }
+
+        return getImageUrlCloudinary(
+            image.imageSource,
+            CloudinaryImageSize.ZOOM
+        );
+
+    }
+
+    onPreviewClick(): void {
+        if (!this.activeGalleryImage) {
+            return;
+        }
+
+        console.log(
+            'Zoom image:',
+            this.getZoomImageUrl(this.activeGalleryImage)
+        );
+    }
+
     // Media Gallery Scroll Controls
     scrollLeft(): void {
         const distance = this.getThumbnailScrollDistance();
