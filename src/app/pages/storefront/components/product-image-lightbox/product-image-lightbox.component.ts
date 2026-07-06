@@ -7,6 +7,7 @@ import {
   OnDestroy,
   Output,
   SimpleChanges,
+  HostListener,
 } from '@angular/core';
 import { CommonModule, DOCUMENT } from '@angular/common';
 
@@ -96,6 +97,34 @@ export class ProductImageLightboxComponent implements OnChanges, OnDestroy {
         }
 
         this.activeIndexChange.emit(this.activeIndex + 1);
+    }
+
+    //KEYBOARD NAVIGATION
+
+    @HostListener('document:keydown', ['$event'])
+    onKeyDown(event: KeyboardEvent): void {
+
+        if (!this.isOpen) {
+            return;
+        }
+
+        switch (event.key) {
+
+            case 'Escape':
+                event.preventDefault();
+                this.close();
+                break;
+
+            case 'ArrowLeft':
+                event.preventDefault();
+                this.previous();
+                break;
+
+            case 'ArrowRight':
+                event.preventDefault();
+                this.next();
+                break;
+        }
     }
 
 }

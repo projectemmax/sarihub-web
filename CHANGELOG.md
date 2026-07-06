@@ -23,6 +23,10 @@ The project follows Semantic Versioning (SemVer).
 - Added Previous and Next navigation controls to the Product Image Lightbox.
 - Added image position counter for gallery navigation.
 - Added hover interactions for lightbox navigation controls.
+- Added keyboard navigation support for the Product Image Lightbox.
+- Added Left Arrow (`←`) navigation to the previous gallery image.
+- Added Right Arrow (`→`) navigation to the next gallery image.
+- Added Escape (`Esc`) shortcut to close the lightbox.
 
 ### Changed
 
@@ -46,6 +50,8 @@ The project follows Semantic Versioning (SemVer).
 - Refactored Product Media Gallery to centralize active image state management.
 - Improved lightbox responsiveness, animations, and overall user experience.
 - Enhanced navigation controls with polished hover and disabled states.
+- Improved desktop accessibility and user experience for the Product Image Lightbox.
+- Unified keyboard and mouse navigation behavior using the existing gallery navigation flow.
 
 ### Internal
 
