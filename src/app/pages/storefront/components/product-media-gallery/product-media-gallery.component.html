@@ -50,3 +50,10 @@
 
     </button>
 </div>
+
+<app-product-image-lightbox
+    [images]="galleryImages"
+    [activeImage]="activeGalleryImage"
+    [isOpen]="isLightboxOpen"
+    (closed)="onLightboxClosed()">
+</app-product-image-lightbox>

@@ -1,0 +1,33 @@
+@if (isOpen) {
+
+<div
+    class="lightbox-backdrop"
+    (click)="onBackdropClick()">
+
+    <div
+        class="lightbox-content"
+        (click)="onContentClick($event)">
+
+        <button
+            class="close-button"
+            type="button"
+            (click)="close()">
+
+            ✕
+
+        </button>
+
+        @if (activeImage) {
+
+            <img
+                class="lightbox-image"
+                [src]="getImageUrl(activeImage)"
+                alt="Product image">
+
+        }
+
+    </div>
+
+</div>
+
+}

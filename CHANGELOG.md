@@ -15,6 +15,11 @@ The project follows Semantic Versioning (SemVer).
 - Automatic thumbnail auto-centering when the active gallery image changes
 - Zoom interaction foundation for the product media gallery
 - Clickable product preview with zoom indicator overlay
+- Added ProductImageLightboxComponent for fullscreen product image preview.
+- Implemented lightbox open/close interaction from the product media gallery.
+- Added backdrop click and close button support.
+- Locked page scrolling while the lightbox is open.
+- Improved responsive fullscreen image viewing experience.
 
 ### Changed
 
@@ -30,6 +35,11 @@ The project follows Semantic Versioning (SemVer).
 - Improved thumbnail spacing and styling
 - Replaced fixed thumbnail scroll distance with responsive thumbnail-based scrolling
 - Added automatic Previous/Next button state based on carousel position
+- Integrated Product Image Lightbox into the Product Media Gallery.
+- Replaced placeholder preview click behavior with fullscreen image viewing.
+- Improved lightbox responsiveness and spacing across different screen sizes.
+- Updated close button placement to an image overlay for a cleaner user experience.
+- Moved Cloudinary image size configuration into a shared constant for reuse.
 
 ### Internal
 
@@ -40,6 +50,9 @@ The project follows Semantic Versioning (SemVer).
 - Updated the gallery model to store image sources instead of pre-rendered image URLs
 - Added reusable image resolver methods for thumbnail and preview rendering
 - Added reusable thumbnail auto-centering helper for gallery navigation
+
+### Notes
+- This release establishes the foundation for future lightbox enhancements, including gallery navigation, keyboard shortcuts, image zoom, and mobile pinch-to-zoom support.
 
 ---
 

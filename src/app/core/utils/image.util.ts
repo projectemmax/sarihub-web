@@ -90,3 +90,20 @@ export function getReviewImage(review: any): string {
     return 'assets/img/no-image.png';
 
 }
+
+export function getGalleryImageUrl(
+    imageSource: string,
+    width = 1200
+): string {
+    if (!imageSource) {
+        return 'assets/img/no-image.png';
+    }
+
+    // Cloudinary public ID
+    if (!imageSource.startsWith('http') && !imageSource.startsWith('/uploads')) {
+        return getImageUrlCloudinary(imageSource, width);
+    }
+
+    // Local upload or full URL
+    return getImageUrl(imageSource);
+}

@@ -4,6 +4,7 @@ import { getImageUrl as resolveImageUrl, getImageUrlCloudinary, getProductImageU
 import { ProductVariant } from '@app/models/product-variant.model';
 import { Product } from '@app/models/product.model';
 import { GalleryImage, GalleryImageType } from '@app/models/storefront/gallery-image.model';
+import { ProductImageLightboxComponent } from '../product-image-lightbox/product-image-lightbox.component';
 
 export const CloudinaryImageSize = {
     THUMBNAIL: 120,
@@ -14,7 +15,7 @@ export const CloudinaryImageSize = {
 @Component({
   selector: 'app-product-media-gallery',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ProductImageLightboxComponent],
   templateUrl: './product-media-gallery.component.html',
   styleUrl: './product-media-gallery.component.css'
 })
@@ -31,6 +32,7 @@ export class ProductMediaGalleryComponent implements AfterViewInit {
     displayImageUrl: string | null = null;
     galleryImages: GalleryImage[] = [];
     activeGalleryImage?: GalleryImage;
+    isLightboxOpen = false;
 
     canScrollLeft = false;
     canScrollRight = false;
@@ -129,7 +131,7 @@ export class ProductMediaGalleryComponent implements AfterViewInit {
 
     }
 
-    private getPreviewImageUrl(image: GalleryImage): string {
+    protected getPreviewImageUrl(image: GalleryImage): string {
 
         if (image.type === GalleryImageType.PRODUCT) {
             return this.getImageUrl(image.imageSource);
@@ -274,14 +276,16 @@ export class ProductMediaGalleryComponent implements AfterViewInit {
     }
 
     onPreviewClick(): void {
+
         if (!this.activeGalleryImage) {
             return;
         }
 
-        console.log(
-            'Zoom image:',
-            this.getZoomImageUrl(this.activeGalleryImage)
-        );
+        this.isLightboxOpen = true;
+    }
+
+    onLightboxClosed(): void {
+        this.isLightboxOpen = false;
     }
 
     // Media Gallery Scroll Controls
