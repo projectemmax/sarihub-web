@@ -23,56 +23,79 @@ import { CloudinaryImageSize } from '@app/core/constants/cloudinary-image-size';
 })
 export class ProductImageLightboxComponent implements OnChanges, OnDestroy {
 
-  @Input()
-  images: GalleryImage[] = [];
+    @Input()
+    images: GalleryImage[] = [];
 
-  @Input()
-  activeImage?: GalleryImage;
+    @Input()
+    activeIndex = 0;
 
-  @Input()
-  isOpen = false;
+    @Input()
+    isOpen = false;
 
-  @Output()
-  closed = new EventEmitter<void>();
+    @Output()
+    closed = new EventEmitter<void>();
 
-  private readonly document = inject(DOCUMENT);
+    @Output()
+    activeIndexChange = new EventEmitter<number>();
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['isOpen']) {
-      this.toggleBodyScroll(this.isOpen);
-    }
-  }
+    private readonly document = inject(DOCUMENT);
 
-  ngOnDestroy(): void {
-    this.toggleBodyScroll(false);
-  }
-
-  close(): void {
-    this.closed.emit();
-  }
-
-  onBackdropClick(): void {
-    this.close();
-  }
-
-  onContentClick(event: MouseEvent): void {
-    event.stopPropagation();
-  }
-
-  getImageUrl(image: GalleryImage): string {
-
-    if (image.type === GalleryImageType.PRODUCT) {
-      return resolveImageUrl(image.imageSource);
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes['isOpen']) {
+        this.toggleBodyScroll(this.isOpen);
+        }
     }
 
-    return getImageUrlCloudinary(
-      image.imageSource,
-      CloudinaryImageSize.ZOOM
-    );
-  }
+    ngOnDestroy(): void {
+        this.toggleBodyScroll(false);
+    }
 
-  private toggleBodyScroll(lock: boolean): void {
-    this.document.body.style.overflow = lock ? 'hidden' : '';
-  }
+    close(): void {
+        this.closed.emit();
+    }
+
+    onBackdropClick(): void {
+        this.close();
+    }
+
+    onContentClick(event: MouseEvent): void {
+        event.stopPropagation();
+    }
+
+    getImageUrl(image: GalleryImage): string {
+
+        if (image.type === GalleryImageType.PRODUCT) {
+            return resolveImageUrl(image.imageSource);
+        }
+
+        return getImageUrlCloudinary(
+            image.imageSource,
+            CloudinaryImageSize.ZOOM
+        );
+    }
+
+    private toggleBodyScroll(lock: boolean): void {
+        this.document.body.style.overflow = lock ? 'hidden' : '';
+    }
+
+    get currentImage(): GalleryImage | undefined {
+        return this.images[this.activeIndex];
+    }
+
+    previous(): void {
+        if (this.activeIndex === 0) {
+            return;
+        }
+
+        this.activeIndexChange.emit(this.activeIndex - 1);
+    }
+
+    next(): void {
+        if (this.activeIndex >= this.images.length - 1) {
+            return;
+        }
+
+        this.activeIndexChange.emit(this.activeIndex + 1);
+    }
 
 }

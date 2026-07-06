@@ -16,15 +16,39 @@
             ✕
 
         </button>
+        <button
+            class="nav-button prev"
+            type="button"
+            [disabled]="activeIndex === 0"
+            (click)="previous()">
 
-        @if (activeImage) {
+            <i class="fas fa-chevron-left"></i>
+        </button>
+
+        @if (currentImage) {
 
             <img
                 class="lightbox-image"
-                [src]="getImageUrl(activeImage)"
+                [src]="getImageUrl(currentImage)"
                 alt="Product image">
 
         }
+        @if (images.length > 1) {
+
+            <div class="image-counter">
+                {{ activeIndex + 1 }} / {{ images.length }}
+            </div>
+
+        }
+
+        <button
+            class="nav-button next"
+            type="button"
+            [disabled]="activeIndex >= images.length - 1"
+            (click)="next()">
+
+            <i class="fas fa-chevron-right"></i>
+        </button>
 
     </div>
 

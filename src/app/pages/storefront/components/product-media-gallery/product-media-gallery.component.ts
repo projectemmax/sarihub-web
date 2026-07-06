@@ -33,6 +33,7 @@ export class ProductMediaGalleryComponent implements AfterViewInit {
     galleryImages: GalleryImage[] = [];
     activeGalleryImage?: GalleryImage;
     isLightboxOpen = false;
+    activeGalleryIndex = 0;
 
     canScrollLeft = false;
     canScrollRight = false;
@@ -111,7 +112,12 @@ export class ProductMediaGalleryComponent implements AfterViewInit {
             this.activeGalleryImage = this.getDefaultGalleryImage();
 
             if (this.activeGalleryImage) {
-                this.displayImageUrl = this.getPreviewImageUrl(this.activeGalleryImage);
+
+                this.setActiveGalleryImage(this.activeGalleryImage);
+
+                this.displayImageUrl = this.getPreviewImageUrl(
+                    this.activeGalleryImage
+                );
             }
         }
 
@@ -161,6 +167,7 @@ export class ProductMediaGalleryComponent implements AfterViewInit {
 
     selectProductImage(image: GalleryImage): void {
         this.activeGalleryImage = image;
+        this.setActiveGalleryImage(image)
         this.displayImageUrl = this.getPreviewImageUrl(image);
         this.scrollToActiveThumbnail();
     }
@@ -197,7 +204,11 @@ export class ProductMediaGalleryComponent implements AfterViewInit {
                 this.findGalleryImageForVariant(this.selectedVariant);
 
             if (galleryImage) {
+
                 this.activeGalleryImage = galleryImage;
+
+                this.setActiveGalleryImage(galleryImage);
+
                 this.scrollToActiveThumbnail();
             }
 
@@ -211,8 +222,14 @@ export class ProductMediaGalleryComponent implements AfterViewInit {
 
         this.activeGalleryImage = this.getDefaultGalleryImage();
 
-        this.displayImageUrl =
-            this.getProductImageUrl(this.product);
+        if (this.activeGalleryImage) {
+
+            this.setActiveGalleryImage(this.activeGalleryImage);
+
+            this.displayImageUrl = this.getPreviewImageUrl(
+                this.activeGalleryImage
+            );
+        }
 
     }
 
@@ -286,6 +303,28 @@ export class ProductMediaGalleryComponent implements AfterViewInit {
 
     onLightboxClosed(): void {
         this.isLightboxOpen = false;
+    }
+
+    onLightboxIndexChange(index: number): void {
+        const image = this.galleryImages[index];
+
+        if (!image) {
+            return;
+        }
+
+        this.setActiveGalleryImage(image);
+        this.scrollToActiveThumbnail();
+    }
+
+    private setActiveGalleryImage(image: GalleryImage): void {
+
+        this.activeGalleryImage = image;
+
+        this.activeGalleryIndex = this.galleryImages.findIndex(
+            g => g.id === image.id
+        );
+
+        this.displayImageUrl = this.getPreviewImageUrl(image);
     }
 
     // Media Gallery Scroll Controls

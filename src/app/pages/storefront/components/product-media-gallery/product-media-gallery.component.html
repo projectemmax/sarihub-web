@@ -53,7 +53,8 @@
 
 <app-product-image-lightbox
     [images]="galleryImages"
-    [activeImage]="activeGalleryImage"
+    [activeIndex]="activeGalleryIndex"
     [isOpen]="isLightboxOpen"
-    (closed)="onLightboxClosed()">
+    (closed)="onLightboxClosed()"
+    (activeIndexChange)="onLightboxIndexChange($event)">
 </app-product-image-lightbox>

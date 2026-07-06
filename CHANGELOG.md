@@ -20,6 +20,9 @@ The project follows Semantic Versioning (SemVer).
 - Added backdrop click and close button support.
 - Locked page scrolling while the lightbox is open.
 - Improved responsive fullscreen image viewing experience.
+- Added Previous and Next navigation controls to the Product Image Lightbox.
+- Added image position counter for gallery navigation.
+- Added hover interactions for lightbox navigation controls.
 
 ### Changed
 
@@ -40,6 +43,9 @@ The project follows Semantic Versioning (SemVer).
 - Improved lightbox responsiveness and spacing across different screen sizes.
 - Updated close button placement to an image overlay for a cleaner user experience.
 - Moved Cloudinary image size configuration into a shared constant for reuse.
+- Refactored Product Media Gallery to centralize active image state management.
+- Improved lightbox responsiveness, animations, and overall user experience.
+- Enhanced navigation controls with polished hover and disabled states.
 
 ### Internal
 
