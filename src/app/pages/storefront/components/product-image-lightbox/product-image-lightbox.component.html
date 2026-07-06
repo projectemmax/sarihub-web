@@ -6,6 +6,7 @@
 
     <div
         class="lightbox-content"
+        [class.immersive]="isImmersiveMode"
         (click)="onContentClick($event)">
 
         <button
@@ -30,6 +31,15 @@
             <img
                 class="lightbox-image"
                 [src]="getImageUrl(currentImage)"
+                [style.transform]="imageTransform"
+                
+                (pointerdown)="onPointerDown($event)"
+                (pointermove)="onPointerMove($event)"
+                (pointerup)="onPointerUp($event)"
+                (pointercancel)="onPointerUp($event)"
+
+                (dblclick)="toggleZoom()"
+                (wheel)="onWheel($event)"
                 alt="Product image">
 
         }

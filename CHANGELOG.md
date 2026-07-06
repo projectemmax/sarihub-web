@@ -27,6 +27,12 @@ The project follows Semantic Versioning (SemVer).
 - Added Left Arrow (`←`) navigation to the previous gallery image.
 - Added Right Arrow (`→`) navigation to the next gallery image.
 - Added Escape (`Esc`) shortcut to close the lightbox.
+- Added interactive zoom support to the Product Image Lightbox.
+- Added double-click to zoom in and out.
+- Added mouse wheel zoom with configurable zoom levels.
+- Added drag-to-pan support for zoomed images.
+- Added immersive viewing mode that hides lightbox controls while dragging.
+- Added dynamic cursor states (`zoom-in`, `grab`, `grabbing`) for improved user interaction.
 
 ### Changed
 
@@ -52,6 +58,10 @@ The project follows Semantic Versioning (SemVer).
 - Enhanced navigation controls with polished hover and disabled states.
 - Improved desktop accessibility and user experience for the Product Image Lightbox.
 - Unified keyboard and mouse navigation behavior using the existing gallery navigation flow.
+- Improved Product Image Lightbox with smooth zoom and pan interactions.
+- Centralized zoom reset behavior when closing the lightbox or navigating between images.
+- Refined lightbox controls to prevent UI overlap while manipulating zoomed images.
+- Improved navigation and zoom experience across desktop devices.
 
 ### Internal
 
@@ -62,6 +72,11 @@ The project follows Semantic Versioning (SemVer).
 - Updated the gallery model to store image sources instead of pre-rendered image URLs
 - Added reusable image resolver methods for thumbnail and preview rendering
 - Added reusable thumbnail auto-centering helper for gallery navigation
+
+### Fixed
+- Fixed image position not resetting after zooming out.
+- Fixed transformed image overlapping lightbox controls.
+- Fixed navigation button visibility conflict while in immersive mode.
 
 ### Notes
 - This release establishes the foundation for future lightbox enhancements, including gallery navigation, keyboard shortcuts, image zoom, and mobile pinch-to-zoom support.

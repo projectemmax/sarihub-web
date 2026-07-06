@@ -39,6 +39,24 @@ export class ProductImageLightboxComponent implements OnChanges, OnDestroy {
     @Output()
     activeIndexChange = new EventEmitter<number>();
 
+    readonly DEFAULT_ZOOM = 1;
+    readonly DOUBLE_CLICK_ZOOM = 2;
+    readonly MIN_ZOOM = 1;
+    readonly MAX_ZOOM = 4;
+    readonly ZOOM_STEP = 0.25;
+    zoomLevel = this.DEFAULT_ZOOM;
+
+    translateX = 0;
+    translateY = 0;
+
+    isDragging = false;
+
+    private dragStartX = 0;
+    private dragStartY = 0;
+
+    private startTranslateX = 0;
+    private startTranslateY = 0;
+
     private readonly document = inject(DOCUMENT);
 
     ngOnChanges(changes: SimpleChanges): void {
@@ -49,10 +67,6 @@ export class ProductImageLightboxComponent implements OnChanges, OnDestroy {
 
     ngOnDestroy(): void {
         this.toggleBodyScroll(false);
-    }
-
-    close(): void {
-        this.closed.emit();
     }
 
     onBackdropClick(): void {
@@ -83,10 +97,17 @@ export class ProductImageLightboxComponent implements OnChanges, OnDestroy {
         return this.images[this.activeIndex];
     }
 
+    close(): void {
+        this.resetZoom();
+        this.closed.emit();
+    }
+
     previous(): void {
         if (this.activeIndex === 0) {
             return;
         }
+
+        this.resetZoom();
 
         this.activeIndexChange.emit(this.activeIndex - 1);
     }
@@ -96,10 +117,12 @@ export class ProductImageLightboxComponent implements OnChanges, OnDestroy {
             return;
         }
 
+        this.resetZoom();
+
         this.activeIndexChange.emit(this.activeIndex + 1);
     }
 
-    //KEYBOARD NAVIGATION
+    // KEYBOARD NAVIGATION
 
     @HostListener('document:keydown', ['$event'])
     onKeyDown(event: KeyboardEvent): void {
@@ -125,6 +148,93 @@ export class ProductImageLightboxComponent implements OnChanges, OnDestroy {
                 this.next();
                 break;
         }
+    }
+
+    // ZOOM FEATURES
+
+    toggleZoom(): void {
+        if (this.zoomLevel === this.DEFAULT_ZOOM) {
+            this.zoomLevel = this.DOUBLE_CLICK_ZOOM;
+            return;
+        }
+        this.resetZoom();
+    }
+
+    onWheel(event: WheelEvent): void {
+        event.preventDefault();
+
+        if (event.deltaY < 0) {
+
+            this.zoomLevel = Math.min(
+                this.zoomLevel + this.ZOOM_STEP,
+                this.MAX_ZOOM
+            );
+
+        } else {
+
+            this.zoomLevel = Math.max(
+                this.zoomLevel - this.ZOOM_STEP,
+                this.MIN_ZOOM
+            );
+
+            if (this.zoomLevel === this.DEFAULT_ZOOM) {
+                this.resetZoom();
+            }   
+        }
+    }
+
+    get imageTransform(): string {
+        return `
+            translate(${this.translateX}px, ${this.translateY}px)
+            scale(${this.zoomLevel})
+        `;
+    }
+
+    onPointerDown(event: PointerEvent): void {
+        if (this.zoomLevel === this.DEFAULT_ZOOM) {
+            return;
+        }
+
+        this.isDragging = true;
+
+        this.dragStartX = event.clientX;
+        this.dragStartY = event.clientY;
+
+        this.startTranslateX = this.translateX;
+        this.startTranslateY = this.translateY;
+
+        (event.target as HTMLElement).setPointerCapture(event.pointerId);
+    }
+
+    onPointerMove(event: PointerEvent): void {
+
+        if (!this.isDragging) {
+            return;
+        }
+
+        this.translateX =
+            this.startTranslateX +
+            (event.clientX - this.dragStartX);
+
+        this.translateY =
+            this.startTranslateY +
+            (event.clientY - this.dragStartY);
+    }
+
+    onPointerUp(event: PointerEvent): void {
+        this.isDragging = false;
+        (event.target as HTMLElement).releasePointerCapture(event.pointerId);
+    }
+
+    private resetZoom(): void {
+        this.zoomLevel = this.DEFAULT_ZOOM;
+        this.translateX = 0;
+        this.translateY = 0;
+        this.isDragging = false;
+    }
+
+    get isImmersiveMode(): boolean {
+        return this.zoomLevel > this.DEFAULT_ZOOM && this.isDragging;
     }
 
 }
