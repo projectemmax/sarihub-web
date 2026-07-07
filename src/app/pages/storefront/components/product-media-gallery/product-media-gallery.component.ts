@@ -120,8 +120,6 @@ export class ProductMediaGalleryComponent implements AfterViewInit {
                 );
             }
         }
-
-        console.table(this.galleryImages);
     }
 
     public getThumbnailImageUrl(image: GalleryImage): string {

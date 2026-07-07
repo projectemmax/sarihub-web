@@ -1,6 +1,7 @@
 @if (isOpen) {
 
 <div
+    #lightboxBackdrop
     class="lightbox-backdrop"
     (click)="onBackdropClick()">
 
@@ -29,14 +30,15 @@
         @if (currentImage) {
 
             <img
+                #lightboxImage
                 class="lightbox-image"
+                [class.dragging]="isDragging"
                 [src]="getImageUrl(currentImage)"
                 [style.transform]="imageTransform"
-                
                 (pointerdown)="onPointerDown($event)"
                 (pointermove)="onPointerMove($event)"
                 (pointerup)="onPointerUp($event)"
-                (pointercancel)="onPointerUp($event)"
+                (pointercancel)="onPointerCancel($event)"
 
                 (dblclick)="toggleZoom()"
                 (wheel)="onWheel($event)"

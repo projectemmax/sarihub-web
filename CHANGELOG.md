@@ -31,6 +31,9 @@ The project follows Semantic Versioning (SemVer).
 - Added double-click to zoom in and out.
 - Added mouse wheel zoom with configurable zoom levels.
 - Added drag-to-pan support for zoomed images.
+- Added one-finger pan support for zoomed images on touch devices.
+- Added pinch-to-zoom gesture support using Pointer Events.
+- Added touch pointer state management for multi-touch interactions.
 - Added immersive viewing mode that hides lightbox controls while dragging.
 - Added dynamic cursor states (`zoom-in`, `grab`, `grabbing`) for improved user interaction.
 
@@ -59,6 +62,11 @@ The project follows Semantic Versioning (SemVer).
 - Improved desktop accessibility and user experience for the Product Image Lightbox.
 - Unified keyboard and mouse navigation behavior using the existing gallery navigation flow.
 - Improved Product Image Lightbox with smooth zoom and pan interactions.
+- Refined desktop and mobile pan interactions to use shared boundary calculations.
+- Improved pan boundaries to use the available viewport instead of the shrink-wrapped image container.
+- Enhanced drag experience for portrait, landscape, and square images.
+- Improved touch gesture handling by separating swipe navigation and image panning based on zoom state.
+- Improved lightbox interaction consistency across desktop and mobile devices.
 - Centralized zoom reset behavior when closing the lightbox or navigating between images.
 - Refined lightbox controls to prevent UI overlap while manipulating zoomed images.
 - Improved navigation and zoom experience across desktop devices.
@@ -72,11 +80,19 @@ The project follows Semantic Versioning (SemVer).
 - Updated the gallery model to store image sources instead of pre-rendered image URLs
 - Added reusable image resolver methods for thumbnail and preview rendering
 - Added reusable thumbnail auto-centering helper for gallery navigation
+- Unified desktop and mobile pan boundary calculations through a shared `clampPan()` helper.
+- Simplified lightbox interaction logic by removing obsolete image sizing calculations introduced during development.
 
 ### Fixed
 - Fixed image position not resetting after zooming out.
 - Fixed transformed image overlapping lightbox controls.
 - Fixed navigation button visibility conflict while in immersive mode.
+- Fixed mobile pan and swipe gesture conflicts while interacting with zoomed images.
+- Fixed pinch-to-zoom state transitions causing unstable dragging.
+- Fixed unequal horizontal pan boundaries.
+- Fixed flickering while dragging zoomed images.
+- Fixed excessive dragging beyond image boundaries.
+- Fixed viewport constraint calculations for zoomed image panning.
 
 ### Notes
 - This release establishes the foundation for future lightbox enhancements, including gallery navigation, keyboard shortcuts, image zoom, and mobile pinch-to-zoom support.

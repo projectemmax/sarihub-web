@@ -57,6 +57,7 @@
 
 .lightbox-image.dragging {
     cursor: grabbing;
+    transition: none;
 }
 
 .close-button {
@@ -186,4 +187,10 @@
     backdrop-filter: blur(8px);
 
     user-select: none;
+}
+
+@media (max-width: 768px) {
+    .nav-button{
+        display: none;
+    }
 }
