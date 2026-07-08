@@ -30,26 +30,28 @@
                 </p>
 
                 <div class="d-flex justify-content-between">
-                    <!-- <p class="text-dark fs-5 fw-bold mb-0">{{ product.price | currency:'PHP' }}</p> -->
-                    <p
-                        *ngIf="product.variants?.length; else noVariantPrice"
-                        class="mt-2 mb-1 fw-bold"
-                        [class.text-muted]="isOutOfStock(product)"
-                        [class.text-decoration-line-through]="isOutOfStock(product)">
-                            {{ getMinPrice(product.variants) | currency:'PHP' }}
-                            -
-                            {{ getMaxPrice(product.variants) | currency:'PHP' }}
-                    </p>
+                    <ng-container *ngIf="getProductPriceSummary(product) as priceSummary">
 
-                    <ng-template #noVariantPrice>
                         <p
                             class="mt-2 mb-1 fw-bold"
                             [class.text-muted]="isOutOfStock(product)"
                             [class.text-decoration-line-through]="isOutOfStock(product)">
-                            {{ product.price | currency:'PHP' }}
+
+                            <ng-container *ngIf="priceSummary.hasPriceRange; else singlePrice">
+
+                                {{ priceSummary.minPrice | currency:'PHP' }}
+                                -
+                                {{ priceSummary.maxPrice | currency:'PHP' }}
+
+                            </ng-container>
+
+                            <ng-template #singlePrice>
+                                {{ priceSummary.minPrice | currency:'PHP' }}
+                            </ng-template>
+
                         </p>
 
-                    </ng-template>
+                    </ng-container>
                     <button
                         class="btn rounded-pill px-3"
                         (click)="!isOutOfStock(product) && addToCart(product.id)"

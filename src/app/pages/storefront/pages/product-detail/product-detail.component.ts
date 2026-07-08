@@ -28,7 +28,9 @@ import { FormsModule } from '@angular/forms';
 import { SiteConfigService } from '@app/core/services/site-config.service';
 import { ProductVariant } from '@app/models/product-variant.model';
 import { ProductMediaGalleryComponent } from "../../components/product-media-gallery/product-media-gallery.component";
-
+import {
+    getProductPriceSummary
+} from '@app/core/utils/product-price.util';
 
 @Component({
   standalone: true,
@@ -80,6 +82,7 @@ export class ProductDetailComponent {
 
     getImageUrlCloudinary = getImageUrlCloudinary;
     getProductImageUrl = getImageUrlCloudinary;
+    getProductPriceSummary = getProductPriceSummary;
 
     siteConfig = this.siteConfigService.snapshot;
 
@@ -436,14 +439,18 @@ export class ProductDetailComponent {
     /** image helper */
     
 
-   
-
     hasVariants(product: Product): boolean {
         return !!product.variants?.length;
     }
 
     getDisplayPrice(product: Product): number {
-        return Number(this.selectedVariant?.price ?? product.price ?? 0);
+
+        if (this.selectedVariant) {
+            return Number(this.selectedVariant.price);
+        }
+
+        return this.getProductPriceSummary(product).minPrice;
+
     }
 
     getVariantLabel(variant: ProductVariant): string {

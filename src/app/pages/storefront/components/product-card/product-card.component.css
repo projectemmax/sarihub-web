@@ -46,3 +46,10 @@
   overflow: hidden;
   color: #a2a1a1;
 }
+.text-decoration-line-through {
+    opacity: .6;
+}
+
+.out-stock-price {
+    color: #999;
+}

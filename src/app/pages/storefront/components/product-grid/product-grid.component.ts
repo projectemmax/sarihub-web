@@ -7,6 +7,7 @@ import { StorefrontCartService } from '@app/services/storefront/storefront-cart.
 import { getProductImageUrl } from '@app/core/utils/image.util';
 import { ToastService } from '@app/core/services/toast.service';
 import { AuthService } from '@app/core/auth/auth.service';
+import { ProductPriceSummary, getProductPriceSummary } from '@app/core/utils/product-price.util';
 
 @Component({
   selector: 'app-product-grid',
@@ -20,6 +21,7 @@ export class ProductGridComponent {
     @Input() columns: 3 | 4 = 4;
 
     getProductImageUrl = getProductImageUrl;
+    getProductPriceSummary = getProductPriceSummary;
 
     constructor(
         private router: Router, 
@@ -72,16 +74,16 @@ export class ProductGridComponent {
         });
     }
 
-    getMinPrice(variants?: any[]): number {
-        if (!variants?.length) return 0;
+    // getMinPrice(variants?: any[]): number {
+    //     if (!variants?.length) return 0;
 
-        return Math.min(...variants.map(v => Number(v.price) || 0));
-    }
+    //     return Math.min(...variants.map(v => Number(v.price) || 0));
+    // }
 
-    getMaxPrice(variants?: any[]): number {
-        if (!variants?.length) return 0;
+    // getMaxPrice(variants?: any[]): number {
+    //     if (!variants?.length) return 0;
 
-        return Math.max(...variants.map(v => Number(v.price) || 0));
-    }
+    //     return Math.max(...variants.map(v => Number(v.price) || 0));
+    // }
 
 }

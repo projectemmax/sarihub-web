@@ -25,37 +25,41 @@
         </p>
 
         <div class="d-flex justify-content-between">
-            <p 
-                *ngIf="product.variants?.length; else noVariantPrice" 
-                class="mt-2 mb-1 fw-bold"
-                [class.text-muted]="isOutOfStock()"
-                [class.text-decoration-line-through]="isOutOfStock()">
-                {{ getMinPrice(product.variants) | currency:'PHP' }} -
-                {{ getMaxPrice(product.variants) | currency:'PHP' }}
-            </p>
-
-            <ng-template #noVariantPrice>
-                <p 
+            <ng-container *ngIf="getProductPriceSummary(product) as priceSummary">
+                <p
                     class="mt-2 mb-1 fw-bold"
-                    [class.text-muted]="isOutOfStock()"
-                    [class.text-decoration-line-through]="isOutOfStock()">
-                    {{ product.price | currency:'PHP' }}
+                    [class.text-muted]="isOutOfStock(product)"
+                    [class.text-decoration-line-through]="isOutOfStock(product)">
+
+                    <ng-container *ngIf="priceSummary.hasPriceRange; else singlePrice">
+
+                        {{ priceSummary.minPrice | currency:'PHP' }}
+                        -
+                        {{ priceSummary.maxPrice | currency:'PHP' }}
+
+                    </ng-container>
+
+                    <ng-template #singlePrice>
+                        {{ priceSummary.minPrice | currency:'PHP' }}
+                    </ng-template>
+
                 </p>
-            </ng-template>
+
+            </ng-container>
             <button
                 class="btn rounded-pill px-3"
                 (click)="onAddToCart()"
-                [disabled]="isOutOfStock()"
-                [class.border-danger]="isOutOfStock()"
-                [class.text-danger]="isOutOfStock()"
-                [class.border-secondary]="!isOutOfStock()"
-                [class.text-primary]="!isOutOfStock()">
+                [disabled]="isOutOfStock(product)"
+                [class.border-danger]="isOutOfStock(product)"
+                [class.text-danger]="isOutOfStock(product)"
+                [class.border-secondary]="!isOutOfStock(product)"
+                [class.text-primary]="!isOutOfStock(product)">
                 <i
-                    *ngIf="!isOutOfStock()"
+                    *ngIf="!isOutOfStock(product)"
                     class="fa fa-shopping-bag me-2">
                 </i>
                 {{
-                    isOutOfStock()
+                    isOutOfStock(product)
                     ? 'Out of Stock'
                     : 'Add'
                 }}

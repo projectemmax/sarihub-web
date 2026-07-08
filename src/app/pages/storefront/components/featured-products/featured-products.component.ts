@@ -6,6 +6,10 @@ import { StorefrontProductService } from '@app/services/storefront/storefront-pr
 import { map, shareReplay, tap } from 'rxjs';
 import { getItemImage, getProductImageUrl } from '@app/core/utils/image.util';
 import { RatingComponent } from '../rating/rating.component';
+import {
+    getProductPriceSummary
+} from '@app/core/utils/product-price.util';
+import { Product } from '@app/models/product.model';
 
 @Component({
   selector: 'app-featured-products',
@@ -15,24 +19,25 @@ import { RatingComponent } from '../rating/rating.component';
   styleUrl: './featured-products.component.css'
 })
 export class FeaturedProductsComponent {
-  private storefrontProductService = inject(StorefrontProductService);
+    private storefrontProductService = inject(StorefrontProductService);
 
-  getProductImageUrl = getProductImageUrl
+    getProductImageUrl = getProductImageUrl
+    getProductPriceSummary = getProductPriceSummary;
 
-  products$ = this.storefrontProductService
-    .getProducts({
-      page: 1,
-      limit: 3,  // ✅ LIMIT TO 3
-      isFeatured: true,
-    })
-    .pipe(
-      tap(res => res.data),
-      map(res => res.data),
-      shareReplay(1)
+    products$ = this.storefrontProductService
+        .getProducts({
+            page: 1,
+            limit: 3,  // ✅ LIMIT TO 3
+            isFeatured: true,
+        })
+        .pipe(
+            tap(res => res.data),
+            map(res => res.data),
+            shareReplay(1)
     );
 
-  stars = [1, 2, 3, 4, 5];
-  rating = 4;
+    stars = [1, 2, 3, 4, 5];
+    rating = 4;
 
 
 }
