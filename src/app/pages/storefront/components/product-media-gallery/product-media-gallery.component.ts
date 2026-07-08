@@ -38,6 +38,8 @@ export class ProductMediaGalleryComponent implements AfterViewInit {
     canScrollLeft = false;
     canScrollRight = false;
 
+    private readonly preloadedImages = new Set<string>();
+
     getProductImageUrl = getProductImageUrl;
 
     ngOnChanges(changes: SimpleChanges) {
@@ -109,15 +111,10 @@ export class ProductMediaGalleryComponent implements AfterViewInit {
         }
 
         if (this.galleryImages.length > 0) {
-            this.activeGalleryImage = this.getDefaultGalleryImage();
+            const defaultImage = this.getDefaultGalleryImage();
 
-            if (this.activeGalleryImage) {
-
-                this.setActiveGalleryImage(this.activeGalleryImage);
-
-                this.displayImageUrl = this.getPreviewImageUrl(
-                    this.activeGalleryImage
-                );
+            if (defaultImage) {
+                this.setActiveGalleryImage(defaultImage);
             }
         }
     }
@@ -323,6 +320,11 @@ export class ProductMediaGalleryComponent implements AfterViewInit {
         );
 
         this.displayImageUrl = this.getPreviewImageUrl(image);
+
+        if (this.activeGalleryIndex >= 0) {
+            this.preloadAdjacentImages();
+        }
+
     }
 
     // Media Gallery Scroll Controls
@@ -362,6 +364,35 @@ export class ProductMediaGalleryComponent implements AfterViewInit {
         this.updateScrollButtons();
     }
 
+    private preloadImage(image: GalleryImage): void {
+        const imageUrl = this.getPreviewImageUrl(image);
+
+        if (!imageUrl || this.preloadedImages.has(imageUrl)) {
+            return;
+        }
+
+        const preloadImage = new Image();
+        preloadImage.src = imageUrl;
+
+        this.preloadedImages.add(imageUrl);
+    }
+
+    private preloadAdjacentImages(): void {
+        if (this.galleryImages.length <= 1) {
+            return;
+        }
+
+        const previousImage = this.galleryImages[this.activeGalleryIndex - 1];
+        const nextImage = this.galleryImages[this.activeGalleryIndex + 1];
+
+        if (previousImage) {
+            this.preloadImage(previousImage);
+        }
+
+        if (nextImage) {
+            this.preloadImage(nextImage);
+        }
+    }
     
 
 }

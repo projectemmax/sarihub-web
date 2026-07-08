@@ -83,8 +83,9 @@ export class ProductImageLightboxComponent implements OnChanges, OnDestroy {
     private activePointers = new Map<number, PointerEvent>();
     private initialPinchDistance = 0;
     private currentPinchDistance = 0;
-
     private initialPinchZoom = 1;
+
+    // OTHERS STATE
 
     private readonly document = inject(DOCUMENT);
 
@@ -529,15 +530,7 @@ export class ProductImageLightboxComponent implements OnChanges, OnDestroy {
             Math.min(maxY, this.translateY)
         );
 
-        console.table({
-            naturalWidth: image.naturalWidth,
-            naturalHeight: image.naturalHeight,
-            clientWidth: image.clientWidth,
-            clientHeight: image.clientHeight,
-        });
-
-
     }
-
+    
 
 }

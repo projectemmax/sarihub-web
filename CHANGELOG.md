@@ -36,6 +36,11 @@ The project follows Semantic Versioning (SemVer).
 - Added touch pointer state management for multi-touch interactions.
 - Added immersive viewing mode that hides lightbox controls while dragging.
 - Added dynamic cursor states (`zoom-in`, `grab`, `grabbing`) for improved user interaction.
+- Intelligent image preloading for the Product Media Gallery.
+- Adjacent image preloading using the browser image cache for smoother gallery navigation.
+- Automatic preloading of previous and next gallery images whenever the active image changes.
+- Support for preloading both product and variant images.
+- Duplicate preload prevention using an in-memory cache for improved efficiency.
 
 ### Changed
 
