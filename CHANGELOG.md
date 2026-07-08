@@ -41,6 +41,10 @@ The project follows Semantic Versioning (SemVer).
 - Automatic preloading of previous and next gallery images whenever the active image changes.
 - Support for preloading both product and variant images.
 - Duplicate preload prevention using an in-memory cache for improved efficiency.
+- Keyboard navigation for Product Media Gallery thumbnails.
+- Support for Arrow Left, Arrow Right, Home, and End keys.
+- Automatic thumbnail scrolling to keep the focused item visible.
+- Improved accessibility with ARIA labels and active thumbnail indication.
 
 ### Changed
 

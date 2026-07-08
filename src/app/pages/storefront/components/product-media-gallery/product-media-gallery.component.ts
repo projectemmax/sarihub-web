@@ -38,6 +38,8 @@ export class ProductMediaGalleryComponent implements AfterViewInit {
     canScrollLeft = false;
     canScrollRight = false;
 
+    isImageLoading = false;
+
     private readonly preloadedImages = new Set<string>();
 
     getProductImageUrl = getProductImageUrl;
@@ -161,9 +163,7 @@ export class ProductMediaGalleryComponent implements AfterViewInit {
     }
 
     selectProductImage(image: GalleryImage): void {
-        this.activeGalleryImage = image;
-        this.setActiveGalleryImage(image)
-        this.displayImageUrl = this.getPreviewImageUrl(image);
+        this.setActiveGalleryImage(image);
         this.scrollToActiveThumbnail();
     }
 
@@ -199,31 +199,17 @@ export class ProductMediaGalleryComponent implements AfterViewInit {
                 this.findGalleryImageForVariant(this.selectedVariant);
 
             if (galleryImage) {
-
-                this.activeGalleryImage = galleryImage;
-
                 this.setActiveGalleryImage(galleryImage);
-
                 this.scrollToActiveThumbnail();
             }
-
-            this.displayImageUrl = getImageUrlCloudinary(
-                this.selectedVariant.image,
-                CloudinaryImageSize.PREVIEW
-            );
 
             return;
         }
 
-        this.activeGalleryImage = this.getDefaultGalleryImage();
+        const defaultImage = this.getDefaultGalleryImage();
 
-        if (this.activeGalleryImage) {
-
-            this.setActiveGalleryImage(this.activeGalleryImage);
-
-            this.displayImageUrl = this.getPreviewImageUrl(
-                this.activeGalleryImage
-            );
+        if (defaultImage) {
+            this.setActiveGalleryImage(defaultImage);
         }
 
     }
@@ -364,6 +350,59 @@ export class ProductMediaGalleryComponent implements AfterViewInit {
         this.updateScrollButtons();
     }
 
+    onThumbnailKeydown(
+        event: KeyboardEvent,
+        currentIndex: number
+    ): void {
+        switch (event.key) {
+            case 'ArrowLeft':
+                event.preventDefault();
+                this.focusThumbnail(Math.max(0, currentIndex - 1));
+                break;
+
+            case 'ArrowRight':
+                event.preventDefault();
+                this.focusThumbnail(
+                    Math.min(this.galleryImages.length - 1, currentIndex + 1)
+                );
+                break;
+
+            case 'Home':
+                event.preventDefault();
+                this.focusThumbnail(0);
+                break;
+
+            case 'End':
+                event.preventDefault();
+                this.focusThumbnail(this.galleryImages.length - 1);
+                break;
+        }
+    }
+
+    private focusThumbnail(index: number): void {
+        const image = this.galleryImages[index];
+
+        if (!image || !this.thumbnailContainer) {
+            return;
+        }
+
+        const button = this.thumbnailContainer.nativeElement.querySelector<HTMLElement>(
+            `[data-gallery-id="${image.id}"]`
+        );
+
+        if (!button) {
+            return;
+        }
+
+        button.focus();
+
+        button.scrollIntoView({
+            behavior: 'smooth',
+            inline: 'center',
+            block: 'nearest'
+        });
+    }
+
     private preloadImage(image: GalleryImage): void {
         const imageUrl = this.getPreviewImageUrl(image);
 
@@ -392,6 +431,14 @@ export class ProductMediaGalleryComponent implements AfterViewInit {
         if (nextImage) {
             this.preloadImage(nextImage);
         }
+    }
+
+    getThumbnailAriaLabel(image: GalleryImage): string {
+        if (image.type === GalleryImageType.VARIANT) {
+            return `View ${this.product.name} - ${image.variantName}`;
+        }
+
+        return `View ${this.product.name} image`;
     }
     
 

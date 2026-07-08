@@ -28,12 +28,15 @@
         class="product-thumbnails"
         (scroll)="onThumbnailScroll()">
         <button
-            *ngFor="let image of galleryImages trackBy: trackByGalleryImage"
+            *ngFor="let image of galleryImages; let index = index; trackBy: trackByGalleryImage"
             type="button"
             class="product-thumbnail"
             [attr.data-gallery-id]="image.id"
             [class.active]="activeGalleryImage?.id === image.id"
-            (click)="selectProductImage(image)">
+            [attr.aria-label]="getThumbnailAriaLabel(image)"
+            [attr.aria-current]="activeGalleryImage?.id === image.id ? 'true' : null"
+            (click)="selectProductImage(image)"
+            (keydown)="onThumbnailKeydown($event, index)">
 
             <img
                 [src]="getThumbnailImageUrl(image)"

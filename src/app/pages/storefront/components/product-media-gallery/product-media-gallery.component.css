@@ -101,7 +101,12 @@
 }
 
 .product-preview-image {
-    transition: opacity .25s ease;
+    opacity: 1;
+    transition: opacity 180ms ease-in-out;
+}
+
+.product-preview-image.is-transitioning {
+    opacity: 0;
 }
 
 .product-preview-image.loading {
