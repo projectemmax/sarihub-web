@@ -31,6 +31,7 @@ import { ProductMediaGalleryComponent } from "../../components/product-media-gal
 import {
     getProductPriceSummary
 } from '@app/core/utils/product-price.util';
+import { ProductVariantPickerComponent } from "../../components/product-variant-picker/product-variant-picker.component";
 
 @Component({
   standalone: true,
@@ -43,7 +44,8 @@ import {
     ProductInfoSidebarComponent,
     BreadcrumbComponent,
     FormsModule,
-    ProductMediaGalleryComponent
+    ProductMediaGalleryComponent,
+    ProductVariantPickerComponent
 ],
   templateUrl: './product-detail.component.html',
   styleUrls: ['./product-detail.component.css'],

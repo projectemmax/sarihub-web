@@ -1,0 +1,35 @@
+<div class="variant-picker mt-3 mb-3">
+    <div class="fw-bold mb-2">Variants</div>
+
+    <ng-container *ngIf="variants?.length; else noVariants">
+        <div class="variant-options">
+            <button
+                *ngFor="let variant of variants"
+                type="button"
+                class="variant-option"
+                [class.active]="selectedVariant?.id === variant.id"
+                [disabled]="variant.stock === 0"
+                (click)="onVariantClick(variant)">
+                <span class="variant-label">
+                    {{ getVariantLabel(variant) }}
+                </span>
+
+                <span class="variant-meta">
+                    ₱{{ variant.price | number: '1.2-2' }}
+                    ·
+                    {{ variant.stock > 0 ? variant.stock + ' left' : 'Out of stock' }}
+                </span>
+            </button>
+        </div>
+
+        <div *ngIf="!selectedVariant" class="text-muted small mt-2">
+            Select a variant before adding this product to cart.
+        </div>
+    </ng-container>
+
+    <ng-template #noVariants>
+        <div class="text-muted small">
+            No variants configured for this product.
+        </div>
+    </ng-template>
+</div>
