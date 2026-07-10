@@ -88,6 +88,10 @@ The project follows Semantic Versioning (SemVer).
 - Improved separation of responsibilities between Product Detail and variant selection UI.
 - Preserved ProductDetailComponent as the source of truth for variant state while using Input/Output communication.
 - Prepared the storefront architecture for future enhancements such as color swatches, multi-option variants, and improved accessibility.
+- Enhanced the Product Variant Picker with improved selection indicators.
+- Improved visual styling for out-of-stock variants while keeping them visible.
+- Refined variant card layout for better readability and user experience.
+- Continued polishing the reusable `ProductVariantPickerComponent` for production readiness.
 
 ### Internal
 
