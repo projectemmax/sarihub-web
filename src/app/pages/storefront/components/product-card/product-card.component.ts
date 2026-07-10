@@ -7,6 +7,7 @@ import { getProductImageUrl } from '@app/core/utils/image.util';
 import {
     getProductPriceSummary
 } from '@app/core/utils/product-price.util';
+import { getProductStockSummary } from '@app/core/utils/product-stock.util';
 
 @Component({
   selector: 'app-product-card',
@@ -21,11 +22,12 @@ export class ProductCardComponent {
 
     getProductImageUrl = getProductImageUrl;
     getProductPriceSummary = getProductPriceSummary;
+    getProductStockSummary = getProductStockSummary;
 
     constructor(private router: Router) {}
 
     onAddToCart(): void {
-        if ((this.product?.stock ?? 0) <= 0) {
+        if (this.getProductStockSummary(this.product).isOutOfStock) {
             return;
         }
 
@@ -33,9 +35,7 @@ export class ProductCardComponent {
     }
 
     isOutOfStock(product: Product): boolean {
-        return Number(
-            this.product?.stock ?? 0
-        ) <= 0;
+        return getProductStockSummary(product).isOutOfStock;
     }
 
     

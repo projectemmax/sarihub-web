@@ -79,6 +79,11 @@ The project follows Semantic Versioning (SemVer).
 - Centralized zoom reset behavior when closing the lightbox or navigating between images.
 - Refined lightbox controls to prevent UI overlap while manipulating zoomed images.
 - Improved navigation and zoom experience across desktop devices.
+- Centralized product pricing logic into a shared pricing utility.
+- Unified price display across Product Grid, Product Card, Featured Products, and Product Detail.
+- Improved configurable product pricing by displaying the lowest variant price before selection.
+- Display a single price when all variants share the same price and a price range when variant prices differ.
+- Removed duplicate storefront pricing calculations.
 
 ### Internal
 
@@ -102,6 +107,9 @@ The project follows Semantic Versioning (SemVer).
 - Fixed flickering while dragging zoomed images.
 - Fixed excessive dragging beyond image boundaries.
 - Fixed viewport constraint calculations for zoomed image panning.
+- Updated storefront stock availability checks to support variant-based inventory.
+- Products with variants are now considered available when at least one variant has stock.
+- Fixed Out of Stock button state for configurable products.
 
 ### Notes
 - This release establishes the foundation for future lightbox enhancements, including gallery navigation, keyboard shortcuts, image zoom, and mobile pinch-to-zoom support.
