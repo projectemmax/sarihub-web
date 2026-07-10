@@ -84,6 +84,10 @@ The project follows Semantic Versioning (SemVer).
 - Improved configurable product pricing by displaying the lowest variant price before selection.
 - Display a single price when all variants share the same price and a price range when variant prices differ.
 - Removed duplicate storefront pricing calculations.
+- Refactored Product Detail by extracting a reusable `ProductVariantPickerComponent`.
+- Improved separation of responsibilities between Product Detail and variant selection UI.
+- Preserved ProductDetailComponent as the source of truth for variant state while using Input/Output communication.
+- Prepared the storefront architecture for future enhancements such as color swatches, multi-option variants, and improved accessibility.
 
 ### Internal
 
