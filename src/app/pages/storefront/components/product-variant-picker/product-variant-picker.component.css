@@ -9,6 +9,7 @@
 }
 
 .variant-option {
+    position: relative;
   min-width: 126px;
   padding: 9px 12px;
   border: 1px solid #dee2e6;
@@ -20,8 +21,9 @@
 }
 
 .variant-option:hover:not(:disabled) {
-  border-color: var(--bs-primary);
-  transform: translateY(-1px);
+    border-color: var(--bs-primary);
+    transform: translateY(-1px);
+    transition: .15s;
 }
 
 .variant-option.active {
@@ -44,8 +46,48 @@
   font-size: 14px;
 }
 
-.variant-meta {
-  margin-top: 2px;
-  color: #6c757d;
-  font-size: 12px;
+.variant-option:disabled .variant-meta {
+    color: #dc3545;
+    font-weight: 600;
+    margin-top: 2px;
+}
+
+.variant-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.variant-check {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 15px;
+    height: 15px;
+
+    border: 2px solid #ced4da;
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    transition: .2s ease;
+}
+
+.variant-check i {
+    font-size: 9px;
+    opacity: 0;
+}
+
+.variant-check.active {
+
+    background: var(--bs-primary);
+    border-color: var(--bs-primary);
+
+    color: #fff;
+}
+
+.variant-check.active i {
+    opacity: 1;
 }

@@ -10,15 +10,26 @@
                 [class.active]="selectedVariant?.id === variant.id"
                 [disabled]="variant.stock === 0"
                 (click)="onVariantClick(variant)">
-                <span class="variant-label">
-                    {{ getVariantLabel(variant) }}
-                </span>
+                <div class="variant-content">
+        <div>
+            <div class="variant-label">
+                {{ getVariantLabel(variant) }}
+            </div>
 
-                <span class="variant-meta">
-                    ₱{{ variant.price | number: '1.2-2' }}
-                    ·
-                    {{ variant.stock > 0 ? variant.stock + ' left' : 'Out of stock' }}
-                </span>
+            <div class="variant-meta">
+                ₱{{ variant.price | number:'1.2-2' }}
+                ·
+                {{ variant.stock > 0 ? variant.stock + ' left' : 'Out of Stock' }}
+            </div>
+        </div>
+
+        <span
+            class="variant-check"
+            [class.active]="selectedVariant?.id === variant.id">
+            <i class="fa fa-check"></i>
+        </span>
+
+    </div>
             </button>
         </div>
 
