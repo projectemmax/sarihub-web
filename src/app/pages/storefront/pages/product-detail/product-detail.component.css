@@ -90,4 +90,17 @@ input[type=number] {
   text-align: center;
 }
 
+.btn-add-to-cart:disabled {
+    opacity: 1;
+    cursor: not-allowed;
+
+    color: #6c757d;
+    border-color: #dee2e6 !important;
+    background-color: #f8f9fa;
+}
+
+.btn-add-to-cart:disabled i {
+    color: #6c757d;
+}
+
 

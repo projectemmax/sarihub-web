@@ -70,7 +70,7 @@
                                     [quantity]="quantity"
                                     [min]="1"
                                     [max]="getAvailableStock(product)"
-                                    [disabled]="getAvailableStock(product) === 0 || !selectedVariant"
+                                    [disabled]="isQuantitySelectorDisabled(product)"
                                     size="sm"
                                     (quantityChange)="onQuantityChange($event)">
                                 </app-quantity-selector>
@@ -78,7 +78,7 @@
                             <!-- ADD TO CART -->
                             <ng-container *ngIf="getAddToCartState(product) as addToCartState">
                                 <button
-                                    class="btn border border-secondary rounded-pill px-4 py-2 mb-2 text-primary"
+                                    class="btn btn-add-to-cart border border-secondary rounded-pill px-4 py-2 mb-2 text-primary"
                                     [disabled]="addToCartState.disabled"
                                     (click)="addToCart(product)">
 

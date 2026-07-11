@@ -220,6 +220,13 @@ export class ProductDetailComponent {
                         : 'Add to Cart'
         };
     }
+
+    isQuantitySelectorDisabled(product: Product): boolean {
+        return (
+            this.getAvailableStock(product) === 0 ||
+            (this.hasVariants(product) && !this.selectedVariant)
+        );
+    }
     
 
     /** ✅ breadcrumb (reactive & safe) */

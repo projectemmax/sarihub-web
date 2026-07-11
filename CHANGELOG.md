@@ -99,6 +99,11 @@ The project follows Semantic Versioning (SemVer).
 - Added dynamic Add to Cart button labels for variant selection, stock availability, and loading states.
 - Centralized Add to Cart UI state management to improve template readability and maintainability.
 - Continued refining the Product Detail purchase experience while preserving existing business logic.
+- Replaced the custom Product Detail quantity controls with the reusable `QuantitySelectorComponent`.
+- Fixed quantity selector availability for both simple and variant products.
+- Added dynamic Add to Cart button states based on variant selection, stock availability, and loading status.
+- Improved disabled button styling to better match the storefront theme.
+- Continued polishing the Product Detail purchase experience without changing business logic.
 
 ### Internal
 
