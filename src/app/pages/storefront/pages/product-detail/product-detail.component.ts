@@ -32,6 +32,7 @@ import {
     getProductPriceSummary
 } from '@app/core/utils/product-price.util';
 import { ProductVariantPickerComponent } from "../../components/product-variant-picker/product-variant-picker.component";
+import { QuantitySelectorComponent } from "../../components/quantity-selector/quantity-selector.component";
 
 @Component({
   standalone: true,
@@ -45,7 +46,8 @@ import { ProductVariantPickerComponent } from "../../components/product-variant-
     BreadcrumbComponent,
     FormsModule,
     ProductMediaGalleryComponent,
-    ProductVariantPickerComponent
+    ProductVariantPickerComponent,
+    QuantitySelectorComponent
 ],
   templateUrl: './product-detail.component.html',
   styleUrls: ['./product-detail.component.css'],
@@ -389,53 +391,9 @@ export class ProductDetailComponent {
 
     
     /** quantity controls */
-    increase(product: Product) {
-        const stock = this.getAvailableStock(product);
 
-        if (this.quantity >= stock) {
-            this.stockWarning = `Only ${stock} items available`;
-
-            setTimeout(() => {
-            this.stockWarning = null;
-            }, 2000);
-
-            return;
-        }
-
-        this.quantity++;
-    }
-
-    decrease() {
-        if (this.quantity > 1) {
-        this.quantity--;
-        }
-    }
-
-    onQuantityInput(product: Product) {
-        let qty = Number(this.quantity);
-
-        const stock = this.getAvailableStock(product);
-
-        // invalid input
-        if (isNaN(qty) || qty < 1) {
-            this.quantity = 1;
-            return;
-        }
-
-        // ❗ IMPORTANT FIX
-        if (qty > stock) {
-            this.quantity = stock;
-
-            this.stockWarning = `Only ${stock} items available`;
-
-            setTimeout(() => {
-            this.stockWarning = null;
-            }, 2000);
-
-            return;
-        }
-
-        this.quantity = qty;
+    onQuantityChange(quantity: number): void {
+        this.quantity = quantity;
     }
 
     /** image helper */

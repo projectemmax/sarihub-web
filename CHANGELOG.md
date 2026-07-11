@@ -92,6 +92,9 @@ The project follows Semantic Versioning (SemVer).
 - Improved visual styling for out-of-stock variants while keeping them visible.
 - Refined variant card layout for better readability and user experience.
 - Continued polishing the reusable `ProductVariantPickerComponent` for production readiness.
+- Replaced the custom quantity controls on the Product Detail page with the reusable `QuantitySelectorComponent`.
+- Improved consistency of quantity selection across the storefront.
+- Reduced duplicated UI implementation while preserving existing quantity validation and stock limit behavior.
 
 ### Internal
 
