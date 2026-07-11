@@ -76,20 +76,27 @@
                                 </app-quantity-selector>
                             </div>
                             <!-- ADD TO CART -->
-                            <button
-                                class="btn border border-secondary rounded-pill px-4 py-2 mb-2 text-primary"
-                                [disabled]="getAvailableStock(product) === 0 || isAddingToCart || (hasVariants(product) && !selectedVariant)"
-                                (click)="addToCart(product)">
+                            <ng-container *ngIf="getAddToCartState(product) as addToCartState">
+                                <button
+                                    class="btn border border-secondary rounded-pill px-4 py-2 mb-2 text-primary"
+                                    [disabled]="addToCartState.disabled"
+                                    (click)="addToCart(product)">
 
-                                <i *ngIf="!isAddingToCart"
-                                class="fa fa-shopping-bag me-2 text-primary"></i>
+                                    <i
+                                        *ngIf="!addToCartState.loading"
+                                        class="fa fa-shopping-bag me-2 text-primary">
+                                    </i>
 
-                                <span *ngIf="isAddingToCart"
-                                    class="spinner-border spinner-border-sm me-2">
-                                </span>
+                                    <span
+                                        *ngIf="addToCartState.loading"
+                                        class="spinner-border spinner-border-sm me-2">
+                                    </span>
 
-                                {{ isAddingToCart ? 'Adding...' : 'Add to cart' }}
-                            </button>
+                                    {{ addToCartState.label }}
+
+                                </button>
+
+                            </ng-container>
 
                             <!-- VARIANTS -->
                             <app-product-variant-picker

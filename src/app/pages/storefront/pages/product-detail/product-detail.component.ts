@@ -194,6 +194,32 @@ export class ProductDetailComponent {
 
         this.addToCartTrigger$.next(product);
     }
+
+    getAddToCartState(product: Product) {
+
+        const variantRequired =
+            this.hasVariants(product) && !this.selectedVariant;
+
+        const outOfStock =
+            this.getAvailableStock(product) === 0;
+
+        return {
+            disabled:
+                this.isAddingToCart ||
+                variantRequired ||
+                outOfStock,
+
+            loading: this.isAddingToCart,
+
+            label: this.isAddingToCart
+                ? 'Adding...'
+                : variantRequired
+                    ? 'Select a Variant'
+                    : outOfStock
+                        ? 'Out of Stock'
+                        : 'Add to Cart'
+        };
+    }
     
 
     /** ✅ breadcrumb (reactive & safe) */

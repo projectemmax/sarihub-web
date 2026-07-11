@@ -95,6 +95,10 @@ The project follows Semantic Versioning (SemVer).
 - Replaced the custom quantity controls on the Product Detail page with the reusable `QuantitySelectorComponent`.
 - Improved consistency of quantity selection across the storefront.
 - Reduced duplicated UI implementation while preserving existing quantity validation and stock limit behavior.
+- Replaced the Product Detail quantity controls with the reusable `QuantitySelectorComponent`.
+- Added dynamic Add to Cart button labels for variant selection, stock availability, and loading states.
+- Centralized Add to Cart UI state management to improve template readability and maintainability.
+- Continued refining the Product Detail purchase experience while preserving existing business logic.
 
 ### Internal
 
