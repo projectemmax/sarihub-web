@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, Observable, of} from 'rxjs';
-import { switchMap, map, finalize, concatMap} from 'rxjs/operators';
+import { switchMap, map, finalize, concatMap, delay} from 'rxjs/operators';
 
 import { StorefrontProductService } from
   '@app/services/storefront/storefront-product.service';
@@ -138,6 +138,9 @@ export class ProductDetailComponent {
     product$ = combineLatest([this.slug$, this.refresh$]).pipe(
         switchMap(([slug]) =>
             this.productService.getProductBySlug(slug)
+            .pipe(
+                delay(4000), // simulate loading delay
+            )
         ),
         tap(() => {
             this.isLoadingProduct = false;

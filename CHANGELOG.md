@@ -45,6 +45,12 @@ The project follows Semantic Versioning (SemVer).
 - Support for Arrow Left, Arrow Right, Home, and End keys.
 - Automatic thumbnail scrolling to keep the focused item visible.
 - Improved accessibility with ARIA labels and active thumbnail indication.
+- Added production-ready skeleton loading state.
+- Replaced spinner with structured placeholders matching the page layout.
+- Added animated shimmer effect.
+- Added gallery, thumbnails, product info, sidebar, and related products skeletons.
+- Reduced layout shift during product loading.
+- Improved perceived loading performance.
 
 ### Changed
 
