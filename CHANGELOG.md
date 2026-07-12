@@ -52,6 +52,12 @@ The project follows Semantic Versioning (SemVer).
 - Reduced layout shift during product loading.
 - Improved perceived loading performance.
 
+### Product Detail
+- Added a production-ready skeleton loader for the Product Detail page.
+- Added animated shimmer effect for loading placeholders.
+- Added skeleton placeholders for the gallery, product information, sidebar, and related products.
+- Improved perceived loading performance and reduced layout shift during product loading.
+
 ### Changed
 
 #### Storefront
@@ -110,6 +116,13 @@ The project follows Semantic Versioning (SemVer).
 - Added dynamic Add to Cart button states based on variant selection, stock availability, and loading status.
 - Improved disabled button styling to better match the storefront theme.
 - Continued polishing the Product Detail purchase experience without changing business logic.
+
+### Product Detail
+- Removed obsolete gallery state after moving image management to `ProductMediaGalleryComponent`.
+- Removed unused loading state and dead review submission code.
+- Simplified variant selection logic by removing redundant image synchronization.
+- Removed temporary debugging code, testing utilities, and unused imports.
+- Improved overall maintainability through component cleanup and dead code removal.
 
 ### Internal
 

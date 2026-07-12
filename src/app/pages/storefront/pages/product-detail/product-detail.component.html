@@ -12,8 +12,8 @@
 <!-- ===============================
   PRODUCT DETAIL
 ================================ -->
-<div class="container-fluid py-5 mt-5">
-    <div class="container py-5">
+<div class="container-fluid py-5">
+    <div class="container">
         <div *ngIf="productError" class="alert alert-danger text-center">
             {{ productError }}
         </div>
@@ -106,14 +106,14 @@
                             </app-product-variant-picker>
 
                             <ng-container *ngIf="addToCartResult$ | async as result">
-                            <div *ngIf="result.success" class="alert alert-success">
-                                Added to cart!
-                            </div>
+                                <div *ngIf="result.success" class="alert alert-success">
+                                    Added to cart!
+                                </div>
 
-                            <div *ngIf="!result.success && result.error"
-                                class="alert alert-danger">
-                                {{ result.error }}
-                            </div>
+                                <div *ngIf="!result.success && result.error"
+                                    class="alert alert-danger">
+                                    {{ result.error }}
+                                </div>
                             </ng-container>
 
                             <div class="mt-2">
@@ -215,9 +215,9 @@
                             <!-- Verified buyer -->
                             <div *ngIf="canReview$ | async">
                                 <app-review-form
-                                (submitReview)="submitReview($event)"
-                                [uploading]="uploading"
-                                [uploadProgress]="uploadProgress">
+                                    (submitReview)="submitReview($event)"
+                                    [uploading]="uploading"
+                                    [uploadProgress]="uploadProgress">
                                 </app-review-form>
                             </div>
                         </div>

@@ -1,8 +1,8 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BehaviorSubject, Observable, of} from 'rxjs';
-import { switchMap, map, finalize, concatMap, delay} from 'rxjs/operators';
+import { BehaviorSubject, of} from 'rxjs';
+import { switchMap, map, finalize, concatMap} from 'rxjs/operators';
 
 import { StorefrontProductService } from
   '@app/services/storefront/storefront-product.service';
@@ -63,7 +63,6 @@ export class ProductDetailComponent {
     private siteConfigService = inject(SiteConfigService)
     private refresh$ = new BehaviorSubject<void>(undefined);
     private addToCartTrigger$ = new BehaviorSubject<Product | null>(null);
-    private reviewSubmitTrigger$ = new BehaviorSubject<any | null>(null);
 
 
     /** UI state */
@@ -71,7 +70,6 @@ export class ProductDetailComponent {
     reviewError: string | null = null;
     reviewSuccess = false;
 
-    isLoadingProduct = true;
     productError: string | null = null;
 
     isAddingToCart = false;
@@ -82,15 +80,12 @@ export class ProductDetailComponent {
     ReviewStatus = ReviewStatus;
     stockWarning: string | null = null;
     selectedVariant: ProductVariant | null = null;
-    selectedImageUrl: string | null = null;
 
     getImageUrlCloudinary = getImageUrlCloudinary;
     getProductImageUrl = getImageUrlCloudinary;
     getProductPriceSummary = getProductPriceSummary;
 
     siteConfig = this.siteConfigService.snapshot;
-
-    ngOnInit() {}
 
     /** route param */
     slug$ = this.route.paramMap.pipe(
@@ -125,11 +120,9 @@ export class ProductDetailComponent {
             this.productService.getProductBySlug(slug)
         ),
         tap(() => {
-            this.isLoadingProduct = false;
             this.productError = null;
         }),
         catchError(err => {
-            this.isLoadingProduct = false;
             this.productError = 'Product could not be loaded.';
             return EMPTY;
         }),
@@ -238,48 +231,7 @@ export class ProductDetailComponent {
     );
 
     /** reviews */
-    reviewSubmitResult$ = this.reviewSubmitTrigger$.pipe(
-        switchMap(payload => {
-            if (!payload) return EMPTY;
 
-            return this.slug$.pipe(
-                switchMap(slug =>
-                    this.reviewService.submitReview(slug, payload)
-                ),
-                map(() => ({ success: true })),
-                catchError(err =>
-                    of({
-                        success: false,
-                        error: err?.error?.message ?? 'Review failed.'
-                    })
-                )
-            );
-        }),
-        tap(result => {
-        if (result.success) {
-
-            this.reviewSuccess = true;
-            this.reviewError = null;
-
-            this.refresh$.next();
-
-            setTimeout(() => {
-            this.reviewSuccess = false;
-            }, 3000);
-
-        } else {
-
-            this.reviewError = 'error' in result
-            ? result.error
-            : 'Review failed.';
-
-            this.reviewSuccess = false;
-
-        }
-
-        }),
-        shareReplay(1)
-    );
 
     /** submit review */
     submitReview(payload: any) {
@@ -464,19 +416,12 @@ export class ProductDetailComponent {
         return product.stock ?? 0;
     }
 
-    onSelectVariant(variant: ProductVariant) {
+    onSelectVariant(variant: ProductVariant): void {
         this.selectedVariant = variant;
-        this.selectedImageUrl = variant.image
-            ? getImageUrlCloudinary(variant.image)
-            : this.selectedImageUrl;
+        this.quantity = 1;
 
-        this.quantity = 1; // reset quantity
-
-        if (variant.stock === 0) {
-            this.stockWarning = 'Out of stock';
-        } else {
-            this.stockWarning = null;
-        }
+        this.stockWarning =
+            variant.stock === 0 ? 'Out of stock' : null;
     }
 
     getDisplaySku(product: Product): string {
@@ -490,7 +435,6 @@ export class ProductDetailComponent {
 
     resetProductState() {
         this.selectedVariant = null;
-        this.selectedImageUrl = null;
         this.quantity = 1;
     }
 
