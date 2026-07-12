@@ -90,22 +90,7 @@ export class ProductDetailComponent {
 
     siteConfig = this.siteConfigService.snapshot;
 
-    ngOnInit() {
-        console.log(this.siteConfigService.snapshot);
-
-        this.hasPurchased$.subscribe(value =>
-            console.log('hasPurchased:', value)
-        );
-
-        this.myReview$.subscribe(value =>
-            console.log('myReview:', value)
-        );
-
-        this.canReview$.subscribe(value =>
-            console.log('canReview:', value)
-        );
-
-    }
+    ngOnInit() {}
 
     /** route param */
     slug$ = this.route.paramMap.pipe(
@@ -138,9 +123,6 @@ export class ProductDetailComponent {
     product$ = combineLatest([this.slug$, this.refresh$]).pipe(
         switchMap(([slug]) =>
             this.productService.getProductBySlug(slug)
-            .pipe(
-                delay(4000), // simulate loading delay
-            )
         ),
         tap(() => {
             this.isLoadingProduct = false;
