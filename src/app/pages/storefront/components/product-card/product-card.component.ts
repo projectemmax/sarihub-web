@@ -20,11 +20,19 @@ export class ProductCardComponent {
     @Input() product!: Product;
     @Output() add = new EventEmitter<Product>();
 
+    // UI STATE
+
+    imageLoaded = false;
+
     getProductImageUrl = getProductImageUrl;
     getProductPriceSummary = getProductPriceSummary;
     getProductStockSummary = getProductStockSummary;
 
     constructor(private router: Router) {}
+
+    onImageLoaded(): void {
+        this.imageLoaded = true;
+    }
 
     onAddToCart(): void {
         if (this.getProductStockSummary(this.product).isOutOfStock) {

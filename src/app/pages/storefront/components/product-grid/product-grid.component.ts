@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Product } from '@app/models/product.model';
 import { Constant } from '@app/services/constant/constant';
@@ -22,6 +22,10 @@ export class ProductGridComponent {
     @Input() products: Product[] = [];
     @Input() columns: 3 | 4 = 4;
 
+    // UI STATE
+
+    public imageLoaded = signal(false);
+
     getProductImageUrl = getProductImageUrl;
     getProductPriceSummary = getProductPriceSummary;
     getProductStockSummary = getProductStockSummary;
@@ -32,6 +36,10 @@ export class ProductGridComponent {
         private toast: ToastService,
         private authService: AuthService
     ) {}
+
+    onImageLoaded(): void {
+        this.imageLoaded.set(true);
+    }
 
     isOutOfStock(product: Product): boolean {
         return getProductStockSummary(product).isOutOfStock;

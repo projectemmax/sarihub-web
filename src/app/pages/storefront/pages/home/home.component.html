@@ -14,7 +14,9 @@
 
   <!-- PRODUCTS -->
   <ng-container *ngIf="productsByCategory$ | async as products; else loading">
-    <app-product-grid [products]="products"></app-product-grid>
+    <app-product-grid 
+      [products]="products">
+    </app-product-grid>
   </ng-container>
 
   <ng-template #loading>

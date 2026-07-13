@@ -121,6 +121,14 @@ The project follows Semantic Versioning (SemVer).
 - Added dynamic Add to Cart button states based on variant selection, stock availability, and loading status.
 - Improved disabled button styling to better match the storefront theme.
 - Continued polishing the Product Detail purchase experience without changing business logic.
+- Added smooth image fade-in transition after load
+- Added lightweight image placeholder to improve perceived performance
+- Enabled native browser lazy loading for product images
+- Enabled async image decoding for smoother rendering
+- Preserved image aspect ratio to prevent layout shifts
+- Improved category badge hover interaction
+- Maintained existing image zoom effect during hover
+- Enhanced overall browsing experience and perceived performance
 
 ### Product Detail
 - Removed obsolete gallery state after moving image management to `ProductMediaGalleryComponent`.
