@@ -85,3 +85,15 @@
     justify-content: center;
     text-align: center;
 }
+
+.text-white.bg-warning{
+
+    transition:all .25s ease;
+}
+
+.product-item:hover .text-white.bg-warning{
+
+    transform:translateY(-2px);
+
+    box-shadow:0 4px 12px rgba(0,0,0,.15);
+}
