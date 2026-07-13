@@ -4,7 +4,7 @@
             'col-12 col-sm-6 col-lg-3': columns === 4,
             'col-12 col-sm-6 col-lg-4': columns === 3
         }" *ngFor="let product of products">
-        <div class="rounded position-relative fruite-item">
+        <div class="rounded position-relative product-item">
             <div 
                 class="text-white bg-warning px-3 py-1 rounded position-absolute" 
                 style="top: 10px; right: 10px;"
@@ -29,11 +29,11 @@
                     {{ product.description }}
                 </p>
 
-                <div class="d-flex justify-content-between">
+                <div class="price-section">
                     <ng-container *ngIf="getProductPriceSummary(product) as priceSummary">
 
                         <p
-                            class="mt-2 mb-1 fw-bold"
+                            class="product-price fw-bold"
                             [class.text-muted]="isOutOfStock(product)"
                             [class.text-decoration-line-through]="isOutOfStock(product)">
 

@@ -1,4 +1,4 @@
-<div class="rounded position-relative fruite-item">
+<div class="rounded position-relative product-item">
     <div 
         class="text-white bg-primary px-3 py-1 rounded position-absolute" 
         style="top: 10px; right: 10px;"
@@ -24,10 +24,10 @@
             {{ product.description }}
         </p>
 
-        <div class="d-flex justify-content-between">
+        <div class="price-section">
             <ng-container *ngIf="getProductPriceSummary(product) as priceSummary">
                 <p
-                    class="mt-2 mb-1 fw-bold"
+                    class="product-price fw-bold"
                     [class.text-muted]="isOutOfStock(product)"
                     [class.text-decoration-line-through]="isOutOfStock(product)">
 

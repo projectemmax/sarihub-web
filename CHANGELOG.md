@@ -58,6 +58,11 @@ The project follows Semantic Versioning (SemVer).
 - Added skeleton placeholders for the gallery, product information, sidebar, and related products.
 - Improved perceived loading performance and reduced layout shift during product loading.
 
+### Product Card
+- Added modern hover animation with smooth card elevation.
+- Added subtle product image zoom effect on hover.
+- Added button hover animation for improved interaction feedback.
+
 ### Changed
 
 #### Storefront
@@ -149,6 +154,12 @@ The project follows Semantic Versioning (SemVer).
 - Updated storefront stock availability checks to support variant-based inventory.
 - Products with variants are now considered available when at least one variant has stock.
 - Fixed Out of Stock button state for configurable products.
+
+### Product Card
+- Centered the product price and Add to Cart button for a more balanced layout.
+- Improved product card alignment by pinning the pricing section to the bottom of the card.
+- Enhanced layout consistency for products with single prices and price ranges.
+- Improved overall visual hierarchy and browsing experience in the product grid.
 
 ### Notes
 - This release establishes the foundation for future lightbox enhancements, including gallery navigation, keyboard shortcuts, image zoom, and mobile pinch-to-zoom support.
