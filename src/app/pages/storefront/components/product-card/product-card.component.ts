@@ -4,6 +4,10 @@ import { Product } from '@app/models/product.model';
 import { Constant } from '@app/services/constant/constant';
 import { Router, RouterLink } from '@angular/router';
 import { getProductImageUrl } from '@app/core/utils/image.util';
+import {
+    getProductPriceSummary
+} from '@app/core/utils/product-price.util';
+import { getProductStockSummary } from '@app/core/utils/product-stock.util';
 
 @Component({
   selector: 'app-product-card',
@@ -16,35 +20,33 @@ export class ProductCardComponent {
     @Input() product!: Product;
     @Output() add = new EventEmitter<Product>();
 
+    // UI STATE
+
+    imageLoaded = false;
+
     getProductImageUrl = getProductImageUrl;
+    getProductPriceSummary = getProductPriceSummary;
+    getProductStockSummary = getProductStockSummary;
 
     constructor(private router: Router) {}
 
+    onImageLoaded(): void {
+        this.imageLoaded = true;
+    }
+
     onAddToCart(): void {
-        if ((this.product?.stock ?? 0) <= 0) {
+        if (this.getProductStockSummary(this.product).isOutOfStock) {
             return;
         }
 
         this.add.emit(this.product);
     }
 
-    isOutOfStock(): boolean {
-        return Number(
-            this.product?.stock ?? 0
-        ) <= 0;
+    isOutOfStock(product: Product): boolean {
+        return getProductStockSummary(product).isOutOfStock;
     }
 
-    getMinPrice(variants?: any[]): number {
-        if (!variants?.length) return 0;
-
-        return Math.min(...variants.map(v => Number(v.price) || 0));
-    }
-
-    getMaxPrice(variants?: any[]): number {
-        if (!variants?.length) return 0;
-
-        return Math.max(...variants.map(v => Number(v.price) || 0));
-    }
+    
 
 
 }

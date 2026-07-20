@@ -1,0 +1,175 @@
+<div
+    *ngIf="visible"
+    class="modal fade show d-block">
+
+    <div class="modal-dialog brand-modal modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    {{ title }}
+                </h5>
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    (click)="close.emit()">
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <form [formGroup]="form">
+                    <div class="row">
+                        <!-- Name -->
+                        <div class="col-12 mb-1">
+                            <div class="form-group">
+                                <label>
+                                    Brand Name
+                                </label>
+
+                                <input
+                                    class="form-control"
+                                    formControlName="name">
+
+                                <div
+                                    class="text-danger text-small mt-1"
+                                    *ngIf="
+                                        form.get('name')?.invalid &&
+                                        form.get('name')?.touched
+                                    ">
+                                    Brand name is required
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Description -->
+                        <div class="col-md-12 mb-1">
+                            <div class="form-group">
+                                <label>
+                                    Description
+                                </label>
+                                <textarea
+                                    rows="4"
+                                    class="form-control"
+                                    formControlName="description">
+                                </textarea>
+                            </div>
+                        </div>
+                        <!-- Logo -->
+                        <div class="col-md-12 mb-1">
+                            <div class="brand-logo-section">
+
+                                <label class="form-label">Brand Logo</label>
+
+                                <div *ngIf="form.value.logoUrl; else noLogo">
+                                    <img
+                                    [src]="form.value.logoUrl"
+                                    class="img-thumbnail mb-2"
+                                    style="max-height: 120px">
+                                </div>
+
+                                <ng-template #noLogo>
+                                    <div class="text-muted mb-2">
+                                    No Logo Selected
+                                    </div>
+                                </ng-template>
+
+                                <button
+                                    type="button"
+                                    class="btn btn-outline-primary"
+                                    (click)="toggleLogoPicker()">
+
+                                    {{ showLogoPicker ? 'Close Library' : 'Choose Logo' }}
+
+                                </button>
+
+                                <!-- ADD THIS HERE -->
+                                <div
+                                    *ngIf="showLogoPicker"
+                                    class="mt-3 border rounded p-3">
+
+                                    <app-media-picker
+                                        folder="brands"
+                                        usage="general"
+                                        [showFolders]="false"
+                                        [showUsageFilters]="false"
+                                        (selected)="onLogoSelected($event)">
+                                    </app-media-picker>
+
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+
+                    <!-- Flags -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="container-switch form-check form-switch">
+                                <input
+                                    id="verified"
+                                    type="checkbox"
+                                    class="form-check-input"
+                                    formControlName="isVerified">
+
+                                <label
+                                    class="form-check-label"
+                                    for="verified">
+
+                                    Verified Brand
+
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="container-switch form-check form-switch">
+                                <input
+                                    id="active"
+                                    type="checkbox"
+                                    class="form-check-input"
+                                    formControlName="isActive">
+
+                                <label
+                                    class="form-check-label"
+                                    for="active">
+                                    Active
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button
+                    class="btn btn-light"
+                    (click)="close.emit()">
+
+                    Cancel
+
+                </button>
+
+                <button
+                    class="btn btn-primary"
+                    [disabled]="submitting"
+                    (click)="save.emit()">
+                    <span
+                        *ngIf="submitting"
+                        class="spinner-border spinner-border-sm me-2">
+                    </span>
+                    Save
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div
+    *ngIf="visible"
+    class="modal-backdrop fade show">
+</div>

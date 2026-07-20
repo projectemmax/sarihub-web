@@ -1,0 +1,306 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>MediStore Ecommerce Application - Phase 1 Documentation</title>
+<style>
+@page { size: A4; margin: 18mm 16mm; }
+* { box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; color: #1f2937; line-height: 1.48; font-size: 10.5pt; }
+h1 { color: #0f172a; font-size: 24pt; line-height: 1.15; margin: 0 0 18pt; padding-bottom: 10pt; border-bottom: 3px solid #2563eb; }
+h2 { color: #12315f; font-size: 16pt; margin: 22pt 0 8pt; page-break-after: avoid; }
+h3 { color: #1d4ed8; font-size: 12.5pt; margin: 14pt 0 6pt; page-break-after: avoid; }
+p { margin: 0 0 8pt; }
+ul, ol { margin: 0 0 9pt 18pt; padding: 0; }
+li { margin: 2.5pt 0; }
+code { font-family: Menlo, Consolas, monospace; font-size: 9pt; background: #f1f5f9; padding: 1pt 3pt; border-radius: 3pt; }
+pre { background: #f8fafc; border: 1px solid #dbe3ef; border-radius: 6pt; padding: 9pt; white-space: pre-wrap; page-break-inside: avoid; }
+pre code { background: transparent; padding: 0; }
+</style>
+</head>
+<body>
+<h1>MediStore Ecommerce Application - Phase 1 Documentation</h1>
+<h2>1. Overview</h2>
+<p>MediStore is a web-based ecommerce application designed for selling medical supplies and healthcare-related products online. Phase 1 focuses on delivering the core buying experience for customers and the essential administration tools needed to manage products, categories, customers, orders, carts, reviews, and storefront settings.</p>
+<p>The application is split into two main areas:</p>
+<ul>
+<li>Storefront: the customer-facing shopping website.</li>
+<li>Admin Portal: the protected management area for business administrators.</li>
+</ul>
+<p>This Phase 1 release provides a functional foundation that can already support product browsing, account registration, cart management, checkout, order tracking, and backend administration.</p>
+<h2>2. Phase 1 Goals</h2>
+<p>The goal of Phase 1 is to provide a usable ecommerce platform with the minimum complete feature set required to operate an online store.</p>
+<p>Phase 1 includes:</p>
+<ul>
+<li>Public storefront homepage and shop pages.</li>
+<li>Product listing, filtering, and product details.</li>
+<li>Customer authentication and account pages.</li>
+<li>Cart and checkout flow.</li>
+<li>Address management.</li>
+<li>Order success and failed payment pages.</li>
+<li>Admin dashboard and operational management screens.</li>
+<li>Product, category, customer, cart, order, review, and site configuration management.</li>
+<li>Site branding and storefront content configuration.</li>
+</ul>
+<h2>3. User Roles</h2>
+<h3>Customer</h3>
+<p>Customers can browse products, view product details, register or log in, add products to cart, manage addresses, place orders, and view their order history.</p>
+<h3>Administrator</h3>
+<p>Administrators can access the admin portal after authentication. The admin role can manage products, categories, customers, carts, reviews, site configuration, and operational dashboard data.</p>
+<h2>4. Storefront Features</h2>
+<h3>Homepage</h3>
+<p>The homepage introduces the store brand and highlights the product offering. It supports configurable hero banner content through site configuration, including title, subtitle, tagline, and background image.</p>
+<h3>Shop Page</h3>
+<p>The shop page allows customers to browse available products. It supports product discovery through category and filter-based browsing.</p>
+<h3>Product Details</h3>
+<p>The product detail page shows product information, images, options or variants where available, delivery information, trust badges, reviews, and purchase-related actions.</p>
+<h3>Cart</h3>
+<p>Customers can add products to cart, update quantities, remove items, and review their cart before checkout. The cart is connected to backend validation to help prevent invalid quantities or unavailable stock during checkout.</p>
+<h3>Checkout</h3>
+<p>The checkout flow includes:</p>
+<ul>
+<li>Cart validation.</li>
+<li>Shipping address selection.</li>
+<li>New address creation.</li>
+<li>Shipping fee calculation support.</li>
+<li>Payment method selection.</li>
+<li>Order placement.</li>
+</ul>
+<p>Phase 1 supports cash on delivery and contains structure for card, Maya, and GCash payment options.</p>
+<h3>Customer Account</h3>
+<p>Authenticated customers have access to account pages for:</p>
+<ul>
+<li>Account overview.</li>
+<li>Profile management.</li>
+<li>Order history.</li>
+<li>Order detail view.</li>
+<li>Address management.</li>
+<li>Payment page placeholder for future expansion.</li>
+</ul>
+<h3>Order Result Pages</h3>
+<p>The storefront includes success and failed payment pages so customers receive clear feedback after checkout or payment attempts.</p>
+<h2>5. Admin Portal Features</h2>
+<h3>Dashboard</h3>
+<p>The admin dashboard provides operational visibility through statistics, analytics, top products, latest customers, and pending review data.</p>
+<h3>Product Management</h3>
+<p>Admins can manage the product catalog, including:</p>
+<ul>
+<li>Product list.</li>
+<li>Create product.</li>
+<li>Edit product.</li>
+<li>Product image upload.</li>
+<li>Product variant image upload.</li>
+<li>Product activation or visibility controls where supported.</li>
+</ul>
+<h3>Category Management</h3>
+<p>Admins can create, update, and delete product categories used by the storefront.</p>
+<h3>Customer Management</h3>
+<p>Admins can view customer records and manage customer status, including activation and deactivation.</p>
+<h3>Order Management</h3>
+<p>Admins can view orders and update order status. This supports the operational workflow after a customer completes checkout.</p>
+<h3>Cart Management</h3>
+<p>Admins can view customer carts and clear cart records where needed.</p>
+<h3>Review Management</h3>
+<p>Admins can moderate product reviews, including approving, rejecting, and bulk review actions.</p>
+<h3>Site Configuration</h3>
+<p>Admins can update storefront content and business settings, including:</p>
+<ul>
+<li>Site name and logo.</li>
+<li>Homepage hero banner content.</li>
+<li>Checkout enablement.</li>
+<li>Cash on delivery enablement.</li>
+<li>Currency.</li>
+<li>Shipping fee settings.</li>
+<li>Product page trust badges and delivery information.</li>
+<li>Shop offers.</li>
+<li>Footer content, links, and contact information.</li>
+</ul>
+<h2>6. Core Customer Workflows</h2>
+<h3>Browse and Buy</h3>
+<ol>
+<li>Customer opens the storefront.</li>
+<li>Customer browses products from the homepage or shop page.</li>
+<li>Customer opens a product detail page.</li>
+<li>Customer adds the product to cart.</li>
+<li>Customer reviews cart items.</li>
+<li>Customer proceeds to checkout.</li>
+<li>Customer selects or adds a delivery address.</li>
+<li>Customer chooses a payment method.</li>
+<li>Customer places the order.</li>
+<li>Customer sees order success or payment failure feedback.</li>
+</ol>
+<h3>Manage Account</h3>
+<ol>
+<li>Customer logs in.</li>
+<li>Customer opens account pages.</li>
+<li>Customer updates profile details or avatar.</li>
+<li>Customer manages saved addresses.</li>
+<li>Customer views order history and order details.</li>
+</ol>
+<h2>7. Core Admin Workflows</h2>
+<h3>Manage Catalog</h3>
+<ol>
+<li>Admin logs in.</li>
+<li>Admin opens Products.</li>
+<li>Admin creates or edits products.</li>
+<li>Admin uploads product images.</li>
+<li>Admin assigns categories and product details.</li>
+<li>Product becomes available in the storefront.</li>
+</ol>
+<h3>Process Orders</h3>
+<ol>
+<li>Admin opens Orders.</li>
+<li>Admin reviews order details.</li>
+<li>Admin updates order status based on fulfillment progress.</li>
+<li>Customer can see order updates in their account.</li>
+</ol>
+<h3>Moderate Reviews</h3>
+<ol>
+<li>Admin opens Reviews.</li>
+<li>Admin reviews pending customer feedback.</li>
+<li>Admin approves or rejects reviews.</li>
+<li>Approved reviews can appear on the storefront.</li>
+</ol>
+<h3>Update Storefront Content</h3>
+<ol>
+<li>Admin opens Site Configuration.</li>
+<li>Admin updates branding, banner, checkout, shipping, product page, offer, or footer settings.</li>
+<li>Storefront reflects the configured content.</li>
+</ol>
+<h2>8. Technical Overview</h2>
+<h3>Frontend</h3>
+<ul>
+<li>Framework: Angular 17.</li>
+<li>UI: Bootstrap-based storefront and admin interface.</li>
+<li>Routing: Angular standalone route configuration.</li>
+<li>State and async handling: RxJS observables.</li>
+<li>Guards: authentication guard, role guard, and unsaved changes guard.</li>
+<li>HTTP integration: Angular HttpClient services.</li>
+</ul>
+<h3>Backend Integration</h3>
+<p>The frontend is designed to connect to a backend API through environment-based URLs. Based on the current project setup, backend functionality is expected to be provided by a NestJS API with Prisma and PostgreSQL.</p>
+<p>Key backend areas used by the frontend include:</p>
+<ul>
+<li>Authentication.</li>
+<li>Product catalog.</li>
+<li>Categories.</li>
+<li>Customers.</li>
+<li>Cart.</li>
+<li>Checkout and orders.</li>
+<li>Payments.</li>
+<li>Reviews.</li>
+<li>Media uploads.</li>
+<li>Site configuration.</li>
+<li>Location data for addresses.</li>
+</ul>
+<h3>Database</h3>
+<p>The backend uses PostgreSQL with Prisma migrations. Prisma validation and migration status checks confirm whether schema changes are valid and applied to the database.</p>
+<h2>9. Main Routes</h2>
+<h3>Public Routes</h3>
+<ul>
+<li><code>/storefront</code> - storefront homepage.</li>
+<li><code>/storefront/shop</code> - shop/product browsing.</li>
+<li><code>/storefront/product/:slug</code> - product detail.</li>
+<li><code>/login</code> - login page.</li>
+<li><code>/register</code> - registration page.</li>
+</ul>
+<h3>Customer Routes</h3>
+<ul>
+<li><code>/storefront/cart</code> - cart.</li>
+<li><code>/storefront/checkout</code> - checkout.</li>
+<li><code>/storefront/orders</code> - customer orders.</li>
+<li><code>/storefront/account/overview</code> - account overview.</li>
+<li><code>/storefront/account/profile</code> - profile.</li>
+<li><code>/storefront/account/orders</code> - order history.</li>
+<li><code>/storefront/account/orders/:id</code> - order detail.</li>
+<li><code>/storefront/account/addresses</code> - address management.</li>
+<li><code>/storefront/account/payments</code> - payment page placeholder.</li>
+</ul>
+<h3>Admin Routes</h3>
+<ul>
+<li><code>/admin/dashboard</code> - dashboard.</li>
+<li><code>/admin/products</code> - products.</li>
+<li><code>/admin/products/create</code> - create product.</li>
+<li><code>/admin/products/edit/:id</code> - edit product.</li>
+<li><code>/admin/categories</code> - categories.</li>
+<li><code>/admin/customers</code> - customers.</li>
+<li><code>/admin/orders</code> - orders.</li>
+<li><code>/admin/carts</code> - carts.</li>
+<li><code>/admin/reviews</code> - reviews.</li>
+<li><code>/admin/settings/profile</code> - admin profile.</li>
+<li><code>/admin/settings/site-config</code> - site configuration.</li>
+</ul>
+<h2>10. Phase 1 Scope</h2>
+<h3>Included</h3>
+<ul>
+<li>Customer storefront.</li>
+<li>Product browsing and product details.</li>
+<li>Customer authentication flow.</li>
+<li>Cart and checkout.</li>
+<li>Customer account pages.</li>
+<li>Address management.</li>
+<li>Admin management portal.</li>
+<li>Product and category management.</li>
+<li>Customer, cart, order, and review administration.</li>
+<li>Configurable storefront content.</li>
+<li>API-ready architecture.</li>
+</ul>
+<h3>Not Finalized or Intended for Later Phases</h3>
+<ul>
+<li>Full online payment production integration.</li>
+<li>Advanced inventory forecasting.</li>
+<li>Promotions, vouchers, and coupon engine.</li>
+<li>Delivery partner integration.</li>
+<li>Email and SMS notifications.</li>
+<li>Advanced reporting.</li>
+<li>Multi-store or multi-branch support.</li>
+<li>Full payment method management.</li>
+<li>Mobile app version.</li>
+</ul>
+<h2>11. Selling Points</h2>
+<ul>
+<li>Provides both customer storefront and admin management in one system.</li>
+<li>Built on modern Angular architecture.</li>
+<li>Designed for medical supply ecommerce use cases.</li>
+<li>Includes configurable storefront content, allowing non-developers to update key website areas.</li>
+<li>Supports authenticated customer accounts, saved addresses, cart, checkout, and orders.</li>
+<li>Includes admin moderation for reviews and operational control over catalog and customers.</li>
+<li>Backend-ready structure supports NestJS, Prisma, and PostgreSQL.</li>
+<li>Phase 1 is already structured for future expansion such as payment gateways, delivery integration, coupons, and analytics.</li>
+</ul>
+<h2>12. Recommended Phase 2 Enhancements</h2>
+<p>Recommended next-phase improvements:</p>
+<ul>
+<li>Complete production payment gateway integration for GCash, Maya, and card payments.</li>
+<li>Add order notifications through email or SMS.</li>
+<li>Add coupons, discount rules, and promotional campaigns.</li>
+<li>Add inventory alerts and low-stock monitoring.</li>
+<li>Improve dashboard analytics and exportable reports.</li>
+<li>Add delivery tracking and fulfillment timeline.</li>
+<li>Add audit logs for admin actions.</li>
+<li>Add stronger product search and sorting.</li>
+<li>Add customer support or inquiry module.</li>
+<li>Add product recommendation sections.</li>
+</ul>
+<h2>13. Deployment Notes</h2>
+<p>Before deployment, confirm the following:</p>
+<ul>
+<li>Frontend environment API URL is configured correctly.</li>
+<li>Backend API is deployed and reachable.</li>
+<li>PostgreSQL database is migrated.</li>
+<li>Prisma Client is generated.</li>
+<li>Media upload storage is configured.</li>
+<li>Admin account is created.</li>
+<li>Payment settings are configured according to the selected payment methods.</li>
+<li>Production build uses a supported Node.js version.</li>
+</ul>
+<p>Recommended verification commands for backend Prisma:</p>
+<pre><code>npx prisma validate
+npx prisma migrate status
+npx prisma generate</code></pre>
+<p>Recommended frontend build command:</p>
+<pre><code>ng build --configuration production</code></pre>
+<h2>14. Phase 1 Summary</h2>
+<p>Phase 1 delivers a working ecommerce foundation for a medical supplies business. Customers can browse, register, manage cart and checkout, while administrators can manage the store through a protected admin portal. The system is built with scalable frontend architecture and backend-ready integration points, making it suitable for client demonstration, early business use, and continued development into a more advanced ecommerce platform.</p>
+</body>
+</html>

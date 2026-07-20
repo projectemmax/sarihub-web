@@ -30,74 +30,128 @@
             </mat-tab-group>
 
             <div class="table-wrapper">
-                <table mat-table [dataSource]="orders || []" class="mat-elevation-z8">
+                <table
+                    mat-table
+                    [dataSource]="showTableSkeleton() ? skeletonRows : (orders || [])"
+                    class="mat-elevation-z8">
+
                     <ng-container matColumnDef="orderNumber">
                         <th mat-header-cell *matHeaderCellDef>Order</th>
                         <td mat-cell *matCellDef="let row">
-                        <div class="order-no">#{{ row.orderNumber }}</div>
+                            <ng-container *ngIf="!showTableSkeleton(); else orderNumberSkeleton">
+                                <div class="order-no">#{{ row.orderNumber }}</div>
+                            </ng-container>
+
+                            <ng-template #orderNumberSkeleton>
+                                <div class="sk-cell w-120"></div>
+                            </ng-template>
                         </td>
                     </ng-container>
 
                     <ng-container matColumnDef="customer">
                         <th mat-header-cell *matHeaderCellDef>Customer</th>
                         <td mat-cell *matCellDef="let row">
-                        <div>{{ row.user?.customer?.firstName }} {{ row.user?.customer?.lastName }}</div>
-                        <small>{{ row.user?.email }}</small>
+                            <ng-container *ngIf="!showTableSkeleton(); else customerSkeleton">
+                                <div>
+                                    {{ row.user?.customer?.firstName }}
+                                    {{ row.user?.customer?.lastName }}
+                                </div>
+
+                                <small>{{ row.user?.email }}</small>
+                            </ng-container>
+
+                            <ng-template #customerSkeleton>
+                                <div class="sk-cell w-180 mb-2"></div>
+                                <div class="sk-cell w-140 sk-small"></div>
+                            </ng-template>
                         </td>
                     </ng-container>
 
                     <ng-container matColumnDef="createdAt">
                         <th mat-header-cell *matHeaderCellDef>Date</th>
                         <td mat-cell *matCellDef="let row">
-                        {{ row.createdAt | date:'MMM d, y h:mm a' }}
+                            <ng-container *ngIf="!showTableSkeleton(); else dateSkeleton">
+                                {{ row.createdAt | date:'MMM d, y h:mm a' }}
+                            </ng-container>
+
+                            <ng-template #dateSkeleton>
+                                <div class="sk-cell w-140"></div>
+                            </ng-template>
                         </td>
                     </ng-container>
 
                     <ng-container matColumnDef="total">
                         <th mat-header-cell *matHeaderCellDef>Total</th>
                         <td mat-cell *matCellDef="let row">
-                        ₱{{ row.totalAmount | number:'1.2-2' }}
+                            <ng-container *ngIf="!showTableSkeleton(); else totalSkeleton">
+                                ₱{{ row.totalAmount | number:'1.2-2' }}
+                            </ng-container>
+
+                            <ng-template #totalSkeleton>
+                                <div class="sk-cell w-100"></div>
+                            </ng-template>
                         </td>
                     </ng-container>
 
                     <ng-container matColumnDef="status">
                         <th mat-header-cell *matHeaderCellDef>Status</th>
                         <td mat-cell *matCellDef="let row">
-                            <span class="badge" [ngClass]="getStatusBadge(row.status)">
-                                {{ row.status | titlecase }}
-                            </span>
+                            <ng-container *ngIf="!showTableSkeleton(); else statusSkeleton">
+                                <span class="badge" [ngClass]="getStatusBadge(row.status)">
+                                    {{ row.status | titlecase }}
+                                </span>
+                            </ng-container>
+
+                            <ng-template #statusSkeleton>
+                                <div class="sk-pill"></div>
+                            </ng-template>
                         </td>
                     </ng-container>
 
                     <ng-container matColumnDef="paymentStatus">
                         <th mat-header-cell *matHeaderCellDef>Payment Status</th>
                         <td mat-cell *matCellDef="let row">
-                            <span class="badge" [ngClass]="getPaymentBadge(row.paymentStatus)">
-                            {{ row.paymentStatus }}
-                            </span>
+                            <ng-container *ngIf="!showTableSkeleton(); else paymentSkeleton">
+                                <span class="badge" [ngClass]="getPaymentBadge(row.paymentStatus)">
+                                    {{ row.paymentStatus }}
+                                </span>
+                            </ng-container>
+
+                            <ng-template #paymentSkeleton>
+                                <div class="sk-pill"></div>
+                            </ng-template>
                         </td>
                     </ng-container>
 
                     <ng-container matColumnDef="courier">
                         <th mat-header-cell *matHeaderCellDef>Courier</th>
                         <td mat-cell *matCellDef="let row">
-                            <div *ngIf="row.courierName; else noCourier" class="courier-cell">
-                                <strong>{{ row.courierName }}</strong>
-                                <a
-                                    *ngIf="row.trackingUrl; else trackingText"
-                                    [href]="row.trackingUrl"
-                                    target="_blank"
-                                    rel="noopener">
-                                    {{ row.trackingNumber }}
-                                </a>
+                            <ng-container *ngIf="!showTableSkeleton(); else courierSkeleton">
+                                <div *ngIf="row.courierName; else noCourier" class="courier-cell">
+                                    <strong>{{ row.courierName }}</strong>
 
-                                <ng-template #trackingText>
-                                    <small>{{ row.trackingNumber }}</small>
+                                    <a
+                                        *ngIf="row.trackingUrl; else trackingText"
+                                        [href]="row.trackingUrl"
+                                        target="_blank"
+                                        rel="noopener">
+                                        {{ row.trackingNumber }}
+                                    </a>
+
+                                    <ng-template #trackingText>
+                                        <small>{{ row.trackingNumber }}</small>
+                                    </ng-template>
+                                </div>
+
+                                <ng-template #noCourier>
+                                    <span class="text-muted">-</span>
                                 </ng-template>
-                            </div>
 
-                            <ng-template #noCourier>
-                                <span class="text-muted">-</span>
+                            </ng-container>
+
+                            <ng-template #courierSkeleton>
+                                <div class="sk-cell w-120 mb-2"></div>
+                                <div class="sk-cell w-100 sk-small"></div>
                             </ng-template>
                         </td>
                     </ng-container>
@@ -106,53 +160,54 @@
                         <th mat-header-cell *matHeaderCellDef>Actions</th>
 
                         <td mat-cell *matCellDef="let row">
-                            <div class="d-flex gap-2">
+                            <ng-container *ngIf="!showTableSkeleton(); else actionSkeleton">
+                                <div class="d-flex gap-2">
+                                    <button
+                                        mat-stroked-button
+                                        color="primary"
+                                        (click)="openOrder(row)">
+                                        View
+                                    </button>
+                                    <button
+                                        *ngIf="
+                                            getNextAction(row.status) &&
+                                            (row.paymentMethod === 'COD' || row.paymentStatus === 'PAID')
+                                        "
+                                        mat-raised-button
+                                        color="primary"
+                                        (click)="updateStatus(row)">
+                                        {{ getNextActionLabel(row.status) }}
+                                    </button>
+                                    <button
+                                        *ngIf="
+                                            getNextAction(row.status) &&
+                                            row.paymentMethod !== 'COD' &&
+                                            row.paymentStatus === 'PENDING'
+                                        "
+                                        mat-raised-button
+                                        disabled>
+                                        Awaiting Payment
+                                    </button>
+                                    <button
+                                        *ngIf="
+                                            getNextAction(row.status) &&
+                                            row.paymentMethod !== 'COD' &&
+                                            row.paymentStatus === 'FAILED'
+                                        "
+                                        mat-raised-button
+                                        color="warn"
+                                        disabled>
+                                        Payment Failed
+                                    </button>
+                                </div>
+                            </ng-container>
 
-                            <button
-                                mat-stroked-button
-                                color="primary"
-                                (click)="openOrder(row)">
-                                View
-                            </button>
-
-                            <!-- Allow progression if COD OR already paid -->
-                            <button
-                                *ngIf="
-                                getNextAction(row.status) &&
-                                (row.paymentMethod === 'COD' || row.paymentStatus === 'PAID')
-                                "
-                                mat-raised-button
-                                color="primary"
-                                (click)="updateStatus(row)">
-                                {{ getNextActionLabel(row.status) }}
-                            </button>
-
-                            <!-- Online payment still pending -->
-                            <button
-                                *ngIf="
-                                getNextAction(row.status) &&
-                                row.paymentMethod !== 'COD' &&
-                                row.paymentStatus === 'PENDING'
-                                "
-                                mat-raised-button
-                                disabled>
-                                Awaiting Payment
-                            </button>
-
-                            <!-- Online payment failed -->
-                            <button
-                                *ngIf="
-                                getNextAction(row.status) &&
-                                row.paymentMethod !== 'COD' &&
-                                row.paymentStatus === 'FAILED'
-                                "
-                                mat-raised-button
-                                color="warn"
-                                disabled>
-                                Payment Failed
-                            </button>
-
-                            </div>
+                            <ng-template #actionSkeleton>
+                                <div class="d-flex gap-2">
+                                    <div class="sk-btn"></div>
+                                    <div class="sk-btn"></div>
+                                </div>
+                            </ng-template>
                         </td>
                     </ng-container>
                     
@@ -161,29 +216,20 @@
 
                     <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
 
-                    <tr class="loading-row" *ngIf="loading">
-                        <td class="mat-cell" [attr.colspan]="displayedColumns.length">
-                            <div class="loading-state">
-                            <mat-spinner diameter="36"></mat-spinner>
-                            <span>Loading orders...</span>
-                            </div>
-                        </td>
-                    </tr>
-
                     <tr class="mat-row" *matNoDataRow>
                         <td class="mat-cell" [attr.colspan]="displayedColumns.length">
-                            <div class="empty-state" *ngIf="!loading">
-                            <mat-icon>inventory_2</mat-icon>
+                            <div class="empty-state" *ngIf="!showTableSkeleton()">
+                                <mat-icon>inventory_2</mat-icon>
 
-                            <h3>No orders found</h3>
+                                <h3>No orders found</h3>
 
-                            <p>
-                                There are no
-                                {{ selectedTab.toLowerCase() === 'all'
-                                    ? ''
-                                    : selectedTab.toLowerCase() + ' ' }}
-                                orders matching your current filter.
-                            </p>
+                                <p>
+                                    There are no
+                                    {{ selectedTab.toLowerCase() === 'all'
+                                        ? ''
+                                        : selectedTab.toLowerCase() + ' ' }}
+                                    orders matching your current filter.
+                                </p>
                             </div>
                         </td>
                     </tr>

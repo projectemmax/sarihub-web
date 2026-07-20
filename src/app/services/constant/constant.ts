@@ -52,7 +52,7 @@ export const Constant = {
         },
 
         CATEGORIES: {
-            BASE: 'admin/categories',
+            ADMIN_BASE: 'admin/categories',
             BY_ID: (id: number | string) => `admin/categories/${id}`,
         },
 
@@ -90,6 +90,30 @@ export const Constant = {
 
     },
 
+    SELLER: {
+        DASHBOARD: {
+            STATS:
+                'seller/dashboard/stats',
+            ANALYTICS:
+                'seller/dashboard/analytics',
+            TOP_PRODUCTS:
+                'seller/dashboard/top-products',
+            LATEST_CUSTOMERS:
+                'seller/dashboard/latest-customers',
+            PENDING_REVIEWS:
+                'seller/dashboard/pending-reviews',
+        },
+
+        REVIEWS: {
+            BASE: 'reviews/seller',
+        },
+
+        AI: {
+            GENERATE_DESCRIPTION:
+                'seller/ai/generate-description',
+        },
+    },
+
     // =========================
     // STOREFRONT APIs (PUBLIC)
     // =========================
@@ -99,6 +123,7 @@ export const Constant = {
         },
         CATEGORIES: {
             BASE: 'categories',
+            TREE: 'categories/tree',
         },
     },
 

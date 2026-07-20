@@ -1,0 +1,46 @@
+.brand-logo-preview {
+    width: 120px;
+    height: 120px;
+
+    object-fit: contain;
+
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+
+    padding: 8px;
+}
+
+.modal {
+    background: rgba(0, 0, 0, 0.2);
+}
+.brand-modal {
+    max-width: 800px;
+}
+
+.brand-modal .modal-content {
+    max-height: 90vh;
+}
+
+.brand-modal .modal-body {
+    overflow-y: auto;
+    max-height: calc(90vh - 140px);
+}
+
+.container-switch {
+    position: relative;
+
+    padding: 1rem;
+
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    background: #fafafa;
+
+}
+
+.form-check .form-check-label {
+    padding-left: 50px;
+}
+ 
+.form-switch .form-check-input {
+    margin-left: 0 !important;
+}

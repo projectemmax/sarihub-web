@@ -12,309 +12,496 @@
 <!-- ===============================
   PRODUCT DETAIL
 ================================ -->
-<div class="container-fluid py-5 mt-5">
-  <div class="container py-5">
-    <div *ngIf="productError" class="alert alert-danger text-center">
-      {{ productError }}
-    </div>
-    
-    <ng-container *ngIf="product$ | async as product; else loading">
+<div class="container-fluid py-5">
+    <div class="container">
+        <div *ngIf="productError" class="alert alert-danger text-center">
+            {{ productError }}
+        </div>
+        
+        <ng-container *ngIf="product$ | async as product; else loading">
+            <div class="row g-4 mb-5">
 
-      <div class="row g-4 mb-5">
+                <!-- ===============================
+                    MAIN PRODUCT
+                ================================ -->
+                <div class="col-lg-8 col-xl-9">
+                    <div class="row g-4">
 
-        <!-- ===============================
-          MAIN PRODUCT
-        ================================ -->
-        <div class="col-lg-8 col-xl-9">
-          <div class="row g-4">
+                        <!-- PRODUCT IMAGE -->
+                        <div class="col-lg-6">
+                            <app-product-media-gallery
+                                [product]="product"
+                                [selectedVariant]="selectedVariant">
+                            </app-product-media-gallery>
+                        </div>
 
-            <!-- PRODUCT IMAGE -->
-            <div class="col-lg-6">
-              <div class="product-image-container border rounded">
-                <img
-                  [src]="getMainImageUrl(product)"
-                  class="img-fluid rounded"
-                  alt="{{ product.name }}"
-                />
-              </div>
+                        <!-- PRODUCT INFO -->
+                        <div class="col-lg-6">
+                            <h4 class="fw-bold mb-3">
+                            {{ product.name }}
+                            </h4>
 
-              <div
-                *ngIf="getProductThumbnails(product) as thumbnails"
-                class="product-thumbnails mt-3">
-                <button
-                  *ngFor="let imageUrl of thumbnails"
-                  type="button"
-                  class="product-thumbnail"
-                  [class.active]="getMainImageUrl(product) === imageUrl"
-                  (click)="selectProductImage(imageUrl)">
-                  <img
-                    [src]="imageUrl"
-                    [alt]="product.name + ' thumbnail'">
-                </button>
-              </div>
-            </div>
+                            <p class="mb-3">
+                            Category:
+                            <span class="text-muted">
+                                {{ product.category?.name || '—' }}
+                            </span>
+                            </p>
 
-            <!-- PRODUCT INFO -->
-            <div class="col-lg-6">
-              <h4 class="fw-bold mb-3">
-                {{ product.name }}
-              </h4>
+                            <h5 class="fw-bold mb-3">
+                                ₱{{ getDisplayPrice(product) | number: '1.2-2' }}
+                            </h5>
 
-              <p class="mb-3">
-                Category:
-                <span class="text-muted">
-                  {{ product.category?.name || '—' }}
-                </span>
-              </p>
+                            <!-- RATING -->
+                            <app-rating
+                                [rating]="product.rating || 0"
+                                [showCount]="true"
+                                [count]="product.reviewCount || 0">
+                            </app-rating>
 
-              <h5 class="fw-bold mb-3">
-                ₱{{ getDisplayPrice(product) | number: '1.2-2' }}
-              </h5>
+                            <!-- DESCRIPTION -->
+                            <p class="my-3">
+                            {{ getSummary(product.description)  || 'No description available.' }}
+                            </p>
 
-              <!-- RATING -->
-              <app-rating
-                [rating]="product.rating || 0"
-                [showCount]="true"
-                [count]="product.reviewCount || 0">
-              </app-rating>
+                            <!-- QUANTITY -->
+                            <div class="input-group quantity mb-3" style="width: 150px;">
+                                <app-quantity-selector
+                                    [quantity]="quantity"
+                                    [min]="1"
+                                    [max]="getAvailableStock(product)"
+                                    [disabled]="isQuantitySelectorDisabled(product)"
+                                    size="sm"
+                                    (quantityChange)="onQuantityChange($event)">
+                                </app-quantity-selector>
+                            </div>
+                            <!-- ADD TO CART -->
+                            <ng-container *ngIf="getAddToCartState(product) as addToCartState">
+                                <button
+                                    class="btn btn-add-to-cart border border-secondary rounded-pill px-4 py-2 mb-2 text-primary"
+                                    [disabled]="addToCartState.disabled"
+                                    (click)="addToCart(product)">
 
-              <!-- DESCRIPTION -->
-              <p class="my-3">
-                {{ getSummary(product.description)  || 'No description available.' }}
-              </p>
+                                    <i
+                                        *ngIf="!addToCartState.loading"
+                                        class="fa fa-shopping-bag me-2 text-primary">
+                                    </i>
 
-                <!-- QUANTITY -->
-                <div class="input-group quantity mb-3" style="width: 150px;">
-                    <button
-                    class="btn btn-sm btn-minus rounded-circle bg-light border"
-                    (click)="decrease()">
-                    <i class="fa fa-minus"></i>
-                    </button>
-                    <div class="input-wrapper" [class.shake]="stockWarning">
-                        <input
-                            type="number"
-                            class="form-control form-control-sm text-center border-0"
-                            [(ngModel)]="quantity"
-                            (input)="onQuantityInput(product)"
-                            min="1"
-                            [max]="getAvailableStock(product)"
+                                    <span
+                                        *ngIf="addToCartState.loading"
+                                        class="spinner-border spinner-border-sm me-2">
+                                    </span>
 
-                        />
-                    </div>
+                                    {{ addToCartState.label }}
 
-                    <button
-                        class="btn btn-sm btn-plus rounded-circle bg-light border"
-                        (click)="increase(product)"
-                        [disabled]="quantity >= getAvailableStock(product)">
-                        <i class="fa fa-plus"></i>
-                    </button>
-                </div>
-                <div *ngIf="stockWarning" class="text-warning small mt-2 mb-3">
-                  {{ stockWarning }}
-                </div>
-                <!-- ADD TO CART -->
-                <button
-                    class="btn border border-secondary rounded-pill px-4 py-2 mb-2 text-primary"
-                    [disabled]="getAvailableStock(product) === 0 || isAddingToCart || (hasVariants(product) && !selectedVariant)"
-                    (click)="addToCart(product)">
+                                </button>
 
-                    <i *ngIf="!isAddingToCart"
-                    class="fa fa-shopping-bag me-2 text-primary"></i>
+                            </ng-container>
 
-                    <span *ngIf="isAddingToCart"
-                        class="spinner-border spinner-border-sm me-2">
-                    </span>
+                            <!-- VARIANTS -->
+                            <app-product-variant-picker
+                                [variants]="product.variants ?? []"
+                                [selectedVariant]="selectedVariant"
+                                (variantSelected)="onSelectVariant($event)">
+                            </app-product-variant-picker>
 
-                    {{ isAddingToCart ? 'Adding...' : 'Add to cart' }}
-                </button>
+                            <ng-container *ngIf="addToCartResult$ | async as result">
+                                <div *ngIf="result.success" class="alert alert-success">
+                                    Added to cart!
+                                </div>
 
-                <!-- VARIANTS -->
-                <div class="variant-picker mt-3 mb-3">
-                    <div class="fw-bold mb-2">Variants</div>
+                                <div *ngIf="!result.success && result.error"
+                                    class="alert alert-danger">
+                                    {{ result.error }}
+                                </div>
+                            </ng-container>
 
-                    <ng-container *ngIf="product.variants?.length; else noVariants">
-                        <div class="variant-options">
-                            <button
-                                *ngFor="let variant of product.variants"
-                                type="button"
-                                class="variant-option"
-                                [class.active]="selectedVariant?.id === variant.id"
-                                [disabled]="variant.stock === 0"
-                                (click)="onSelectVariant(variant)">
-                                <span class="variant-label">
-                                    {{ getVariantLabel(variant) }}
+                            <div class="mt-2">
+                                <span *ngIf="hasVariants(product) && !selectedVariant"
+                                    class="badge bg-secondary">
+                                    Select Variant
                                 </span>
 
-                                <span class="variant-meta">
-                                    ₱{{ variant.price | number: '1.2-2' }}
-                                    ·
-                                    {{ variant.stock > 0 ? variant.stock + ' left' : 'Out of stock' }}
+                                <span *ngIf="!(hasVariants(product) && !selectedVariant) && getAvailableStock(product) === 0"
+                                    class="badge bg-danger">
+                                    Out of Stock
                                 </span>
-                            </button>
+
+                                <span *ngIf="!(hasVariants(product) && !selectedVariant) && getAvailableStock(product) > 0 && getAvailableStock(product) <= 5"
+                                    class="badge bg-warning text-dark">
+                                    Only {{ getAvailableStock(product) }} left
+                                </span>
+
+                                <span *ngIf="!(hasVariants(product) && !selectedVariant) && getAvailableStock(product) > 5"
+                                    class="badge bg-success">
+                                    In Stock
+                                </span>
+                            </div>
                         </div>
 
-                        <div *ngIf="!selectedVariant" class="text-muted small mt-2">
-                            Select a variant before adding this product to cart.
+                        <!-- ===============================
+                            TABS
+                        ================================ -->
+                        <div class="col-lg-12">
+                            <nav>
+                                <div class="nav nav-tabs mb-3">
+                                    <button
+                                        class="nav-link active border-white border-bottom-0"
+                                        data-bs-toggle="tab"
+                                        data-bs-target="#tab-specifications">
+                                        Specifications
+                                    </button>
+                                    <button
+                                        class="nav-link border-white border-bottom-0"
+                                        data-bs-toggle="tab"
+                                        data-bs-target="#tab-reviews">
+                                        Reviews
+                                    </button>
+                                </div>
+                            </nav>
+
+                            <div class="tab-content mb-5">
+                                <!-- DESCRIPTION TAB -->
+                                <div
+                                    class="tab-pane active"
+                                    id="tab-specifications">
+                                    <p>
+                                        {{ product.description || 'No additional description.' }}
+                                    </p>
+                                </div>
+
+                                <!-- REVIEWS TAB (PLACEHOLDER) -->
+                            
+                                <div
+                                    class="tab-pane" 
+                                    id="tab-reviews">
+                                    <ng-container *ngIf="reviews$ | async as data">
+                                        <app-review-list
+                                        [reviews]="getReviews(data)">
+                                        </app-review-list>
+                                    </ng-container>
+                                </div>
+
+                            </div>
+                            <div *ngIf="myReview$ | async as myReview">
+                                <div *ngIf="myReview?.status === ReviewStatus.PENDING" class="alert alert-warning">
+                                    Your review is pending approval 👀
+                                </div>
+                            </div>
+                            <div
+                                *ngIf="reviewError"
+                                id="review-alert"
+                                class="alert alert-warning mt-3">
+                                {{ reviewError }}
+                            </div>
+
+                            <div *ngIf="reviewSuccess" class="alert alert-success">
+                                Thank you! Your review has been submitted.
+                            </div>
+                            <!-- Not logged in -->
+                            <div *ngIf="!authService.isLoggedIn()">
+                                <button class="btn btn-outline-primary" routerLink="/login">
+                                    Login to write a review
+                                </button>
+                            </div>
+
+                            <!-- Logged in but never purchased -->
+                            <div *ngIf="authService.isLoggedIn() && !(hasPurchased$ | async)">
+                                <p class="text-muted">
+                                    Purchase this product to write a review.
+                                </p>
+                            </div>
+
+                            <!-- Verified buyer -->
+                            <div *ngIf="canReview$ | async">
+                                <app-review-form
+                                    (submitReview)="submitReview($event)"
+                                    [uploading]="uploading"
+                                    [uploadProgress]="uploadProgress">
+                                </app-review-form>
+                            </div>
                         </div>
-                    </ng-container>
 
-                    <ng-template #noVariants>
-                        <div class="text-muted small">
-                            No variants configured for this product.
-                        </div>
-                    </ng-template>
+                    </div>
                 </div>
 
-              <ng-container *ngIf="addToCartResult$ | async as result">
-                <div *ngIf="result.success" class="alert alert-success">
-                  Added to cart!
+                <!-- ===============================
+                    SIDEBAR
+                ================================ -->
+                
+                <div class="col-lg-4 col-xl-3">
+                    <app-product-info-sidebar
+                        [category]="product.category?.name"
+                        [sku]="getDisplaySku(product)"
+                        [stock]="getAvailableStock(product)"
+                        [deliveryInfo]="siteConfig?.delivery_info"
+                        [trustBadges]="siteConfig?.trust_badges">
+                    </app-product-info-sidebar>
                 </div>
 
-                <div *ngIf="!result.success && result.error"
-                    class="alert alert-danger">
-                  {{ result.error }}
-                </div>
-              </ng-container>
-
-                <div class="mt-2">
-                    <span *ngIf="hasVariants(product) && !selectedVariant"
-                        class="badge bg-secondary">
-                        Select Variant
-                    </span>
-
-                    <span *ngIf="!(hasVariants(product) && !selectedVariant) && getAvailableStock(product) === 0"
-                        class="badge bg-danger">
-                        Out of Stock
-                    </span>
-
-                    <span *ngIf="!(hasVariants(product) && !selectedVariant) && getAvailableStock(product) > 0 && getAvailableStock(product) <= 5"
-                        class="badge bg-warning text-dark">
-                        Only {{ getAvailableStock(product) }} left
-                    </span>
-
-                    <span *ngIf="!(hasVariants(product) && !selectedVariant) && getAvailableStock(product) > 5"
-                        class="badge bg-success">
-                        In Stock
-                    </span>
-                </div>
             </div>
+        </ng-container>
 
-            <!-- ===============================
-              TABS
-            ================================ -->
-            <div class="col-lg-12">
-                <nav>
-                    <div class="nav nav-tabs mb-3">
-                        <button
-                            class="nav-link active border-white border-bottom-0"
-                            data-bs-toggle="tab"
-                            data-bs-target="#tab-specifications">
-                            Specifications
-                        </button>
-                        <button
-                            class="nav-link border-white border-bottom-0"
-                            data-bs-toggle="tab"
-                            data-bs-target="#tab-reviews">
-                            Reviews
-                        </button>
-                    </div>
-                </nav>
-
-                <div class="tab-content mb-5">
-                    <!-- DESCRIPTION TAB -->
-                    <div
-                        class="tab-pane active"
-                        id="tab-specifications">
-                        <p>
-                            {{ product.description || 'No additional description.' }}
-                        </p>
-                    </div>
-
-                    <!-- REVIEWS TAB (PLACEHOLDER) -->
-                 
-                    <div
-                        class="tab-pane" 
-                        id="tab-reviews">
-                        <ng-container *ngIf="reviews$ | async as data">
-                            <app-review-list
-                            [reviews]="getReviews(data)">
-                            </app-review-list>
-                        </ng-container>
-                    </div>
-
-                </div>
-                <div *ngIf="myReview$ | async as myReview">
-                    <div *ngIf="myReview?.status === ReviewStatus.PENDING" class="alert alert-warning">
-                        Your review is pending approval 👀
-                    </div>
-                </div>
-                <div
-                    *ngIf="reviewError"
-                    id="review-alert"
-                    class="alert alert-warning mt-3">
-                    {{ reviewError }}
-                </div>
-
-                <div *ngIf="reviewSuccess" class="alert alert-success">
-                    Thank you! Your review has been submitted.
-                </div>
-                <!-- Not logged in -->
-                <div *ngIf="!authService.isLoggedIn()">
-                    <button class="btn btn-outline-primary" routerLink="/login">
-                        Login to write a review
-                    </button>
-                </div>
-
-                <!-- Logged in but never purchased -->
-                <div *ngIf="authService.isLoggedIn() && !(hasPurchased$ | async)">
-                    <p class="text-muted">
-                        Purchase this product to write a review.
-                    </p>
-                </div>
-
-                <!-- Verified buyer -->
-                <div *ngIf="canReview$ | async">
-                    <app-review-form
-                    (submitReview)="submitReview($event)"
-                    [uploading]="uploading"
-                    [uploadProgress]="uploadProgress">
-                    </app-review-form>
-                </div>
-            </div>
-
-          </div>
-        </div>
+        <app-product-carousel
+            title="Related Products"
+            [items]="(relatedProducts$ | async) ?? []">
+        </app-product-carousel>
 
         <!-- ===============================
-          SIDEBAR
+            LOADING STATE
         ================================ -->
-       
-        <div class="col-lg-4 col-xl-3">
-          <app-product-info-sidebar
-            [category]="(product$ | async)?.category?.name"
-            [sku]="getDisplaySku((product$ | async)!)"
-            [stock]="getAvailableStock((product$ | async)!)"
-            [deliveryInfo]="siteConfig?.delivery_info"
-            [trustBadges]="siteConfig?.trust_badges">
-          </app-product-info-sidebar>
+        <ng-template #loading>
+            <div class="container-fluid py-5">
+                <div class="row g-5">
+
+                    <!-- ==========================================
+                        Product Content
+                    =========================================== -->
+
+                    <div class="col-lg-8 col-xl-9">
+                        <div class="row g-4">
+                            <!-- Gallery -->
+                            <div class="col-lg-6">
+                                <div
+                                    class="skeleton w-100 mb-3"
+                                    style="height:380px;">
+                                </div>
+
+                                <div class="d-flex gap-2">
+
+                                    <div
+                                        class="skeleton"
+                                        style="width:72px;height:72px;">
+                                    </div>
+
+                                    <div
+                                        class="skeleton"
+                                        style="width:72px;height:72px;">
+                                    </div>
+
+                                    <div
+                                        class="skeleton"
+                                        style="width:72px;height:72px;">
+                                    </div>
+
+                                    <div
+                                        class="skeleton"
+                                        style="width:72px;height:72px;">
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <!-- Product Info -->
+
+                            <div class="col-lg-6">
+
+                                <!-- Title -->
+
+                                <div
+                                    class="skeleton mb-3"
+                                    style="height:34px;width:80%;">
+                                </div>
+
+                                <!-- Category -->
+
+                                <div
+                                    class="skeleton mb-4"
+                                    style="height:18px;width:40%;">
+                                </div>
+
+                                <!-- Rating -->
+
+                                <div class="d-flex align-items-center gap-2 mb-4">
+
+                                    <div class="d-flex gap-1">
+
+                                        <span class="skeleton rounded-circle"
+                                            style="width:16px;height:16px;"></span>
+
+                                        <span class="skeleton rounded-circle"
+                                            style="width:16px;height:16px;"></span>
+
+                                        <span class="skeleton rounded-circle"
+                                            style="width:16px;height:16px;"></span>
+
+                                        <span class="skeleton rounded-circle"
+                                            style="width:16px;height:16px;"></span>
+
+                                        <span class="skeleton rounded-circle"
+                                            style="width:16px;height:16px;"></span>
+
+                                    </div>
+
+                                    <div
+                                        class="skeleton"
+                                        style="width:70px;height:16px;">
+                                    </div>
+
+                                </div>
+
+                                <!-- Price -->
+
+                                <div
+                                    class="skeleton mb-4"
+                                    style="width:160px;height:36px;">
+                                </div>
+
+                                <!-- Stock -->
+
+                                <div
+                                    class="skeleton mb-4"
+                                    style="width:130px;height:20px;">
+                                </div>
+
+                                <!-- Description -->
+
+                                <div class="mb-4">
+
+                                    <div class="skeleton mb-2"
+                                        style="height:16px;width:100%;"></div>
+
+                                    <div class="skeleton mb-2"
+                                        style="height:16px;width:95%;"></div>
+
+                                    <div class="skeleton mb-2"
+                                        style="height:16px;width:90%;"></div>
+
+                                    <div class="skeleton"
+                                        style="height:16px;width:70%;"></div>
+
+                                </div>
+
+                                <!-- Quantity -->
+
+                                <div
+                                    class="skeleton mb-4"
+                                    style="width:170px;height:46px;">
+                                </div>
+
+                                <!-- Add to Cart -->
+
+                                <div
+                                    class="skeleton mb-4"
+                                    style="width:240px;height:52px;">
+                                </div>
+
+                                <!-- Variant Pills -->
+
+                                <div class="d-flex gap-2 flex-wrap">
+
+                                    <div class="skeleton rounded-pill"
+                                        style="width:90px;height:36px;"></div>
+
+                                    <div class="skeleton rounded-pill"
+                                        style="width:90px;height:36px;"></div>
+
+                                    <div class="skeleton rounded-pill"
+                                        style="width:90px;height:36px;"></div>
+
+                                    <div class="skeleton rounded-pill"
+                                        style="width:90px;height:36px;"></div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- ==========================================
+                        Sidebar
+                    =========================================== -->
+
+                    <div class="col-lg-4 col-xl-3">
+
+                        <div class="card border-0 shadow-sm">
+
+                            <div class="card-body">
+
+                                <div class="skeleton mb-3"
+                                    style="height:22px;width:55%;"></div>
+
+                                <div class="skeleton mb-2"
+                                    style="height:16px;width:100%;"></div>
+
+                                <div class="skeleton mb-2"
+                                    style="height:16px;width:90%;"></div>
+
+                                <div class="skeleton mb-4"
+                                    style="height:16px;width:70%;"></div>
+
+                                <hr>
+
+                                <div class="skeleton mb-3"
+                                    style="height:18px;width:65%;"></div>
+
+                                <div class="skeleton mb-2"
+                                    style="height:14px;width:100%;"></div>
+
+                                <div class="skeleton mb-2"
+                                    style="height:14px;width:95%;"></div>
+
+                                <div class="skeleton mb-2"
+                                    style="height:14px;width:90%;"></div>
+
+                                <div class="skeleton"
+                                    style="height:40px;width:100%;"></div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- ==========================================
+                    Related Products
+                =========================================== -->
+
+                <div class="mt-5">
+
+                    <div class="skeleton mb-4"
+                        style="width:220px;height:34px;">
+                    </div>
+
+                    <div class="row g-4">
+
+                        <div class="col-md-3" *ngFor="let i of [1,2,3,4]">
+
+                            <div class="card border-0">
+
+                                <div class="skeleton"
+                                    style="height:220px;">
+                                </div>
+
+                                <div class="card-body">
+
+                                    <div class="skeleton mb-2"
+                                        style="height:18px;width:90%;"></div>
+
+                                    <div class="skeleton mb-2"
+                                        style="height:14px;width:70%;"></div>
+
+                                    <div class="skeleton"
+                                        style="height:24px;width:40%;"></div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </ng-template>
+
         </div>
-
-      </div>
-
-    </ng-container>
-    <app-product-carousel
-      title="Related Products"
-      [items]="(relatedProducts$ | async) ?? []">
-    </app-product-carousel>
-    <!-- ===============================
-      LOADING STATE
-    ================================ -->
-    <ng-template #loading>
-      <div class="text-center py-5">
-        <div class="spinner-border text-primary"></div>
-        <p class="mt-3">Loading product...</p>
-      </div>
-    </ng-template>
-
-  </div>
 </div>

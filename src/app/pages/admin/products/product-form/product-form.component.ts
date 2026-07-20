@@ -1,6 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, HostListener, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { GeneratedProductDescription } from '@app/models/ai-product-description.model';
 import { DynamicSection } from '@app/models/dynamic-form.model';
 import { ProductImage } from '@app/models/product-image.model';
 import { NgxDropzoneModule } from 'ngx-dropzone';
@@ -12,6 +17,12 @@ import { getImageUrl, getImageUrlCloudinary } from '@app/core/utils/image.util';
 import { ToastService } from '@app/core/services/toast.service';
 import { CanComponentDeactivate } from '@app/guards/unsaved-changes.guard';
 import { ReusableImageUploadComponent } from "@app/shared/reusable-image-upload/reusable-image-upload.component";
+import { AuthService } from '@app/core/auth/auth.service';
+import { SellerAiService } from '@app/services/seller/seller-ai.service';
+import { BrandService } from '@app/services/product/brand.service';
+import { Brand } from '@app/models/brand.model';
+import { AdminCategoryNode, CategoryOption } from '@app/models/category-tree.model';
+import { SkuGenerator } from '@app/core/utils/sku-generator.util';
 
 interface VariantOption {
   name: string;
@@ -36,7 +47,11 @@ interface Variant {
     ReactiveFormsModule,
     FormsModule,
     NgxDropzoneModule,
-    ReusableImageUploadComponent
+    ReusableImageUploadComponent,
+    MatButtonModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
+    MatChipsModule
 ],
     templateUrl: './product-form.component.html',
     styleUrl: './product-form.component.css'
@@ -59,6 +74,14 @@ export class ProductFormComponent implements OnInit, CanComponentDeactivate {
     isInitialized = false;
     hasVariantsToggle = false;
     selectedCategory: any = null;
+    isGeneratingDescription = false;
+    generatedProductDescription: GeneratedProductDescription | null = null;
+    canUseProductAi = false;
+    aiBrand = '';
+    aiFeatures = '';
+    aiSpecifications = '';
+    brands: Brand[] = [];
+    categoryOptions: CategoryOption[] = [];
     
 
     getImageUrl = getImageUrl;
@@ -77,18 +100,21 @@ export class ProductFormComponent implements OnInit, CanComponentDeactivate {
     formSections: DynamicSection[] = [
         {
         section: 'Basic Info',
-        fields: [
-            { key: 'name', type: 'text', label: 'Product Name', required: true },
-            { key: 'description', type: 'textarea', label: 'Description' },
-            { key: 'sku', type: 'text', label: 'Base product SKU', required: false },
-            { key: 'categoryId', type: 'select', label: 'Category', required: true }
-            ]
-        },
+            fields: [
+                { key: 'name', type: 'text', label: 'Product Name', required: true },
+                { key: 'description', type: 'textarea', label: 'Description' },
+                { key: 'shortDescription', type: 'textarea', label: 'Short Description' },
+                { key: 'seoDescription', type: 'textarea', label: 'SEO Description' },
+                { key: 'sku', type: 'text', label: 'Base product SKU', required: false },
+                { key: 'categoryId', type: 'select', label: 'Category', required: true },
+                { key: 'brandId', type: 'select', label: 'Brand', required: false }
+                ]
+            },
         {
         section: 'Pricing',
             fields: [
-                { key: 'price', type: 'number', label: 'Price', required: false },
-                { key: 'stock', type: 'number', label: 'Stock', required: false }
+                { key: 'price', type: 'number', label: 'Price', required: true },
+                { key: 'stock', type: 'number', label: 'Stock', required: true }
             ]
         }
     ];
@@ -97,10 +123,19 @@ export class ProductFormComponent implements OnInit, CanComponentDeactivate {
         private fb: FormBuilder,
         private route: ActivatedRoute,
         private productService: ProductService,
+        private sellerAiService: SellerAiService,
         private categoryService: CategoryService,
+        private brandService: BrandService,
         private router: Router,
-        private toast: ToastService
+        private toast: ToastService,
+        private authService: AuthService
     ) {}
+
+    async loadBrands(): Promise<void> {
+        this.brands = await firstValueFrom(
+            this.brandService.getBrands()
+        );
+    }
 
     variants: any[] = [];
 
@@ -110,6 +145,7 @@ export class ProductFormComponent implements OnInit, CanComponentDeactivate {
 
     async ngOnInit() {
         this.buildForm();
+        this.canUseProductAi = this.authService.isSeller();
 
         this.form.get('name')?.valueChanges.subscribe(() => {
             if (!this.isEditMode) {
@@ -131,9 +167,18 @@ export class ProductFormComponent implements OnInit, CanComponentDeactivate {
 
         this.productId = this.route.snapshot.paramMap.get('id') || '';
 
-        await this.loadCategories();
+        await Promise.all([
+            this.loadCategories(),
+            this.loadBrands(),
+        ]);
 
-        console.log('available categories', this.categories);
+        this.form.get('brandId')?.valueChanges.subscribe((brandId) => {
+            const brand = this.brands.find(
+                b => b.id === brandId
+            );
+
+            this.aiBrand = brand?.name ?? '';
+        });
 
         if (this.productId) {
             this.isEditMode = true;
@@ -263,14 +308,18 @@ export class ProductFormComponent implements OnInit, CanComponentDeactivate {
     }
 
     async loadCategories(): Promise<void> {
+
         const res: any = await firstValueFrom(
-            this.categoryService.getCategories()
+            this.categoryService.getCategoryTree()
         );
 
-        this.categories = res.filter(
-            (c: any) => c.isActive && !c.deletedAt
-        );
+        // Depending on your API response
+        const tree: AdminCategoryNode[] = res.data ?? res;
 
+        this.categories = [];
+        this.categoryOptions = [];
+
+        this.buildCategoryOptions(tree);
     }
 
     loadProduct() {
@@ -283,10 +332,13 @@ export class ProductFormComponent implements OnInit, CanComponentDeactivate {
             this.form.patchValue({
                 name: product.name,
                 description: product.description,
+                shortDescription: product.shortDescription,
+                seoDescription: product.seoDescription,
                 price: product.price,
                 stock: product.stock,
                 sku: this.generateBaseSku(),
                 categoryId: product.categoryId,
+                brandId: product.brand?.id ?? null,
                 hasVariants: !!product.variants?.length,
                 isFeatured: product.isFeatured ?? false,
                 isBestSeller: product.isBestSeller ?? false
@@ -467,6 +519,114 @@ export class ProductFormComponent implements OnInit, CanComponentDeactivate {
         this.images = images;
     }
 
+    async generateDescriptionWithAi() {
+        if (this.isGeneratingDescription) return;
+
+        const name = this.form.get('name')?.value?.trim();
+
+        if (!name) {
+            this.toast.warning('Enter a product name before generating a description.');
+            this.form.get('name')?.markAsTouched();
+            return;
+        }
+
+        const features = this.buildAiDescriptionFeatures();
+        const specifications = this.splitAiList(this.aiSpecifications);
+        const categoryId = this.form.get('categoryId')?.value;
+        const category = this.categories.find(c => c.id === categoryId);
+        const brand = this.aiBrand.trim();
+
+        if (!category?.name && !brand && !features.length && !specifications.length) {
+            this.toast.warning('Add a category, brand, features, or specifications before generating.');
+            return;
+        }
+
+        this.isGeneratingDescription = true;
+
+        try {
+            const response = await firstValueFrom(
+                this.sellerAiService.generateProductDescription({
+                    name,
+                    category: category?.name,
+                    brand: brand || undefined,
+                    features: features.length ? features : undefined,
+                    specifications: specifications.length ? specifications : undefined
+                })
+            );
+
+            const generated = response.data;
+
+            this.generatedProductDescription = generated;
+            this.toast.success('AI content generated. Review it before applying.');
+
+        } catch (error) {
+            console.error(error);
+            this.toast.error('Unable to generate a description right now.');
+        } finally {
+            this.isGeneratingDescription = false;
+        }
+    }
+
+    acceptGeneratedDescription() {
+        if (!this.generatedProductDescription) return;
+
+        this.form.patchValue({
+            description: this.generatedProductDescription.description,
+            shortDescription: this.generatedProductDescription.shortDescription,
+            seoDescription: this.generatedProductDescription.seoDescription
+        });
+
+        ['description', 'shortDescription', 'seoDescription'].forEach(key => {
+            const control = this.form.get(key);
+            control?.markAsDirty();
+            control?.markAsTouched();
+        });
+
+        this.toast.success('AI content applied. Review before saving.');
+    }
+
+    private buildAiDescriptionFeatures(): string[] {
+        const features = new Set<string>();
+        const enteredFeatures = this.splitAiList(this.aiFeatures);
+        const description = this.form.get('description')?.value?.trim();
+        const price = this.form.get('price')?.value;
+        const stock = this.form.get('stock')?.value;
+
+        enteredFeatures.forEach(feature => features.add(feature));
+
+        if (description) {
+            features.add(`Seller notes: ${description}`);
+        }
+
+        if (price) {
+            features.add(`Price: ${price}`);
+        }
+
+        if (stock) {
+            features.add(`Stock: ${stock}`);
+        }
+
+        this.variantOptions.forEach(option => {
+            const values = option.values
+                .map(value => value.trim())
+                .filter(Boolean);
+
+            if (option.name?.trim() && values.length) {
+                features.add(`${option.name}: ${values.join(', ')}`);
+            }
+        });
+
+        return Array.from(features).slice(0, 20);
+    }
+
+    private splitAiList(value: string): string[] {
+        return value
+            .split(/\r?\n|,/)
+            .map(item => item.trim())
+            .filter(Boolean)
+            .slice(0, 20);
+    }
+
 
     isFieldChanged(key: string): boolean {
         if (!this.isInitialized) return false;
@@ -506,7 +666,20 @@ export class ProductFormComponent implements OnInit, CanComponentDeactivate {
             // VALIDATION (PUBLISH ONLY)
             // ==========================
             if (action === 'publish') {
+                console.log('FORM VALID:', this.form.valid);
+
+                Object.entries(this.form.controls).forEach(([key, control]) => {
+                    if (control.invalid) {
+                        console.log(
+                            'INVALID FIELD:',
+                            key,
+                            control.errors
+                        );
+                    }
+                });
+
                 if (this.form.invalid) {
+                    this.form.markAllAsTouched();
                     this.toast.error('Please complete required fields');
                     return;
                 }
@@ -574,8 +747,6 @@ export class ProductFormComponent implements OnInit, CanComponentDeactivate {
                     image: v.image
                 }));
             }
-
-            console.log('PAYLOAD VARIANTS', payload.variants);
 
             // ==========================
             // STEP 4: API CALL
@@ -750,74 +921,26 @@ export class ProductFormComponent implements OnInit, CanComponentDeactivate {
         this.variants = [];
     }
 
-    // ==========================
-    // SKU GENERATOR
-    // ==========================
-    generateShortCode(value: string): string {
-        return value
-            .toUpperCase()
-            .replace(/[^A-Z0-9]/g, '') // remove symbols
-            .slice(0, 3); // take first 3 chars
-    }
+    generateFullSku(attributes: string[]): string {
 
-    generateSku(attributes: string[]): string {
-        return attributes
-            .map(attr => this.generateShortCode(attr))
-            .join('-');
-    }
-
-    getCategoryCode(): string {
-        const categoryId = this.form.get('categoryId')?.value;
-        const category = this.categories.find(c => c.id === categoryId);
-
-        if (!category?.name) {
-            return 'GEN';
-        }
-
-        return category.name
-            .split(' ')
-            .map((word: string) => word.substring(0, 2))
-            .join('')
-            .toUpperCase();
-
-    }
-
-    generateFullSku(attributes: string[]) {
-        const baseSku = this.generateBaseSku();
-        const attrCode = this.generateSku(attributes);
-
-        return [
-            baseSku,
-            attrCode
-        ]
-        .filter(Boolean)
-        .join('-');
-
+        return SkuGenerator.generateVariantSku(
+            this.generateBaseSku(),
+            attributes
+        );
     }
 
     generateBaseSku(): string {
-        const productName = this.form.get('name')?.value || '';
 
-        const words = productName
-                .split(' ')
-                .filter(Boolean)
-                .slice(0, 2);
+        const categoryId = this.form.get('categoryId')?.value;
 
-        const productCode =
-            words
-                .map(
-                    (w: string) =>
-                        w.substring(0, 3)
-                )
-                .join('');
+        const category = this.categories.find(
+            c => c.id === categoryId
+        );
 
-        return [
-            this.getCategoryCode(),
-            productCode
-        ]
-        .filter(Boolean)
-        .join('-')
-        .toUpperCase();
+        return SkuGenerator.generateBaseSku(
+            this.form.get('name')?.value ?? '',
+            category?.name ?? ''
+        );
     }
 
     // Variant Table
@@ -857,25 +980,40 @@ export class ProductFormComponent implements OnInit, CanComponentDeactivate {
 
         try {
             const variant = this.variants[index];
-            const variantId = variant.id || `temp-${index}`;
 
-            console.log('🔵 BEFORE UPLOAD', this.variants);
+            let uploaded: {
+                url: string;
+                publicId?: string;
+            };
 
-            const uploaded = await firstValueFrom(
-                this.productService.uploadVariantImage(
-                    this.productId,
-                    variantId,
-                    file
-                )
-            );
+            if (this.isEditMode && this.productId && variant.id) {
 
-            console.log('🟢 UPLOAD RESPONSE', uploaded);
+                // Existing product & variant
+                const res = await firstValueFrom(
+                    this.productService.uploadVariantImage(
+                        this.productId,
+                        variant.id,
+                        file
+                    )
+                );
 
-            // ✅ STEP 2: store Cloudinary public_id
-            const { data } = uploaded;
-            this.variants[index].image = data.public_id;
+                uploaded = {
+                    url: res.data.url,
+                    publicId: res.data.publicId
+                };
 
-            console.log('🟢 AFTER SET IMAGE', this.variants);
+            } else {
+
+                // New product
+                uploaded = await firstValueFrom(
+                    this.productService.uploadTempImage(file)
+                );
+
+            }
+
+            variant.image = uploaded.publicId ?? uploaded.url;
+            variant.preview = uploaded.url;
+
 
         } catch (err) {
             console.error(err);
@@ -930,6 +1068,29 @@ export class ProductFormComponent implements OnInit, CanComponentDeactivate {
         this.router.navigate(['/admin/products'], {
             queryParams: this.route.snapshot.queryParams
         });
+    }
+
+    private buildCategoryOptions(
+        nodes: AdminCategoryNode[],
+        level = 0
+    ): void {
+
+        for (const node of nodes) {
+
+            // Flat list used elsewhere in the component
+            this.categories.push(node);
+
+            // Dropdown option
+            this.categoryOptions.push({
+                id: node.id,
+                label: `${'\u00A0\u00A0\u00A0\u00A0'.repeat(level)}${node.name}`,
+                hasChildren: node.children.length > 0
+            });
+
+            if (node.children?.length) {
+                this.buildCategoryOptions(node.children, level + 1);
+            }
+        }
     }
 
 

@@ -80,8 +80,16 @@ export class AuthService {
 
         if (!payload) return '';
 
-        // 🔹 TEMP fallback: use role-based initials
-        return payload.role === 'ADMIN' ? 'AD' : 'CU';
+        switch (payload.role) {
+            case 'ADMIN':
+                return 'AD';
+
+            case 'SELLER':
+                return 'SE';
+
+            default:
+                return 'CU';
+        }
     }
 
     // =========================
@@ -93,12 +101,21 @@ export class AuthService {
         return !!payload && payload.exp * 1000 > Date.now();
     }
 
-    getRole(): 'ADMIN' | 'CUSTOMER' | null {
+    getRole():
+        | 'ADMIN'
+        | 'SELLER'
+        | 'CUSTOMER'
+        | null {
+
         return this.getJwtPayload()?.role ?? null;
     }
 
     isAdmin(): boolean {
         return this.getRole() === 'ADMIN';
+    }
+
+    isSeller(): boolean {
+        return this.getRole() === 'SELLER';
     }
 
     isCustomer(): boolean {

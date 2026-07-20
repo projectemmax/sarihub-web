@@ -19,27 +19,34 @@ export class UserProfileService {
     constructor(private http: HttpClient) {}
 
     loadMyProfile() {
-        return this.http
-        .get<{ data: UserProfile }>(
-            `${Constant.API_BASE_URL}/customers/me/profile`
+
+    return this.http
+        .get<any>(
+            `${Constant.API_BASE_URL}/${Constant.ADMIN.PROFILE.ME}`
         )
         .pipe(
             catchError(err => {
-            // New user without profile yet
-            if (err.status === 404) {
-                this.profile$.next(null);
-                return of(null);
-            }
 
-            throw err;
+                if (err.status === 404) {
+                    this.profile$.next(null);
+                    return of(null);
+                }
+
+                throw err;
+
             })
         )
         .subscribe(res => {
-            if (res?.data) {
-                this.profile$.next(res.data);
+
+            const profile = res?.data?.data;
+
+            if (profile) {
+                this.profile$.next(profile);
             }
+
         });
-    }
+
+}
 
     clear() {
         this.profile$.next(null);

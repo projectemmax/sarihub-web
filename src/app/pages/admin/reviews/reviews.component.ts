@@ -2,125 +2,201 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AdminReviewsService } from '@app/services/admin/admin-reviews.service';
 import { PendingReview } from '@app/models/dashboard.model';
+import { SellerReviewsService } from '@app/services/seller/seller-reviews.service';
+import { UserProfileService } from '@app/core/user/user-profile.service';
+import { filter, take } from 'rxjs/operators';
+import { getImageUrlCloudinary } from '@app/core/utils/image.util';
+import { FormsModule } from '@angular/forms';
+import { TableSkeletonComponent } from "@app/shared/table-skeleton/table-skeleton.component";
 
 @Component({
   selector: 'app-admin-reviews',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule, TableSkeletonComponent],
   templateUrl: './reviews.component.html',
   styleUrls: ['./reviews.component.css']
 })
 export class ReviewsComponent implements OnInit {
 
-  reviews: PendingReview[] = [];
+    reviews: PendingReview[] = [];
+    loading = false;
+    selectedReviews: string[] = [];
 
-  loading = false;
+    isAdmin = false;
+    isSeller = false;
+    searchTerm = '';
 
-  selectedReviews: string[] = [];
+    skeletonRows = new Array(5);
 
-  constructor(private reviewService: AdminReviewsService) {}
+    getImageUrlCloudinary = getImageUrlCloudinary;
 
-  ngOnInit() {
-    this.loadReviews();
-  }
+    selectedReview: PendingReview | null = null;
 
-  // ===============================
-  // LOAD REVIEWS
-  // ===============================
-  loadReviews() {
+    constructor(
+        private reviewService: AdminReviewsService,
+        private sellerReviewService: SellerReviewsService,
+        private userProfileService: UserProfileService
+    ) {}
 
-    this.loading = true;
+    ngOnInit() {
 
-    this.reviewService.getPendingReviews()
-      .subscribe((res: any) => {
+    this.userProfileService.loadMyProfile();
 
-        this.reviews = res;
-        this.loading = false;
+    this.userProfileService
+        .getProfile()
+        .pipe(
+            filter(profile => !!profile),
+            take(1)
+        )
+        .subscribe(profile => {
 
-      });
-  }
+            if (!profile) return;
 
-  // ===============================
-  // CHECKBOX SELECTION
-  // ===============================
-  toggleReview(id: string, event: any) {
+            this.isAdmin = profile.role === 'ADMIN';
+            this.isSeller = profile.role === 'SELLER';
+            this.loadReviews();
 
-    if (event.target.checked) {
-      this.selectedReviews.push(id);
-    } else {
-      this.selectedReviews =
-        this.selectedReviews.filter(r => r !== id);
+        });
+
+}
+
+    // ===============================
+    // LOAD REVIEWS
+    // ===============================
+    loadReviews() {
+
+        this.loading = true;
+
+        const request$ = this.isSeller
+            ? this.sellerReviewService.getSellerReviews()
+            : this.reviewService.getPendingReviews();
+
+        request$
+            .subscribe({
+            next: (res: any) => {
+                this.reviews = res;
+                this.loading = false;
+            },
+            error: () => {
+                this.reviews = [];
+                this.loading = false;
+            }
+        });
+
     }
 
-  }
+    // ===============================
+    // CHECKBOX SELECTION
+    // ===============================
+    toggleReview(id: string, event: any) {
 
-  isSelected(id: string) {
-    return this.selectedReviews.includes(id);
-  }
+        if (event.target.checked) {
+        this.selectedReviews.push(id);
+        } else {
+        this.selectedReviews =
+            this.selectedReviews.filter(r => r !== id);
+        }
 
-  // ===============================
-  // SELECT ALL
-  // ===============================
-  toggleSelectAll(event: any) {
-
-    if (event.target.checked) {
-      this.selectedReviews = this.reviews.map(r => r.id);
-    } else {
-      this.selectedReviews = [];
     }
 
-  }
+    isSelected(id: string) {
+        return this.selectedReviews.includes(id);
+    }
 
-  // ===============================
-  // SINGLE ACTIONS
-  // ===============================
-  approveReview(id: string) {
+    // ===============================
+    // SELECT ALL
+    // ===============================
+    toggleSelectAll(event: any) {
 
-    this.reviewService.approveReview(id)
-      .subscribe(() => {
-        this.loadReviews();
-      });
-
-  }
-
-  rejectReview(id: string) {
-
-    this.reviewService.rejectReview(id)
-      .subscribe(() => {
-        this.loadReviews();
-      });
-
-  }
-
-  // ===============================
-  // BULK ACTIONS
-  // ===============================
-  bulkApprove() {
-
-    if (!this.selectedReviews.length) return;
-
-    this.reviewService.bulkApprove(this.selectedReviews)
-      .subscribe(() => {
-
+        if (event.target.checked) {
+        this.selectedReviews = this.reviews.map(r => r.id);
+        } else {
         this.selectedReviews = [];
-        this.loadReviews();
+        }
 
-      });
+    }
 
-  }
+    // ===============================
+    // SINGLE ACTIONS
+    // ===============================
+    approveReview(id: string) {
 
-  bulkReject() {
+        this.reviewService.approveReview(id)
+        .subscribe(() => {
+            this.loadReviews();
+        });
 
-    if (!this.selectedReviews.length) return;
+    }
 
-    this.reviewService.bulkReject(this.selectedReviews)
-      .subscribe(() => {
+    rejectReview(id: string) {
 
-        this.selectedReviews = [];
-        this.loadReviews();
+        this.reviewService.rejectReview(id)
+        .subscribe(() => {
+            this.loadReviews();
+        });
 
-      });
+    }
 
-  }
+    // ===============================
+    // BULK ACTIONS
+    // ===============================
+    bulkApprove() {
+
+        if (!this.selectedReviews.length) return;
+
+        this.reviewService.bulkApprove(this.selectedReviews)
+        .subscribe(() => {
+
+            this.selectedReviews = [];
+            this.loadReviews();
+
+        });
+
+    }
+
+    bulkReject() {
+
+        if (!this.selectedReviews.length) return;
+
+        this.reviewService.bulkReject(this.selectedReviews)
+        .subscribe(() => {
+
+            this.selectedReviews = [];
+            this.loadReviews();
+
+        });
+
+    }
+
+    // ============ MODAL ==============
+    openImagesModal(review: PendingReview): void {
+        this.selectedReview = review;
+    }
+
+    closeImagesModal(): void {
+        this.selectedReview = null;
+    }
+
+    // ============ SEARCH ==============
+
+    get filteredReviews(): PendingReview[] {
+        if (!this.searchTerm.trim()) {
+            return this.reviews;
+        }
+
+        const term = this.searchTerm.trim().toLowerCase();
+
+        return this.reviews.filter(review =>
+            review.product?.name?.toLowerCase().includes(term) ||
+            review.comment?.toLowerCase().includes(term) ||
+            `${review.user?.customer?.firstName ?? ''} ${review.user?.customer?.lastName ?? ''}`
+                .toLowerCase()
+                .includes(term)
+        );
+    }
+
+    clearSearch(): void {
+        this.searchTerm = '';
+    }
 
 }

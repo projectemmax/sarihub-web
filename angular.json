@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "ecommerce-frontend": {
+    "sarithub-web": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:class": {
@@ -38,7 +38,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/ecommerce-frontend",
+            "outputPath": "dist/sarithub-web",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
@@ -108,10 +108,10 @@
           },
           "configurations": {
             "production": {
-              "buildTarget": "ecommerce-frontend:build:production"
+              "buildTarget": "sarithub-web:build:production"
             },
             "development": {
-              "buildTarget": "ecommerce-frontend:build:development"
+              "buildTarget": "sarithub-web:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -119,7 +119,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "buildTarget": "ecommerce-frontend:build"
+            "buildTarget": "sarithub-web:build"
           }
         },
         "test": {

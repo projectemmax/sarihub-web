@@ -1,5 +1,5 @@
 export const environment = {
   production: false,
-  apiUrl: 'https://staging-backend.onrender.com/api',
-  uploadsUrl: 'https://staging-backend.onrender.com/uploads/'
+  apiUrl: 'https://sarihub-api-staging.onrender.com/api',
+  uploadsUrl: 'https://sarihub-api-staging.onrender.com/uploads/'
 };

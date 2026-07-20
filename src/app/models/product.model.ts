@@ -8,6 +8,8 @@ export interface Product {
   sku: string;
   name: string;
   description?: string;
+  shortDescription?: string;
+  seoDescription?: string;
 
   price?: number;
   stock?: number;
@@ -20,6 +22,13 @@ export interface Product {
   category?: {
     id: string;
     name: string;
+  };
+
+  brand?: {
+    id: string;
+    name: string;
+    slug: string;
+    logoUrl?: string;
   };
 
   isActive: boolean;

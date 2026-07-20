@@ -1,11 +1,26 @@
 export interface ProductPayload {
   sku: string;
   name: string;
-  price: number;
-  stock: number;
+
   categoryId: string;
 
+  price?: number;
+  stock?: number;
+
+  brandId?: string | null;
+
   imageUrl?: string;
+
   description?: string;
-  status?: 'DRAFT' | 'PUBLISHED';
+  shortDescription?: string;
+  seoDescription?: string;
+
+  status?: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+
+  isFeatured?: boolean;
+  isBestSeller?: boolean;
+
+  variantOptions?: any[];
+  variants?: any[];
+  images?: any[];
 }

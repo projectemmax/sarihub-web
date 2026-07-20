@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BehaviorSubject, Observable, of} from 'rxjs';
+import { BehaviorSubject, of} from 'rxjs';
 import { switchMap, map, finalize, concatMap} from 'rxjs/operators';
 
 import { StorefrontProductService } from
@@ -14,7 +14,7 @@ import { ReviewFormComponent } from '../../components/review-form/review-form.co
 import { ProductCarouselComponent } from '../../components/product-carousel/product-carousel.component';
 import { ProductInfoSidebarComponent } from '../../components/product-info-sidebar/product-info-sidebar.component';
 import { BreadcrumbComponent } from '../../components/breadcrumb/breadcrumb.component';
-
+import { getImageUrl as getImageUrlCloudinary } from '@app/core/utils/image.util';
 import { Product } from '@app/models/product.model';
 import { BreadcrumbItem } from '@app/models/breadcrumb.model';
 import { StorefrontCartService } from '@app/services/storefront/storefront-cart.service';
@@ -27,7 +27,12 @@ import { ReviewStatus } from '@app/models/storefront/review.model';
 import { FormsModule } from '@angular/forms';
 import { SiteConfigService } from '@app/core/services/site-config.service';
 import { ProductVariant } from '@app/models/product-variant.model';
-import { getImageUrl as resolveImageUrl, getImageUrlCloudinary, getProductImageUrl } from '@app/core/utils/image.util';
+import { ProductMediaGalleryComponent } from "../../components/product-media-gallery/product-media-gallery.component";
+import {
+    getProductPriceSummary
+} from '@app/core/utils/product-price.util';
+import { ProductVariantPickerComponent } from "../../components/product-variant-picker/product-variant-picker.component";
+import { QuantitySelectorComponent } from "../../components/quantity-selector/quantity-selector.component";
 
 @Component({
   standalone: true,
@@ -39,8 +44,11 @@ import { getImageUrl as resolveImageUrl, getImageUrlCloudinary, getProductImageU
     ProductCarouselComponent,
     ProductInfoSidebarComponent,
     BreadcrumbComponent,
-    FormsModule
-  ],
+    FormsModule,
+    ProductMediaGalleryComponent,
+    ProductVariantPickerComponent,
+    QuantitySelectorComponent
+],
   templateUrl: './product-detail.component.html',
   styleUrls: ['./product-detail.component.css'],
 })
@@ -55,7 +63,6 @@ export class ProductDetailComponent {
     private siteConfigService = inject(SiteConfigService)
     private refresh$ = new BehaviorSubject<void>(undefined);
     private addToCartTrigger$ = new BehaviorSubject<Product | null>(null);
-    private reviewSubmitTrigger$ = new BehaviorSubject<any | null>(null);
 
 
     /** UI state */
@@ -63,7 +70,6 @@ export class ProductDetailComponent {
     reviewError: string | null = null;
     reviewSuccess = false;
 
-    isLoadingProduct = true;
     productError: string | null = null;
 
     isAddingToCart = false;
@@ -74,28 +80,12 @@ export class ProductDetailComponent {
     ReviewStatus = ReviewStatus;
     stockWarning: string | null = null;
     selectedVariant: ProductVariant | null = null;
-    selectedImageUrl: string | null = null;
 
-    getProductImageUrl = getProductImageUrl;
+    getImageUrlCloudinary = getImageUrlCloudinary;
+    getProductImageUrl = getImageUrlCloudinary;
+    getProductPriceSummary = getProductPriceSummary;
 
     siteConfig = this.siteConfigService.snapshot;
-
-    ngOnInit() {
-        console.log(this.siteConfigService.snapshot);
-
-        this.hasPurchased$.subscribe(value =>
-            console.log('hasPurchased:', value)
-        );
-
-        this.myReview$.subscribe(value =>
-            console.log('myReview:', value)
-        );
-
-        this.canReview$.subscribe(value =>
-            console.log('canReview:', value)
-        );
-
-    }
 
     /** route param */
     slug$ = this.route.paramMap.pipe(
@@ -130,11 +120,9 @@ export class ProductDetailComponent {
             this.productService.getProductBySlug(slug)
         ),
         tap(() => {
-            this.isLoadingProduct = false;
             this.productError = null;
         }),
         catchError(err => {
-            this.isLoadingProduct = false;
             this.productError = 'Product could not be loaded.';
             return EMPTY;
         }),
@@ -184,6 +172,39 @@ export class ProductDetailComponent {
 
         this.addToCartTrigger$.next(product);
     }
+
+    getAddToCartState(product: Product) {
+
+        const variantRequired =
+            this.hasVariants(product) && !this.selectedVariant;
+
+        const outOfStock =
+            this.getAvailableStock(product) === 0;
+
+        return {
+            disabled:
+                this.isAddingToCart ||
+                variantRequired ||
+                outOfStock,
+
+            loading: this.isAddingToCart,
+
+            label: this.isAddingToCart
+                ? 'Adding...'
+                : variantRequired
+                    ? 'Select a Variant'
+                    : outOfStock
+                        ? 'Out of Stock'
+                        : 'Add to Cart'
+        };
+    }
+
+    isQuantitySelectorDisabled(product: Product): boolean {
+        return (
+            this.getAvailableStock(product) === 0 ||
+            (this.hasVariants(product) && !this.selectedVariant)
+        );
+    }
     
 
     /** ✅ breadcrumb (reactive & safe) */
@@ -210,48 +231,7 @@ export class ProductDetailComponent {
     );
 
     /** reviews */
-    reviewSubmitResult$ = this.reviewSubmitTrigger$.pipe(
-        switchMap(payload => {
-            if (!payload) return EMPTY;
 
-            return this.slug$.pipe(
-                switchMap(slug =>
-                    this.reviewService.submitReview(slug, payload)
-                ),
-                map(() => ({ success: true })),
-                catchError(err =>
-                    of({
-                        success: false,
-                        error: err?.error?.message ?? 'Review failed.'
-                    })
-                )
-            );
-        }),
-        tap(result => {
-        if (result.success) {
-
-            this.reviewSuccess = true;
-            this.reviewError = null;
-
-            this.refresh$.next();
-
-            setTimeout(() => {
-            this.reviewSuccess = false;
-            }, 3000);
-
-        } else {
-
-            this.reviewError = 'error' in result
-            ? result.error
-            : 'Review failed.';
-
-            this.reviewSuccess = false;
-
-        }
-
-        }),
-        shareReplay(1)
-    );
 
     /** submit review */
     submitReview(payload: any) {
@@ -381,93 +361,26 @@ export class ProductDetailComponent {
 
     
     /** quantity controls */
-    increase(product: Product) {
-        const stock = this.getAvailableStock(product);
 
-        if (this.quantity >= stock) {
-            this.stockWarning = `Only ${stock} items available`;
-
-            setTimeout(() => {
-            this.stockWarning = null;
-            }, 2000);
-
-            return;
-        }
-
-        this.quantity++;
-    }
-
-    decrease() {
-        if (this.quantity > 1) {
-        this.quantity--;
-        }
-    }
-
-    onQuantityInput(product: Product) {
-        let qty = Number(this.quantity);
-
-        const stock = this.getAvailableStock(product);
-
-        // invalid input
-        if (isNaN(qty) || qty < 1) {
-            this.quantity = 1;
-            return;
-        }
-
-        // ❗ IMPORTANT FIX
-        if (qty > stock) {
-            this.quantity = stock;
-
-            this.stockWarning = `Only ${stock} items available`;
-
-            setTimeout(() => {
-            this.stockWarning = null;
-            }, 2000);
-
-            return;
-        }
-
-        this.quantity = qty;
+    onQuantityChange(quantity: number): void {
+        this.quantity = quantity;
     }
 
     /** image helper */
-    getImageUrl(path?: string): string {
-        if (!path) {
-        return 'assets/no-image.png';
-        }
-
-        return resolveImageUrl(path);
-    }
-
-    getMainImageUrl(product: Product): string {
-        return this.selectedImageUrl || this.getProductImageUrl(product);
-    }
-
-    getProductThumbnails(product: Product): string[] {
-        if (product.images?.length) {
-            return [...product.images]
-                .sort((a, b) => {
-                    if (a.isPrimary) return -1;
-                    if (b.isPrimary) return 1;
-
-                    return (a.order ?? 0) - (b.order ?? 0);
-                })
-                .map(image => this.getImageUrl(image.url));
-        }
-
-        return [this.getProductImageUrl(product)];
-    }
-
-    selectProductImage(imageUrl: string) {
-        this.selectedImageUrl = imageUrl;
-    }
+    
 
     hasVariants(product: Product): boolean {
         return !!product.variants?.length;
     }
 
     getDisplayPrice(product: Product): number {
-        return Number(this.selectedVariant?.price ?? product.price ?? 0);
+
+        if (this.selectedVariant) {
+            return Number(this.selectedVariant.price);
+        }
+
+        return this.getProductPriceSummary(product).minPrice;
+
     }
 
     getVariantLabel(variant: ProductVariant): string {
@@ -503,19 +416,12 @@ export class ProductDetailComponent {
         return product.stock ?? 0;
     }
 
-    onSelectVariant(variant: ProductVariant) {
+    onSelectVariant(variant: ProductVariant): void {
         this.selectedVariant = variant;
-        this.selectedImageUrl = variant.image
-            ? getImageUrlCloudinary(variant.image, 600)
-            : this.selectedImageUrl;
+        this.quantity = 1;
 
-        this.quantity = 1; // reset quantity
-
-        if (variant.stock === 0) {
-            this.stockWarning = 'Out of stock';
-        } else {
-            this.stockWarning = null;
-        }
+        this.stockWarning =
+            variant.stock === 0 ? 'Out of stock' : null;
     }
 
     getDisplaySku(product: Product): string {
@@ -529,7 +435,6 @@ export class ProductDetailComponent {
 
     resetProductState() {
         this.selectedVariant = null;
-        this.selectedImageUrl = null;
         this.quantity = 1;
     }
 

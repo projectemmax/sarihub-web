@@ -1,0 +1,445 @@
+import { CommonModule } from '@angular/common';
+import { AfterViewInit, Component, ElementRef, Input, SimpleChanges, ViewChild } from '@angular/core';
+import { getImageUrl as resolveImageUrl, getImageUrlCloudinary, getProductImageUrl } from '@app/core/utils/image.util';
+import { ProductVariant } from '@app/models/product-variant.model';
+import { Product } from '@app/models/product.model';
+import { GalleryImage, GalleryImageType } from '@app/models/storefront/gallery-image.model';
+import { ProductImageLightboxComponent } from '../product-image-lightbox/product-image-lightbox.component';
+
+export const CloudinaryImageSize = {
+    THUMBNAIL: 120,
+    PREVIEW: 800,
+    ZOOM: 1400
+} as const;
+
+@Component({
+  selector: 'app-product-media-gallery',
+  standalone: true,
+  imports: [CommonModule, ProductImageLightboxComponent],
+  templateUrl: './product-media-gallery.component.html',
+  styleUrl: './product-media-gallery.component.css'
+})
+export class ProductMediaGalleryComponent implements AfterViewInit {
+    @Input({ required: true })
+    product!: Product;
+
+    @ViewChild('thumbnailContainer')
+    thumbnailContainer!: ElementRef<HTMLDivElement>;
+
+    @Input()
+    selectedVariant: ProductVariant | null = null;
+
+    displayImageUrl: string | null = null;
+    galleryImages: GalleryImage[] = [];
+    activeGalleryImage?: GalleryImage;
+    isLightboxOpen = false;
+    activeGalleryIndex = 0;
+
+    canScrollLeft = false;
+    canScrollRight = false;
+
+    isImageLoading = false;
+
+    private readonly preloadedImages = new Set<string>();
+
+    getProductImageUrl = getProductImageUrl;
+
+    ngOnChanges(changes: SimpleChanges) {
+        if (changes['product']) {
+            this.buildGalleryImages();
+        }
+
+        if (changes['selectedVariant']) {
+            this.syncGallerySelection();
+        }
+    }
+
+    ngAfterViewInit(): void {
+        this.updateScrollButtons();
+    }
+
+    getImageUrl(path?: string): string {
+        if (!path) {
+        return 'assets/no-image.png';
+        }
+
+        return resolveImageUrl(path);
+    }
+
+    getMainImageUrl(product: Product): string {
+        return this.displayImageUrl || this.getProductImageUrl(product);
+    }
+
+    private buildGalleryImages(): void {
+
+        this.galleryImages = [];
+
+        if (!this.product?.images?.length) {
+            return;
+        }
+
+        const sortedImages = [...this.product.images].sort((a, b) => {
+
+            if (a.isPrimary) return -1;
+            if (b.isPrimary) return 1;
+
+            return (a.order ?? 0) - (b.order ?? 0);
+
+        });
+
+        this.galleryImages = sortedImages.map(image => ({
+            id: image.id ?? image.url,
+            imageSource: image.url,
+            type: GalleryImageType.PRODUCT,
+            isPrimary: image.isPrimary
+        }));
+
+        for (const variant of this.product.variants ?? []) {
+
+            if (!variant.image) {
+                continue;
+            }
+
+            this.galleryImages.push({
+                id: variant.id,
+                imageSource: variant.image,
+                type: GalleryImageType.VARIANT,
+                isPrimary: false,
+
+                variantId: variant.id,
+                variantName: variant.attributes.join(' / ')
+            });
+
+        }
+
+        if (this.galleryImages.length > 0) {
+            const defaultImage = this.getDefaultGalleryImage();
+
+            if (defaultImage) {
+                this.setActiveGalleryImage(defaultImage);
+            }
+        }
+    }
+
+    public getThumbnailImageUrl(image: GalleryImage): string {
+
+        if (image.type === GalleryImageType.PRODUCT) {
+            return this.getImageUrl(image.imageSource);
+        }
+
+        return getImageUrlCloudinary(
+            image.imageSource,
+            CloudinaryImageSize.THUMBNAIL
+        );
+
+    }
+
+    protected getPreviewImageUrl(image: GalleryImage): string {
+
+        if (image.type === GalleryImageType.PRODUCT) {
+            return this.getImageUrl(image.imageSource);
+        }
+
+        return getImageUrlCloudinary(
+            image.imageSource,
+            CloudinaryImageSize.PREVIEW
+        );
+
+    }
+
+    getProductThumbnails(product: Product): string[] {
+        if (product.images?.length) {
+            return [...product.images]
+                .sort((a, b) => {
+                    if (a.isPrimary) return -1;
+                    if (b.isPrimary) return 1;
+
+                    return (a.order ?? 0) - (b.order ?? 0);
+                })
+                .map(image => this.getImageUrl(image.url));
+        }
+
+        return [this.getProductImageUrl(product)];
+    }
+
+    selectProductImage(image: GalleryImage): void {
+        this.setActiveGalleryImage(image);
+        this.scrollToActiveThumbnail();
+    }
+
+    trackByGalleryImage(index: number, image: GalleryImage): string {
+        return image.id;
+    }
+
+    private getThumbnailScrollDistance(): number {
+        if (!this.thumbnailContainer) {
+            return 0;
+        }
+
+        const container = this.thumbnailContainer.nativeElement;
+
+        const thumbnail = container.querySelector<HTMLElement>('.product-thumbnail');
+
+        if (!thumbnail) {
+            return 0;
+        }
+
+        const containerStyle = window.getComputedStyle(container);
+
+        const gap = parseFloat(containerStyle.columnGap) || parseFloat(containerStyle.gap) || 0;
+
+        return thumbnail.offsetWidth + gap;
+    }
+
+    private syncGallerySelection(): void {
+
+        if (this.selectedVariant?.image) {
+
+            const galleryImage =
+                this.findGalleryImageForVariant(this.selectedVariant);
+
+            if (galleryImage) {
+                this.setActiveGalleryImage(galleryImage);
+                this.scrollToActiveThumbnail();
+            }
+
+            return;
+        }
+
+        const defaultImage = this.getDefaultGalleryImage();
+
+        if (defaultImage) {
+            this.setActiveGalleryImage(defaultImage);
+        }
+
+    }
+
+    private findGalleryImageForVariant(
+        variant: ProductVariant
+    ): GalleryImage | undefined {
+
+        return this.galleryImages.find(image =>
+            image.type === GalleryImageType.VARIANT &&
+            image.variantId === variant.id
+        );
+
+    }
+
+    private getDefaultGalleryImage(): GalleryImage | undefined {
+
+        return this.galleryImages.find(image => image.isPrimary)
+            ?? this.galleryImages[0];
+
+    }
+
+    private scrollToActiveThumbnail(): void {
+
+        queueMicrotask(() => {
+            if (!this.thumbnailContainer || !this.activeGalleryImage) {
+                return;
+            }
+
+            const container = this.thumbnailContainer.nativeElement;
+
+            const activeThumbnail = container.querySelector<HTMLElement>(
+                `[data-gallery-id="${this.activeGalleryImage.id}"]`
+            );
+
+            if (!activeThumbnail) {
+                return;
+            }
+
+            activeThumbnail.scrollIntoView({
+                behavior: 'smooth',
+                inline: 'center',
+                block: 'nearest'
+            });
+
+            this.updateScrollButtons();
+        });
+
+    }
+
+    private getZoomImageUrl(image: GalleryImage): string {
+
+        if (image.type === GalleryImageType.PRODUCT) {
+            return this.getImageUrl(image.imageSource);
+        }
+
+        return getImageUrlCloudinary(
+            image.imageSource,
+            CloudinaryImageSize.ZOOM
+        );
+
+    }
+
+    onPreviewClick(): void {
+
+        if (!this.activeGalleryImage) {
+            return;
+        }
+
+        this.isLightboxOpen = true;
+    }
+
+    onLightboxClosed(): void {
+        this.isLightboxOpen = false;
+    }
+
+    onLightboxIndexChange(index: number): void {
+        const image = this.galleryImages[index];
+
+        if (!image) {
+            return;
+        }
+
+        this.setActiveGalleryImage(image);
+        this.scrollToActiveThumbnail();
+    }
+
+    private setActiveGalleryImage(image: GalleryImage): void {
+
+        this.activeGalleryImage = image;
+
+        this.activeGalleryIndex = this.galleryImages.findIndex(
+            g => g.id === image.id
+        );
+
+        this.displayImageUrl = this.getPreviewImageUrl(image);
+
+        if (this.activeGalleryIndex >= 0) {
+            this.preloadAdjacentImages();
+        }
+
+    }
+
+    // Media Gallery Scroll Controls
+    scrollLeft(): void {
+        const distance = this.getThumbnailScrollDistance();
+
+        this.thumbnailContainer.nativeElement.scrollBy({
+            left: -distance,
+            behavior: 'smooth'
+        });
+    }
+
+    scrollRight(): void {
+        const container = this.thumbnailContainer.nativeElement;
+        const distance = this.getThumbnailScrollDistance();
+
+        container.scrollBy({
+            left: distance,
+            behavior: 'smooth'
+        });
+    }
+
+    public updateScrollButtons(): void {
+        if (!this.thumbnailContainer) {
+            return;
+        }
+
+        const container = this.thumbnailContainer.nativeElement;
+
+        this.canScrollLeft = container.scrollLeft > 0;
+
+        this.canScrollRight =
+            container.scrollLeft + container.clientWidth < container.scrollWidth - 1;
+    }
+
+    onThumbnailScroll(): void {
+        this.updateScrollButtons();
+    }
+
+    onThumbnailKeydown(
+        event: KeyboardEvent,
+        currentIndex: number
+    ): void {
+        switch (event.key) {
+            case 'ArrowLeft':
+                event.preventDefault();
+                this.focusThumbnail(Math.max(0, currentIndex - 1));
+                break;
+
+            case 'ArrowRight':
+                event.preventDefault();
+                this.focusThumbnail(
+                    Math.min(this.galleryImages.length - 1, currentIndex + 1)
+                );
+                break;
+
+            case 'Home':
+                event.preventDefault();
+                this.focusThumbnail(0);
+                break;
+
+            case 'End':
+                event.preventDefault();
+                this.focusThumbnail(this.galleryImages.length - 1);
+                break;
+        }
+    }
+
+    private focusThumbnail(index: number): void {
+        const image = this.galleryImages[index];
+
+        if (!image || !this.thumbnailContainer) {
+            return;
+        }
+
+        const button = this.thumbnailContainer.nativeElement.querySelector<HTMLElement>(
+            `[data-gallery-id="${image.id}"]`
+        );
+
+        if (!button) {
+            return;
+        }
+
+        button.focus();
+
+        button.scrollIntoView({
+            behavior: 'smooth',
+            inline: 'center',
+            block: 'nearest'
+        });
+    }
+
+    private preloadImage(image: GalleryImage): void {
+        const imageUrl = this.getPreviewImageUrl(image);
+
+        if (!imageUrl || this.preloadedImages.has(imageUrl)) {
+            return;
+        }
+
+        const preloadImage = new Image();
+        preloadImage.src = imageUrl;
+
+        this.preloadedImages.add(imageUrl);
+    }
+
+    private preloadAdjacentImages(): void {
+        if (this.galleryImages.length <= 1) {
+            return;
+        }
+
+        const previousImage = this.galleryImages[this.activeGalleryIndex - 1];
+        const nextImage = this.galleryImages[this.activeGalleryIndex + 1];
+
+        if (previousImage) {
+            this.preloadImage(previousImage);
+        }
+
+        if (nextImage) {
+            this.preloadImage(nextImage);
+        }
+    }
+
+    getThumbnailAriaLabel(image: GalleryImage): string {
+        if (image.type === GalleryImageType.VARIANT) {
+            return `View ${this.product.name} - ${image.variantName}`;
+        }
+
+        return `View ${this.product.name} image`;
+    }
+    
+
+}

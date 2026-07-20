@@ -1,0 +1,69 @@
+@if (isOpen) {
+
+<div
+    #lightboxBackdrop
+    class="lightbox-backdrop"
+    (click)="onBackdropClick()">
+
+    <div
+        class="lightbox-content"
+        [class.immersive]="isImmersiveMode"
+        (click)="onContentClick($event)">
+
+        <button
+            class="close-button"
+            type="button"
+            (click)="close()">
+
+            ✕
+
+        </button>
+        <button
+            class="nav-button prev"
+            type="button"
+            [disabled]="activeIndex === 0"
+            (click)="previous()">
+
+            <i class="fas fa-chevron-left"></i>
+        </button>
+
+        @if (currentImage) {
+
+            <img
+                #lightboxImage
+                class="lightbox-image"
+                [class.dragging]="isDragging"
+                [src]="getImageUrl(currentImage)"
+                [style.transform]="imageTransform"
+                (pointerdown)="onPointerDown($event)"
+                (pointermove)="onPointerMove($event)"
+                (pointerup)="onPointerUp($event)"
+                (pointercancel)="onPointerCancel($event)"
+
+                (dblclick)="toggleZoom()"
+                (wheel)="onWheel($event)"
+                alt="Product image">
+
+        }
+        @if (images.length > 1) {
+
+            <div class="image-counter">
+                {{ activeIndex + 1 }} / {{ images.length }}
+            </div>
+
+        }
+
+        <button
+            class="nav-button next"
+            type="button"
+            [disabled]="activeIndex >= images.length - 1"
+            (click)="next()">
+
+            <i class="fas fa-chevron-right"></i>
+        </button>
+
+    </div>
+
+</div>
+
+}

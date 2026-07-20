@@ -14,6 +14,8 @@ import { CategoriesComponent } from '@app/pages/admin/categories/categories.comp
 import { CustomerComponent } from '@app/pages/admin/customer/customer.component';
 import { CartComponent } from '@app/pages/admin/cart/cart.component';
 import { SiteConfigComponent } from '@app/pages/admin/site-config/site-config.component'
+import { ReviewsComponent } from '@app/pages/admin/reviews/reviews.component';
+import { OrderComponent } from '@app/pages/admin/order/order.component';
 
 // =========================
 // STOREFRONT
@@ -24,7 +26,7 @@ import { StorefrontLayoutComponent } from '@app/pages/storefront/layout/layout.c
 // GUARDS
 // =========================
 import { AuthGuard } from '@app/core/guards/auth.guard';
-import { roleGuard } from '@app/core/guards/role.guard';
+import { roleGuard, roleGuardAny } from '@app/core/guards/role.guard';
 import { unsavedChangesGuard } from './guards/unsaved-changes.guard';
 
 export const routes: Routes = [
@@ -69,7 +71,13 @@ export const routes: Routes = [
 
             {
                 path: 'dashboard',
-                canActivate: [AuthGuard, roleGuard('ADMIN')],
+                canActivate: [
+                    AuthGuard,
+                    roleGuardAny([
+                        'ADMIN',
+                        'SELLER'
+                    ])
+                ],
                 loadComponent: () =>
                     import('@app/pages/admin/dashboard/dashboard.component')
                     .then(m => m.DashboardComponent)
@@ -77,7 +85,13 @@ export const routes: Routes = [
 
             {
                 path: 'products',
-                canActivate: [AuthGuard, roleGuard('ADMIN')],
+                canActivate: [
+                    AuthGuard,
+                    roleGuardAny([
+                        'ADMIN',
+                        'SELLER'
+                    ])
+                ],
                 loadComponent: () =>
                     import('@app/pages/admin/products/products.component')
                     .then(m => m.ProductsComponent)
@@ -85,7 +99,13 @@ export const routes: Routes = [
 
             {
                 path: 'products/create',
-                canActivate: [AuthGuard, roleGuard('ADMIN')],
+                canActivate: [
+                    AuthGuard,
+                    roleGuardAny([
+                        'ADMIN',
+                        'SELLER'
+                    ])
+                ],
                 canDeactivate: [unsavedChangesGuard],
                 loadComponent: () =>
                     import('@app/pages/admin/products/product-form/product-form.component')
@@ -94,7 +114,13 @@ export const routes: Routes = [
 
             {
                 path: 'products/edit/:id',
-                canActivate: [AuthGuard, roleGuard('ADMIN')],
+                canActivate: [
+                    AuthGuard,
+                    roleGuardAny([
+                        'ADMIN',
+                        'SELLER'
+                    ])
+                ],
                 canDeactivate: [unsavedChangesGuard],
                 loadComponent: () =>
                     import('@app/pages/admin/products/product-form/product-form.component')
@@ -110,6 +136,13 @@ export const routes: Routes = [
             },
 
             {
+                path: 'brands',
+                loadComponent: () =>
+                    import('./pages/admin/brands/brand-list/brand-list.component')
+                        .then(m => m.BrandListComponent)
+            },
+
+            {
                 path: 'customers',
                 canActivate: [AuthGuard, roleGuard('ADMIN')],
                 loadComponent: () =>
@@ -119,7 +152,13 @@ export const routes: Routes = [
 
             {
                 path: 'orders',
-                canActivate: [AuthGuard, roleGuard('ADMIN')],
+                canActivate: [
+                    AuthGuard,
+                    roleGuardAny([
+                        'ADMIN',
+                        'SELLER'
+                    ])
+                ],
                 loadComponent: () =>
                     import('@app/pages/admin/order/order.component')
                         .then(m => m.OrderComponent)
@@ -127,7 +166,12 @@ export const routes: Routes = [
 
             {
                 path: 'carts',
-                canActivate: [AuthGuard, roleGuard('ADMIN')],
+                canActivate: [
+                    AuthGuard,
+                    roleGuardAny([
+                        'ADMIN'
+                    ])
+                ],
                 loadComponent: () =>
                     import('@app/pages/admin/cart/cart.component')
                     .then(m => m.CartComponent)
@@ -135,7 +179,13 @@ export const routes: Routes = [
 
             {
                 path: 'reviews',
-                canActivate: [AuthGuard, roleGuard('ADMIN')],
+                canActivate: [
+                    AuthGuard,
+                    roleGuardAny([
+                        'ADMIN',
+                        'SELLER'
+                    ])
+                ],
                 loadComponent: () =>
                     import('@app/pages/admin/reviews/reviews.component')
                     .then(m => m.ReviewsComponent)

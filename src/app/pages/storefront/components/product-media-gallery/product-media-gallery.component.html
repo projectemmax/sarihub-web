@@ -1,0 +1,63 @@
+<div class="product-image-container">
+
+    <div class="product-preview" (click)="onPreviewClick()">
+
+        <img
+            class="product-preview-image"
+            [src]="getMainImageUrl(product)"
+            [alt]="product.name">
+
+        <div class="zoom-overlay">
+            <i class="fas fa-search-plus"></i>
+        </div>
+
+    </div>
+
+</div>
+<div class="thumbnail-carousel">
+    <button
+        class="carousel-btn"
+        (click)="scrollLeft()"
+        [disabled]="!canScrollLeft">
+
+        <i class="fas fa-chevron-left"></i>
+
+    </button>
+    <div
+        #thumbnailContainer
+        class="product-thumbnails"
+        (scroll)="onThumbnailScroll()">
+        <button
+            *ngFor="let image of galleryImages; let index = index; trackBy: trackByGalleryImage"
+            type="button"
+            class="product-thumbnail"
+            [attr.data-gallery-id]="image.id"
+            [class.active]="activeGalleryImage?.id === image.id"
+            [attr.aria-label]="getThumbnailAriaLabel(image)"
+            [attr.aria-current]="activeGalleryImage?.id === image.id ? 'true' : null"
+            (click)="selectProductImage(image)"
+            (keydown)="onThumbnailKeydown($event, index)">
+
+            <img
+                [src]="getThumbnailImageUrl(image)"
+                [alt]="product.name + ' thumbnail'">
+                
+        </button>
+    </div>
+    <button
+        class="carousel-btn"
+        (click)="scrollRight()"
+        [disabled]="!canScrollRight">
+
+        <i class="fas fa-chevron-right"></i>
+
+    </button>
+</div>
+
+<app-product-image-lightbox
+    [images]="galleryImages"
+    [activeIndex]="activeGalleryIndex"
+    [isOpen]="isLightboxOpen"
+    (closed)="onLightboxClosed()"
+    (activeIndexChange)="onLightboxIndexChange($event)">
+</app-product-image-lightbox>
