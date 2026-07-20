@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The project follows Semantic Versioning (SemVer).
 
-## [Unreleased]
+## [0.7.0] - 2026-07-11
 
 ### Added
 
@@ -172,6 +172,12 @@ The project follows Semantic Versioning (SemVer).
 ### Notes
 - This release establishes the foundation for future lightbox enhancements, including gallery navigation, keyboard shortcuts, image zoom, and mobile pinch-to-zoom support.
 - This release establishes the foundation for advanced Product Image Lightbox interactions, including keyboard navigation, interactive zoom, desktop and mobile pan support, pinch-to-zoom gestures, and shared viewport-aware pan boundary calculations. Future milestones will focus on double-tap zoom, pinch focal-point zooming, smoother gesture transitions, and optional momentum scrolling.
+
+### Documentation
+- Added ADR-0002 for Repository Governance and Merge Strategy.
+- Documented GitHub branch protection rules.
+- Documented standardized Squash Merge workflow.
+- Documented repository governance alignment across frontend and backend repositories.
 
 ---
 
