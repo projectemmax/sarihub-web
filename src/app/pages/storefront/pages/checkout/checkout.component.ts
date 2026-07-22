@@ -215,8 +215,6 @@ export class CheckoutComponent implements OnInit {
 
         this.hasInvalidItems = this.cartItems.some(item => !!item.error);
 
-        console.log('cartItems after validation', this.cartItems);
-        console.log('hasInvalidItems', this.hasInvalidItems);
     }
 
     // =========================
@@ -438,13 +436,6 @@ export class CheckoutComponent implements OnInit {
             messageForSeller: this.messageForSeller
         };
 
-        console.log('========================');
-        console.log('Production Build:', environment.production);
-        console.log('API_BASE_URL:', Constant.API_BASE_URL);
-        console.log('Checkout API:', `${Constant.API_BASE_URL}/${Constant.ORDERS.CHECKOUT}`);
-        console.log('Payment API:', `${Constant.API_BASE_URL}/${Constant.PAYMENT.CREATE}`);
-        console.log('========================');
-
         this.orderService.checkout(payload)
             .pipe(
             switchMap((order: any) => {
@@ -475,16 +466,10 @@ export class CheckoutComponent implements OnInit {
                 }
 
                 if (payment?.redirectUrl) {
-                    console.log('Payment Response:', payment);
-
-                    // Pause here so we can inspect the Network response
-                    debugger;
-
-                    // window.location.href = payment.redirectUrl;
+                    window.location.href = payment.redirectUrl;
                     return;
                 }
 
-                console.error('No redirectUrl returned', payment);
                 alert('Payment initialized but redirect URL is missing.');
             },
             error: (err) => {
