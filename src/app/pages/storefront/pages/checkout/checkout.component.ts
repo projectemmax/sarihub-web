@@ -34,7 +34,6 @@ import { AddressModalComponent } from '../../components/address-modal/address-mo
 import { PsgcService } from '@app/services/location/psgc.service';
 import { getImageUrlCloudinary } from '@app/core/utils/image.util'
 import { PaymentService } from '@app/services/storefront/storefront-payment.service';
-import { environment } from 'src/environments/environment';
 
 // ✅ Extend model (UI state only)
 type CheckoutCartItem = StorefrontCartItem & {
@@ -438,13 +437,6 @@ export class CheckoutComponent implements OnInit {
             messageForSeller: this.messageForSeller
         };
 
-        console.log('========================');
-        console.log('Production Build:', environment.production);
-        console.log('API_BASE_URL:', Constant.API_BASE_URL);
-        console.log('Checkout API:', `${Constant.API_BASE_URL}/${Constant.ORDERS.CHECKOUT}`);
-        console.log('Payment API:', `${Constant.API_BASE_URL}/${Constant.PAYMENT.CREATE}`);
-        console.log('========================');
-
         this.orderService.checkout(payload)
             .pipe(
             switchMap((order: any) => {
@@ -475,12 +467,7 @@ export class CheckoutComponent implements OnInit {
                 }
 
                 if (payment?.redirectUrl) {
-                    console.log('Payment Response:', payment);
-
-                    // Pause here so we can inspect the Network response
-                    debugger;
-
-                    // window.location.href = payment.redirectUrl;
+                    window.location.href = payment.redirectUrl;
                     return;
                 }
 
