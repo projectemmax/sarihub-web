@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, HostListener, inject } from '@angular/core';
+import { Component, HostListener, inject, OnInit } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '@app/core/auth/auth.service';
+import { SiteConfigService } from '@app/core/services/site-config.service';
 import { StorefrontCartService } from '@app/services/storefront/storefront-cart.service';
 
 @Component({
@@ -11,16 +12,25 @@ import { StorefrontCartService } from '@app/services/storefront/storefront-cart.
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.css',
 })
-export class NavbarComponent {
+export class NavbarComponent implements OnInit {
     isScrolled = false;
     isDesktop = window.innerWidth >= 992;
     mobileOpen = false;
+    config: any = {};
 
     auth = inject(AuthService);
     private router = inject(Router);
     private cartService = inject(StorefrontCartService);
+    private siteConfigService = inject(SiteConfigService)
 
     readonly cartCount$ = this.cartService.cartCount$;
+
+    ngOnInit(): void {
+        this.siteConfigService.get().subscribe(config => {
+            console.log('CONFIG:', config);
+            this.config = config || {}; // ✅ IMPORTANT
+        });
+    }
 
     @HostListener('window:resize')
     onResize() {

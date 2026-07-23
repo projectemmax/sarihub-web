@@ -19,7 +19,7 @@ export class SiteConfigService {
         ).pipe(
             tap((res: any) => {
                 const config = res.data ?? res;
-                
+                console.log("CONFIG", config)
                 this.config$.next(config);
                 this.loaded = true;
             })
